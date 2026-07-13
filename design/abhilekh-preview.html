@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>अभिलेख — श्रुतधारा डिज़ाइन दिशा २</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Khand:wght@500;600;700&family=Mukta:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ================= tokens — dark ("गर्भगृह") is the primary scene ================= */
+:root{
+  --stone-0:#0e0d0b; --stone-1:#161411; --stone-2:#1d1a16; --stone-3:#26221c;
+  --edge:rgba(255,244,214,.09); --hairline:rgba(255,244,214,.13);
+  --etch:#cfc6b2; --etch-dim:#948b76;
+  --gold-1:#f0d288; --gold-2:#c99a34; --gold-3:#8a6420;
+  --gold:#d9ae56;
+  --kumkum:#d4552f;
+  --patina:#63b19b;
+  --carve-hi:rgba(255,255,255,.06); --carve-lo:rgba(0,0,0,.85);
+  --sheet:#f4ecd9; --sheet-ink:#26221b; --sheet-red:#a03414; --sheet-rule:#c9b98d;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --stone-0:#e9e1d0; --stone-1:#e2d9c5; --stone-2:#d9cfb8; --stone-3:#cfc3a8;
+    --edge:rgba(38,30,14,.16); --hairline:rgba(38,30,14,.2);
+    --etch:#2b2517; --etch-dim:#6d6350;
+    --gold-1:#a97c1e; --gold-2:#8a6420; --gold-3:#6b4d15; --gold:#8f6a1c;
+    --kumkum:#b03d1e; --patina:#1e6f5c;
+    --carve-hi:rgba(0,0,0,.28); --carve-lo:rgba(255,255,255,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --stone-0:#0e0d0b; --stone-1:#161411; --stone-2:#1d1a16; --stone-3:#26221c;
+  --edge:rgba(255,244,214,.09); --hairline:rgba(255,244,214,.13);
+  --etch:#cfc6b2; --etch-dim:#948b76;
+  --gold-1:#f0d288; --gold-2:#c99a34; --gold-3:#8a6420; --gold:#d9ae56;
+  --kumkum:#d4552f; --patina:#63b19b;
+  --carve-hi:rgba(255,255,255,.06); --carve-lo:rgba(0,0,0,.85);
+}
+:root[data-theme="light"]{
+  --stone-0:#e9e1d0; --stone-1:#e2d9c5; --stone-2:#d9cfb8; --stone-3:#cfc3a8;
+  --edge:rgba(38,30,14,.16); --hairline:rgba(38,30,14,.2);
+  --etch:#2b2517; --etch-dim:#6d6350;
+  --gold-1:#a97c1e; --gold-2:#8a6420; --gold-3:#6b4d15; --gold:#8f6a1c;
+  --kumkum:#b03d1e; --patina:#1e6f5c;
+  --carve-hi:rgba(0,0,0,.28); --carve-lo:rgba(255,255,255,.55);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 500px at 70% -10%, rgba(217,174,86,.05), transparent 60%),
+    var(--stone-0);
+  color:var(--etch);
+  font-family:'Mukta','Kohinoor Devanagari','Nirmala UI',system-ui,sans-serif;
+  font-size:17px; line-height:1.75;
+}
+a{color:var(--patina); text-underline-offset:3px}
+a:focus-visible,button:focus-visible{outline:2px solid var(--patina); outline-offset:3px}
+::selection{background:var(--gold-2); color:var(--stone-0)}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+.khand{font-family:'Khand','Kohinoor Devanagari','Nirmala UI',sans-serif}
+.lat{letter-spacing:.22em; text-transform:uppercase; font-size:.66rem; color:var(--etch-dim); font-weight:500}
+.num{font-variant-numeric:tabular-nums}
+.carve{ text-shadow:0 -1px 1px var(--carve-lo), 0 1px 0 var(--carve-hi) }
+.inlay{
+  background:linear-gradient(103deg, var(--gold-1) 8%, var(--gold-2) 42%, var(--gold-3) 58%, var(--gold-1) 92%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.kum{width:9px; height:9px; background:var(--kumkum); transform:rotate(45deg); display:inline-block}
+
+/* theme toggle */
+.theme-btn{
+  position:fixed; top:16px; right:16px; z-index:9;
+  background:var(--stone-2); color:var(--etch); border:1px solid var(--hairline);
+  font-family:inherit; font-size:.8rem; padding:6px 16px; cursor:pointer; letter-spacing:.1em;
+}
+
+/* ================= hero ================= */
+.hero{padding:92px 0 40px; border-bottom:1px solid var(--hairline); position:relative; overflow:hidden}
+.hero .seam{
+  position:absolute; top:0; bottom:0; left:50%; width:2px;
+  background:linear-gradient(180deg, transparent, var(--gold-2) 30%, var(--gold-1) 50%, var(--gold-2) 70%, transparent);
+  opacity:.5; transform:scaleY(0); transform-origin:top; animation:seam 1.4s .2s ease forwards;
+}
+@keyframes seam{to{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){ .hero .seam{animation:none; transform:none} }
+.hero .wrap{position:relative; text-align:center}
+.hero .eyebrow{display:flex; align-items:center; gap:16px; margin-bottom:48px}
+.hero .eyebrow .ln{flex:1; height:1px; background:var(--hairline)}
+.wordmark{
+  margin:0; font-weight:700; line-height:1.08;
+  font-size:clamp(4.4rem, 15vw, 10.5rem); letter-spacing:.01em;
+}
+.hero .below{margin:6px 0 0; font-size:clamp(1rem, 2.4vw, 1.3rem); color:var(--etch); font-weight:300}
+.hero .below b{color:var(--kumkum); font-weight:500}
+.epigraph{margin:26px auto 0; max-width:42em; font-size:.9rem; color:var(--etch-dim)}
+.plaques{display:flex; justify-content:center; gap:20px; flex-wrap:wrap; margin:52px 0 26px}
+.plaque{
+  background:linear-gradient(180deg, var(--stone-2), var(--stone-1));
+  box-shadow:inset 0 0 0 1px var(--edge), 0 18px 30px -18px rgba(0,0,0,.6);
+  clip-path:polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  padding:22px 40px 18px; min-width:200px;
+}
+.plaque .n{font-size:3.2rem; line-height:1.1; font-weight:700}
+.plaque .t{color:var(--etch); font-weight:500; margin-top:2px}
+.plaque .l{margin-top:6px}
+
+/* ================= sections ================= */
+section{padding:74px 0 80px; border-bottom:1px solid var(--hairline); position:relative}
+.js section{opacity:0; transform:translateY(18px)}
+.js section.in{opacity:1; transform:none; transition:opacity .7s ease, transform .7s ease}
+@media (prefers-reduced-motion:reduce){ .js section{opacity:1; transform:none; transition:none} }
+.shead{display:flex; align-items:baseline; gap:20px; margin-bottom:14px}
+.shead .no{
+  font-family:'Khand',sans-serif; font-weight:700; font-size:2.4rem; line-height:1;
+  color:transparent; -webkit-text-stroke:1px var(--etch-dim);
+}
+.shead h2{font-family:'Khand',sans-serif; font-weight:600; font-size:clamp(1.7rem,3.5vw,2.5rem); margin:0; letter-spacing:.01em; text-wrap:balance}
+.shead h2 .r{color:var(--kumkum)}
+.shead .ln{flex:1; height:1px; background:var(--hairline); align-self:center}
+.lede{max-width:46em; font-weight:300; font-size:1.08rem; margin:0 0 34px}
+.lede b{font-weight:500; color:var(--etch)}
+.lede .g{color:var(--gold)}
+.note{font-size:.85rem; color:var(--etch-dim); max-width:46em}
+.note b{color:var(--etch); font-weight:500}
+
+/* concept pillars */
+.three{display:grid; grid-template-columns:repeat(3,1fr); gap:16px}
+@media (max-width:780px){ .three{grid-template-columns:1fr} }
+.pillar{
+  background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge);
+  padding:24px 24px 20px;
+}
+.pillar h3{font-family:'Khand',sans-serif; font-weight:600; font-size:1.3rem; margin:10px 0 8px; color:var(--etch)}
+.pillar h3 span{color:var(--gold)}
+.pillar p{margin:0; font-size:.93rem; color:var(--etch-dim)}
+.pillar p b{color:var(--etch); font-weight:500}
+
+/* tokens */
+.pans{display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-bottom:36px}
+@media (max-width:780px){ .pans{grid-template-columns:repeat(4,1fr)} }
+.pan{background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge); padding:7px}
+.pan .c{height:58px}
+.pan .nm{font-size:.78rem; font-weight:500; margin-top:7px; line-height:1.35}
+.pan .hx{font-size:.66rem; color:var(--etch-dim); letter-spacing:.08em}
+.spec{display:grid; grid-template-columns:1.1fr .9fr; gap:16px}
+@media (max-width:780px){ .spec{grid-template-columns:1fr} }
+.spec .cell{background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge); padding:26px 28px}
+.spec .d1{font-family:'Khand',sans-serif; font-weight:700; font-size:3rem; line-height:1.15; margin:8px 0 6px}
+.spec .d2{font-size:1rem; font-weight:300; margin:8px 0 6px}
+.spec .d2 b{font-weight:500}
+.spec .why{font-size:.78rem; color:var(--etch-dim)}
+
+/* ================= stele slabs ================= */
+.slabs{display:grid; grid-template-columns:repeat(3,1fr); gap:20px}
+@media (max-width:860px){ .slabs{grid-template-columns:1fr} }
+.slab{
+  position:relative; min-height:300px; display:flex; flex-direction:column;
+  background:linear-gradient(175deg, var(--stone-3) 0%, var(--stone-1) 70%);
+  box-shadow:inset 0 0 0 1px var(--edge), 0 24px 40px -24px rgba(0,0,0,.7);
+  clip-path:polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px);
+  padding:26px 26px 22px; transition:transform .25s ease;
+}
+.slab:hover{transform:translateY(-4px)}
+.slab .serial{font-family:'Khand',sans-serif; font-weight:700; font-size:1.05rem; letter-spacing:.1em}
+.slab .gname{
+  font-family:'Khand',sans-serif; font-weight:700; letter-spacing:.01em;
+  font-size:clamp(2.1rem, 4vw, 2.7rem); line-height:1.2; margin:14px 0 4px;
+}
+.slab .translit{font-size:.72rem; letter-spacing:.2em; text-transform:uppercase; color:var(--etch-dim)}
+.slab .foot{margin-top:auto; padding-top:20px; display:flex; align-items:baseline; gap:10px; border-top:1px solid var(--hairline)}
+.slab .foot .a{color:var(--kumkum); font-weight:500}
+.slab .foot .e{margin-left:auto; color:var(--etch-dim); font-size:.85rem}
+.slab .vein{position:absolute; top:0; bottom:0; left:0; width:3px;
+  background:linear-gradient(180deg, transparent, var(--gold-2), transparent); opacity:0; transition:opacity .25s ease}
+.slab:hover .vein{opacity:1}
+
+/* ================= strata timeline ================= */
+.strata{position:relative; background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge)}
+.strata .vein{position:absolute; top:0; bottom:0; left:118px; width:2px;
+  background:linear-gradient(180deg, var(--gold-3), var(--gold-1), var(--gold-3)); opacity:.55}
+@media (max-width:720px){ .strata .vein{left:14px} }
+.stratum{display:grid; grid-template-columns:118px 1fr; border-bottom:1px solid var(--hairline)}
+.stratum:last-child{border-bottom:none}
+.stratum .age{
+  padding:26px 18px; display:flex; flex-direction:column; gap:6px; align-items:flex-start;
+  border-right:1px solid var(--hairline);
+}
+.stratum .age .cnum{font-family:'Khand',sans-serif; font-weight:700; font-size:2.6rem; line-height:1}
+.stratum .age .clab{font-size:.72rem; color:var(--etch-dim); letter-spacing:.14em}
+.rows{display:flex; flex-direction:column}
+.row{
+  display:grid; grid-template-columns:110px 1.2fr 1fr 1.2fr; gap:14px; align-items:baseline;
+  padding:13px 22px; border-bottom:1px dashed var(--hairline); font-size:.95rem;
+}
+.row:last-child{border-bottom:none}
+.row .yr{color:var(--gold); font-weight:500; font-size:.88rem}
+.row .who{font-weight:500; color:var(--etch)}
+.row .who small{display:block; font-weight:300; color:var(--etch-dim); font-size:.78rem}
+.row .guru{font-size:.85rem; color:var(--etch-dim)}
+.row .guru a{color:var(--patina)}
+.row .wk{font-size:.85rem; color:var(--etch-dim)}
+.row.granth{background:linear-gradient(90deg, rgba(217,174,86,.10), transparent 65%); border-left:3px solid var(--gold-2)}
+.row.granth .who{font-family:'Khand',sans-serif; font-weight:700; font-size:1.35rem}
+.row.granth .tag{font-size:.62rem; letter-spacing:.2em; color:var(--stone-0); background:var(--gold-2); padding:1px 9px; vertical-align:3px}
+@media (max-width:720px){
+  .stratum{grid-template-columns:1fr}
+  .stratum .age{flex-direction:row; align-items:baseline; border-right:none; border-bottom:1px solid var(--hairline); padding:14px 18px 10px 30px}
+  .row{grid-template-columns:1fr; gap:2px; padding:12px 18px 12px 30px}
+}
+.scrub{display:flex; gap:8px; align-items:center; margin-top:16px; flex-wrap:wrap}
+.scrub .lat{margin-right:6px}
+.scrub button{
+  font-family:'Khand',sans-serif; font-size:.92rem; background:transparent; border:1px solid var(--hairline);
+  color:var(--etch-dim); padding:2px 12px; cursor:pointer;
+}
+.scrub button.on{border-color:var(--gold-2); color:var(--gold); font-weight:600}
+
+/* ================= granth page + pdf ================= */
+.duo{display:grid; grid-template-columns:1.25fr 1fr; gap:28px; align-items:start}
+@media (max-width:880px){ .duo{grid-template-columns:1fr} }
+.frame{background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge)}
+.frame .bar{display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--hairline); padding:10px 16px; font-size:.72rem; color:var(--etch-dim)}
+.frame .bar .dots{display:flex; gap:5px}
+.frame .bar .dots i{width:8px; height:8px; border-radius:50%; background:var(--stone-3); box-shadow:inset 0 0 0 1px var(--edge)}
+.frame .bar .url{background:var(--stone-0); box-shadow:inset 0 0 0 1px var(--edge); padding:3px 14px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.gpage{padding:38px 34px 30px; text-align:center; position:relative; overflow:hidden}
+.gpage .gvein{position:absolute; top:0; bottom:0; left:50%; width:2px;
+  background:linear-gradient(180deg, transparent, var(--gold-2) 35%, transparent 80%); opacity:.35}
+.gpage .mang{letter-spacing:.4em; color:var(--kumkum); font-size:.85rem}
+.gpage h3{font-family:'Khand',sans-serif; font-weight:700; font-size:4rem; line-height:1.15; margin:10px 0 2px}
+.gpage .meta{color:var(--etch); font-weight:500}
+.gpage .meta span{color:var(--etch-dim); font-weight:300}
+.gpage .parampara{display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin:26px 0 0; font-size:.9rem}
+.gpage .parampara .arrow{color:var(--gold)}
+.gpage .parampara .me{background:var(--kumkum); color:#fff; padding:2px 14px; font-weight:500}
+.gpage .parampara .kin{box-shadow:inset 0 0 0 1px var(--hairline); padding:2px 14px; color:var(--etch-dim)}
+.gpage .chips-l{margin-top:26px}
+.gpage .chips{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px}
+.gpage .chip{box-shadow:inset 0 0 0 1px var(--edge); background:var(--stone-2); font-size:.8rem; padding:3px 14px; color:var(--etch)}
+.btns{display:flex; gap:12px; justify-content:center; margin-top:30px; flex-wrap:wrap}
+.btn{font-family:inherit; font-size:.92rem; cursor:pointer; padding:10px 24px 8px; border:none}
+.btn.kum{background:var(--kumkum); color:#fff; font-weight:500}
+.btn.ghost{background:transparent; color:var(--patina); box-shadow:inset 0 0 0 1px var(--patina)}
+.gpage .src{margin-top:20px; font-size:.75rem; color:var(--etch-dim)}
+.gpage .src a{color:var(--patina)}
+
+.sheetzone{display:flex; flex-direction:column; align-items:center; gap:14px}
+.pdftag{background:var(--kumkum); color:#fff; font-size:.68rem; letter-spacing:.24em; padding:4px 16px}
+.sheet{
+  width:min(320px,100%); aspect-ratio:1/1.414; background:var(--sheet); color:var(--sheet-ink);
+  border:1px solid var(--sheet-rule); outline:1px solid var(--sheet-rule); outline-offset:-8px;
+  padding:28px 26px; display:flex; flex-direction:column; align-items:center; text-align:center;
+  box-shadow:0 22px 44px -18px rgba(0,0,0,.55);
+}
+.sheet .m{color:var(--sheet-red); letter-spacing:.3em; font-size:.68rem}
+.sheet .n{font-family:'Khand',sans-serif; font-weight:700; font-size:2.1rem; margin:6px 0 0; line-height:1.2}
+.sheet .b{color:var(--sheet-red); font-weight:500; font-size:.8rem}
+.sheet .ln{width:64%; height:1px; background:var(--sheet-rule); margin:14px 0}
+.sheet .body{font-size:.62rem; line-height:1.95; color:#4c4331; text-align:justify}
+.sheet .f{margin-top:auto; font-size:.55rem; color:#8b7c5a; border-top:1px solid var(--sheet-rule); padding-top:8px; width:100%}
+.rule-note{font-size:.8rem; color:var(--etch-dim); text-align:center; max-width:30em}
+.rule-note b{color:var(--gold); font-weight:500}
+
+.pipe{display:flex; align-items:stretch; gap:10px; flex-wrap:wrap; margin-top:34px}
+.pipe .step{background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge); padding:10px 18px 8px; font-size:.85rem}
+.pipe .step b{display:block; font-size:.64rem; letter-spacing:.18em; text-transform:uppercase; color:var(--kumkum); font-weight:600}
+.pipe .arr{align-self:center; color:var(--gold); font-size:1.15rem}
+
+/* ================= extras ================= */
+.extras{display:grid; grid-template-columns:1.2fr 1fr; gap:28px}
+@media (max-width:880px){ .extras{grid-template-columns:1fr} }
+.panel{background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge); padding:24px 26px}
+.panel h3{font-family:'Khand',sans-serif; font-weight:600; font-size:1.35rem; margin:0; color:var(--etch)}
+.panel .lat{display:block; margin:2px 0 18px}
+.searchbox{display:flex; align-items:center; gap:12px; background:var(--stone-0); box-shadow:inset 0 0 0 1px var(--gold-3); padding:12px 18px}
+.searchbox .slash{box-shadow:inset 0 0 0 1px var(--hairline); color:var(--etch-dim); font-size:.75rem; padding:0 9px; line-height:1.7}
+.searchbox .q{color:var(--etch-dim); font-size:.95rem}
+.hits{margin-top:12px; box-shadow:inset 0 0 0 1px var(--edge)}
+.hit{display:flex; gap:12px; align-items:baseline; padding:10px 16px; border-bottom:1px solid var(--hairline); font-size:.92rem}
+.hit:last-child{border-bottom:none}
+.hit .t{font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; padding:1px 9px; white-space:nowrap}
+.hit .t.g{background:var(--gold-2); color:var(--stone-0)}
+.hit .t.a{box-shadow:inset 0 0 0 1px var(--kumkum); color:var(--kumkum)}
+.hit .t.b{box-shadow:inset 0 0 0 1px var(--patina); color:var(--patina)}
+.hit b{font-weight:500}
+.hit .d{margin-left:auto; color:var(--etch-dim); font-size:.8rem; white-space:nowrap}
+.hint{font-size:.78rem; color:var(--etch-dim); margin-top:12px}
+
+.heat{overflow-x:auto; padding-bottom:6px}
+.heat table{border-collapse:collapse; font-size:.72rem; min-width:420px}
+.heat th{font-weight:400; color:var(--etch-dim); padding:3px 6px; text-align:left}
+.heat td{width:26px; height:20px; border:1px solid var(--stone-0); background:var(--stone-2)}
+.heat td.h1{background:var(--gold-3)}
+.heat td.h2{background:var(--gold-2)}
+.heat td.h3{background:var(--gold-1)}
+.heat td.h4{background:var(--kumkum)}
+.legend{display:flex; gap:14px; align-items:center; font-size:.72rem; color:var(--etch-dim); margin-top:10px; flex-wrap:wrap}
+.legend i{width:12px; height:12px; display:inline-block; margin-right:5px; vertical-align:-1px}
+
+.today{margin-top:28px; display:grid; grid-template-columns:auto 1fr; gap:22px; align-items:center;
+  background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge); padding:20px 26px}
+@media (max-width:720px){ .today{grid-template-columns:1fr} }
+.today .dnum{font-family:'Khand',sans-serif; font-weight:700; font-size:3rem; line-height:1}
+.today .tn{font-family:'Khand',sans-serif; font-weight:700; font-size:1.7rem}
+.today .tm{color:var(--etch-dim); font-size:.9rem}
+.today .tm b{color:var(--kumkum); font-weight:500}
+
+/* ================= sitemap ================= */
+.map{background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge); padding:26px 30px; overflow-x:auto}
+.map pre{margin:0; font-family:'Mukta',sans-serif; font-size:.95rem; line-height:2.1; white-space:pre}
+.map .r{color:var(--kumkum); font-weight:500}
+.map .p{color:var(--patina)}
+.map .f{color:var(--etch-dim)}
+.map b{color:var(--etch); font-weight:500}
+.techline{margin-top:24px; display:flex; gap:10px; flex-wrap:wrap}
+.tech{box-shadow:inset 0 0 0 1px var(--edge); font-size:.78rem; color:var(--etch-dim); padding:4px 14px; background:var(--stone-1)}
+
+footer{padding:44px 0 72px; text-align:center}
+footer .k{color:var(--gold); letter-spacing:.5em; font-size:1.1rem}
+footer p{margin:12px auto 0; max-width:40em; font-size:.85rem; color:var(--etch-dim)}
+</style>
+</head>
+<body>
+<button class="theme-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀ / ☾</button>
+
+<header class="hero">
+  <div class="seam" aria-hidden="true"></div>
+  <div class="wrap">
+    <p class="eyebrow"><span class="ln"></span><span class="lat">Design Direction · v2 — अभिलेख · अल्फ़ानाउट के लिए</span><span class="ln"></span></p>
+    <h1 class="wordmark khand"><span class="inlay">श्रुतधारा</span></h1>
+    <p class="below">पत्थर पर खुदा इतिहास — <b>५२७ ई.पू. से १९९१ ई. तक</b> की दिगम्बर जैन श्रुत-परम्परा, एक डिजिटल स्मारक</p>
+    <p class="epigraph">इस सूची की तिथियाँ शिलालेखों और पाण्डुलिपियों से ही सिद्ध हैं — इसलिए यह साइट काग़ज़ की नक़ल नहीं, <em>अभिलेख</em> है: गहरा ग्रेनाइट, उत्कीर्ण अक्षर, स्वर्ण-जड़ाई।</p>
+    <div class="plaques">
+      <div class="plaque"><div class="n inlay num">९०</div><div class="t">प्रमुख प्राचीन ग्रन्थ</div><div class="l lat">Granths</div></div>
+      <div class="plaque"><div class="n inlay num">४२०</div><div class="t">आचार्य एवं श्रमण</div><div class="l lat">Acharyas</div></div>
+      <div class="plaque"><div class="n inlay num">१७२</div><div class="t">भट्टारक एवं विद्वान</div><div class="l lat">Scholars</div></div>
+    </div>
+    <span class="lat">no login · no tracking · free forever · alphanout.github.io/&lt;repo&gt;/</span>
+  </div>
+</header>
+
+<main>
+
+  <section>
+    <div class="wrap">
+      <div class="shead"><span class="no num">०१</span><h2>संकल्पना — <span class="r">अभिलेख</span></h2><span class="ln"></span></div>
+      <p class="lede">पहली दिशा (क्रीम-काग़ज़ पोथी) अस्वीकृत — यह उससे उल्टा ध्रुव है। दिगम्बर परम्परा की सबसे बड़ी दृश्य-स्मृति काग़ज़ नहीं, <b>पत्थर</b> है: श्रवणबेलगोला का ग्रेनाइट, सहस्र वर्षों के शिलालेख। साइट एक <b class="g">डिजिटल स्मारक</b> की तरह बनी है — और नियम एक ही है: <b>स्क्रीन = पत्थर, प्रिंट = काग़ज़</b>। साइट ग्रेनाइट में उत्कीर्ण दिखती है; हर पीडीएफ़ शुद्ध काग़ज़ पर छपता है।</p>
+      <div class="three">
+        <div class="pillar"><span class="lat">Surface</span><h3><span>शिला</span> — गहराई से बनी सतह</h3><p>कोई “कार्ड” नहीं — <b>पट्ट और स्तम्भ</b>: कटे कोनों वाले शिलाखण्ड, भीतर धँसी किनारी, परछाइयाँ पत्थर की। रंग सिर्फ़ चार: ग्रेनाइट, अस्थि-वर्ण उत्कीर्णन, स्वर्ण-जड़ाई, और कुंकुम — जो केवल जीवित/संरचनात्मक चिह्नों पर लगता है, जैसे प्रतिमा पर तिलक।</p></div>
+        <div class="pillar"><span class="lat">Type</span><h3><span>टाँकी</span> — छेनी से कटे अक्षर</h3><p><b>Khand</b> — संकरा, कोणीय देवनागरी डिस्प्ले, छेनी की कट जैसा; पाठ में <b>Mukta</b> की खुली मानवीय रेखा। शीर्षक उत्कीर्ण (carved) प्रभाव में, ग्रन्थ-नाम स्वर्ण-जड़ाई (gold-inlay) में — जैसे अभिलेखों में विशेष नाम सोने से भरे जाते थे।</p></div>
+        <div class="pillar"><span class="lat">Axis</span><h3><span>स्वर्ण-शिरा</span> — चट्टान में सोने की नस</h3><p>काल-अक्ष अब “धारा” नहीं, <b>चट्टान में बहती स्वर्ण-शिरा</b> है — २५०० वर्षों के स्तरों (strata) को चीरती एक अखण्ड सुनहरी रेखा। शताब्दियाँ भूवैज्ञानिक परतों की तरह जमी हैं; आप स्क्रॉल से खुदाई करते हैं।</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead"><span class="no num">०२</span><h2>रंग एवं <span class="r">अक्षर</span></h2><span class="ln"></span></div>
+      <div class="pans">
+        <div class="pan"><div class="c" style="background:#0e0d0b"></div><div class="nm">गर्भगृह</div><div class="hx">#0E0D0B</div></div>
+        <div class="pan"><div class="c" style="background:#1d1a16"></div><div class="nm">ग्रेनाइट</div><div class="hx">#1D1A16</div></div>
+        <div class="pan"><div class="c" style="background:#cfc6b2"></div><div class="nm">अस्थि-वर्ण</div><div class="hx">#CFC6B2</div></div>
+        <div class="pan"><div class="c" style="background:linear-gradient(103deg,#f0d288,#c99a34 50%,#8a6420)"></div><div class="nm">स्वर्ण-जड़ाई</div><div class="hx">#F0D288→#8A6420</div></div>
+        <div class="pan"><div class="c" style="background:#d4552f"></div><div class="nm">कुंकुम</div><div class="hx">#D4552F</div></div>
+        <div class="pan"><div class="c" style="background:#63b19b"></div><div class="nm">कांस्य-पटिना</div><div class="hx">#63B19B</div></div>
+        <div class="pan"><div class="c" style="background:#e9e1d0"></div><div class="nm">प्रांगण (दिवा)</div><div class="hx">#E9E1D0</div></div>
+      </div>
+      <div class="spec">
+        <div class="cell">
+          <span class="lat">Display · Khand 700 — carved &amp; inlaid</span>
+          <div class="d1 carve">षट्खण्डागम <span class="inlay">धवला</span></div>
+          <div class="why">संकरा-कोणीय देवनागरी — छेनी की चौड़ाई। सामान्य शीर्षक पत्थर में धँसे (carve), ग्रन्थ-नाम सोने से भरे (inlay)।</div>
+        </div>
+        <div class="cell">
+          <span class="lat">Text · Mukta 300/400/500</span>
+          <div class="d2">आचार्य पुष्पदन्त-भूतबली द्वारा द्वितीय शताब्दी में रचित; <b>धरसेनाचार्य</b> से प्राप्त श्रुत के आधार पर। Mukta pairs Devanagari and Latin in one voice.</div>
+          <div class="why">दिवा-थीम “प्रांगण” = दोपहर की धूप में बलुआ पत्थर — उत्कीर्णन की छायाएँ पलट जाती हैं (ऊपर ☀/☾ से देखें)।</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead"><span class="no num">०३</span><h2>मूल घटक — <span class="r">ग्रन्थ-स्तम्भ</span></h2><span class="ln"></span></div>
+      <p class="lede">हर ग्रन्थ एक <b>स्तम्भ (stele)</b> — खड़ा शिलाखण्ड, कटे कोने, क्रमांक स्वर्ण में, नाम छेनी से। छूने पर बाईं ओर स्वर्ण-शिरा जागती है। ९०-की-९० शिलाएँ एक स्मारक-प्रांगण की तरह ग्रिड में खड़ी होंगी।</p>
+      <div class="slabs">
+        <article class="slab"><div class="vein"></div>
+          <span class="serial inlay num">अभिलेख ०१ / ९०</span>
+          <h3 class="gname carve">षट्खण्डागम</h3>
+          <span class="translit">Ṣaṭkhaṇḍāgama</span>
+          <div class="foot"><span class="kum" aria-hidden="true"></span><span class="a">आ. पुष्पदन्त-भूतबली</span><span class="e num">२री शती</span></div>
+        </article>
+        <article class="slab"><div class="vein"></div>
+          <span class="serial inlay num">अभिलेख ०३ / ९०</span>
+          <h3 class="gname carve">समयसार</h3>
+          <span class="translit">Samayasāra</span>
+          <div class="foot"><span class="kum" aria-hidden="true"></span><span class="a">आ. कुन्दकुन्द</span><span class="e num">२री शती</span></div>
+        </article>
+        <article class="slab"><div class="vein"></div>
+          <span class="serial inlay num">अभिलेख ८७ / ९०</span>
+          <h3 class="gname carve">मोक्षमार्गप्रकाशक</h3>
+          <span class="translit">Mokṣamārgaprakāśaka</span>
+          <div class="foot"><span class="kum" aria-hidden="true"></span><span class="a">पं. टोडरमल</span><span class="e num">१८वीं शती</span></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead"><span class="no num">०४</span><h2><span class="r">काल-स्तर</span> — साइट का हृदय</h2><span class="ln"></span></div>
+      <p class="lede">२५०० वर्ष <b>भूवैज्ञानिक परतों</b> की तरह: हर शताब्दी एक स्तर, बाएँ उसका उत्कीर्ण अंक, बीच से स्वर्ण-शिरा। आचार्य पंक्तियाँ खाता-शैली (ledger) में; ग्रन्थ अपनी रचना-तिथि पर <b>सोने की पट्टी</b> बनकर परत को चीरता है। गुरु का नाम सदा कड़ी — छूते ही गुरु-पंक्ति आलोकित।</p>
+      <div class="strata">
+        <div class="vein" aria-hidden="true"></div>
+        <div class="stratum">
+          <div class="age"><span class="cnum carve num">०२</span><span class="clab">द्वितीय शताब्दी ई.</span></div>
+          <div class="rows">
+            <div class="row"><span class="yr num">८७–१२७</span><span class="who">श्री जिनचन्द्राचार्य</span><span class="guru">कुन्दकुन्द के गुरु</span><span class="wk"></span></div>
+            <div class="row"><span class="yr num">१२७–१७९</span><span class="who">श्री कुन्दकुन्द स्वामी<small>पद्मनन्दि · वक्रग्रीवाचार्य</small></span><span class="guru">गुरु — <a href="#">श्री जिनचन्द्राचार्य</a></span><span class="wk">समयसारादि ८४ पाहुड</span></div>
+            <div class="row granth"><span class="yr num">~१५०</span><span class="who inlay">समयसार <span class="tag">ग्रन्थ</span></span><span class="guru">आ. कुन्दकुन्द</span><span class="wk">अभिलेख ३/९० — पृष्ठ + पीडीएफ़</span></div>
+            <div class="row"><span class="yr num">१७९–२४३</span><span class="who">श्री उमास्वामी<small>गृद्धपिच्छाचार्य</small></span><span class="guru">गुरु — <a href="#">श्री कुन्दकुन्द स्वामी</a></span><span class="wk">तत्त्वार्थसूत्र</span></div>
+          </div>
+        </div>
+        <div class="stratum">
+          <div class="age"><span class="cnum carve num">०३</span><span class="clab">तृतीय शताब्दी ई.</span></div>
+          <div class="rows">
+            <div class="row"><span class="yr num">२२०–२३१</span><span class="who">श्री बलाक पिच्छ</span><span class="guru">गुरु — श्री गृद्धपिच्छ</span><span class="wk"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="scrub num" aria-label="शताब्दी पर कूदें">
+        <span class="lat">शताब्दी-सूचक</span>
+        <button type="button">ई.पू.</button><button type="button" class="on">२</button><button type="button">५</button><button type="button">१०</button><button type="button">१५</button><button type="button">२०</button>
+      </div>
+      <p class="note" style="margin-top:14px">६१२ कालांकित प्रविष्टियाँ (४२० + १७२ + ९०) — शताब्दीवार आलसी-रेंडर; <b>prefers-reduced-motion</b> सम्मानित; मोबाइल पर स्तर एक-स्तम्भ में ढहते हैं।</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead"><span class="no num">०५</span><h2>हर ग्रन्थ का <span class="r">पट्ट — और पीडीएफ़</span></h2><span class="ln"></span></div>
+      <p class="lede">९० स्वतंत्र पृष्ठ — अपना URL, WhatsApp साझा-कार्ड, और <b>हर push पर स्वतः बनता A4 पीडीएफ़</b>। नियम याद रखें: स्क्रीन पत्थर है, <b class="g">प्रिंट काग़ज़</b> — पीडीएफ़ दोनों थीम में एक-सा, शुद्ध काग़ज़ी।</p>
+      <div class="duo">
+        <div class="frame">
+          <div class="bar"><span class="dots"><i></i><i></i><i></i></span><span class="url">alphanout.github.io/&lt;repo&gt;/granth/samaysar/</span></div>
+          <div class="gpage">
+            <div class="gvein" aria-hidden="true"></div>
+            <div class="mang">॥ श्री ॥</div>
+            <h3 class="inlay">समयसार</h3>
+            <p class="meta num">आ. कुन्दकुन्द <span>· द्वितीय शताब्दी · अभिलेख ३/९०</span></p>
+            <div class="parampara num">
+              <span class="kin">जिनचन्द्राचार्य</span><span class="arrow">→</span><span class="me">कुन्दकुन्द</span><span class="arrow">→</span><span class="kin">उमास्वामी</span>
+            </div>
+            <div class="chips-l lat">इसी लेखनी से · समकालीन</div>
+            <div class="chips"><span class="chip">प्रवचनसार</span><span class="chip">पंचास्तिकाय</span><span class="chip">नियमसार</span><span class="chip">अष्टपाहुड</span><span class="chip">बारस अणुवेक्खा</span></div>
+            <div class="btns">
+              <button class="btn kum" type="button">पीडीएफ़ डाउनलोड</button>
+              <button class="btn ghost" type="button">साझा करें</button>
+            </div>
+            <p class="src">प्रमाण: मूल सूची-पोस्टर, पंक्ति ३ — <a href="#">मूल छायाचित्र</a></p>
+          </div>
+        </div>
+        <div class="sheetzone">
+          <span class="pdftag num">AUTO-PDF · A4</span>
+          <div class="sheet">
+            <span class="m">॥ श्री ॥</span>
+            <p class="n">समयसार</p>
+            <span class="b">आ. कुन्दकुन्द · द्वितीय शताब्दी</span>
+            <div class="ln"></div>
+            <p class="body">दिगम्बर जैन सम्प्रदाय के ९० प्रमुख प्राचीन ग्रन्थों की कालानुक्रमिक सूची में क्रम ३। रचयिता आचार्य कुन्दकुन्द (१२७–१७९ ई.), गुरु श्री जिनचन्द्राचार्य। इसी लेखनी से: प्रवचनसार, पंचास्तिकाय, नियमसार, अष्टपाहुड। परवर्ती परम्परा में अमृतचन्द्राचार्य कृत समयसार कलश (१०वीं शती) उल्लेखनीय।</p>
+            <div class="f num">श्रुतधारा · alphanout.github.io/&lt;repo&gt;/granth/samaysar · पृष्ठ १/१</div>
+          </div>
+          <p class="rule-note"><b>स्क्रीन = पत्थर · प्रिंट = काग़ज़</b> — पीडीएफ़ सदा एक-सा, छापने-बाँटने योग्य।</p>
+        </div>
+      </div>
+      <div class="pipe num" role="img" aria-label="निर्माण-प्रवाह">
+        <span class="step"><b>डेटा</b>3 × JSON</span><span class="arr">→</span>
+        <span class="step"><b>build.mjs</b>९० पट्ट + सूचियाँ</span><span class="arr">→</span>
+        <span class="step"><b>Chromium प्रिंट</b>९१ पीडीएफ़ + ९० साझा-कार्ड</span><span class="arr">→</span>
+        <span class="step"><b>GitHub Pages</b>हर push पर स्वतः</span>
+      </div>
+      <p class="note" style="margin-top:14px">GitHub पर JSON की एक पंक्ति बदलते ही पृष्ठ, पीडीएफ़, साझा-कार्ड पुनर्निर्मित। ९१वाँ पीडीएफ़ = <b>सम्पूर्ण ग्रन्थ-सूची</b> एक पत्रक में।</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="shead"><span class="no num">०६</span><h2>खोज · मानचित्र · <span class="r">आज का अभिलेख</span></h2><span class="ln"></span></div>
+      <div class="extras">
+        <div class="panel">
+          <h3>सर्वखोज</h3>
+          <span class="lat">Press / anywhere · transliteration-tolerant</span>
+          <div class="searchbox"><span class="slash">/</span><span class="q">समयसार … या बस “samaysar” लिखें</span></div>
+          <div class="hits num">
+            <div class="hit"><span class="t g">ग्रन्थ</span><b>समयसार</b> — आ. कुन्दकुन्द<span class="d">२री शती</span></div>
+            <div class="hit"><span class="t a">आचार्य</span><b>श्री कुन्दकुन्द स्वामी</b> — ८४ पाहुड<span class="d">१२७–१७९</span></div>
+            <div class="hit"><span class="t b">विद्वान</span><b>पं. टोडरमल</b> — गोम्मटसारी टीका<span class="d">१७४०–१७६७</span></div>
+            <div class="hit"><span class="t g">ग्रन्थ</span><b>समयसार कलश</b> — अमृतचन्द्राचार्य<span class="d">१०वीं शती</span></div>
+          </div>
+          <p class="hint">तीनों सूचियाँ एक साथ; देवनागरी और रोमन दोनों से मिलान — ६८२ प्रविष्टियाँ, ब्राउज़र में ही, बिना सर्वर।</p>
+        </div>
+        <div class="panel">
+          <h3>भाषा × काल मानचित्र</h3>
+          <span class="lat">172 scholars · one glance, one story</span>
+          <div class="heat">
+            <table aria-label="भाषा और शताब्दी अनुसार विद्वानों का घनत्व (संकेतात्मक)">
+              <tr><th></th><th class="num">८</th><th class="num">१०</th><th class="num">१२</th><th class="num">१४</th><th class="num">१६</th><th class="num">१८</th><th class="num">२०</th></tr>
+              <tr><th>अपभ्रंश</th><td class="h2"></td><td class="h3"></td><td class="h3"></td><td class="h4"></td><td class="h1"></td><td></td><td></td></tr>
+              <tr><th>कन्नड़</th><td></td><td class="h2"></td><td class="h4"></td><td class="h3"></td><td class="h2"></td><td class="h1"></td><td></td></tr>
+              <tr><th>हिन्दी</th><td></td><td></td><td></td><td class="h1"></td><td class="h2"></td><td class="h4"></td><td class="h2"></td></tr>
+              <tr><th>मराठी</th><td></td><td></td><td></td><td></td><td class="h1"></td><td class="h3"></td><td class="h1"></td></tr>
+            </table>
+          </div>
+          <div class="legend"><span><i style="background:var(--stone-2)"></i>०</span><span><i style="background:var(--gold-3)"></i>१–२</span><span><i style="background:var(--gold-2)"></i>३–५</span><span><i style="background:var(--gold-1)"></i>६–१०</span><span><i style="background:var(--kumkum)"></i>१०+</span></div>
+          <p class="hint">जिनवाणी की यात्रा — अपभ्रंश से कन्नड़, हिन्दी-मराठी तक। (संकेतात्मक; वास्तविक गणना डेटा-चरण के बाद।)</p>
+        </div>
+      </div>
+      <div class="today">
+        <div class="dnum inlay num">८७</div>
+        <div>
+          <p class="lat" style="margin:0 0 4px">आज का अभिलेख · ११ जुलाई २०२६ · तिथि-बीजित, प्रतिदिन नया</p>
+          <div class="tn carve">मोक्षमार्गप्रकाशक</div>
+          <div class="tm num"><b>पं. टोडरमल</b> · १८वीं शताब्दी · आज के स्वाध्याय हेतु</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="border-bottom:none">
+    <div class="wrap">
+      <div class="shead"><span class="no num">०७</span><h2>संरचना एवं <span class="r">तकनीक</span></h2><span class="ln"></span></div>
+      <div class="map">
+<pre><span class="f">alphanout.github.io/</span><span class="r">&lt;repo&gt;</span><span class="f">/   ← पोर्टफ़ोलियो मूल पर अछूता रहेगा</span>
+├── <b>द्वार</b> — आज का अभिलेख · सर्वखोज · तीन प्रवेश
+├── <b>काल-स्तर</b> — ५२७ ई.पू. → १९९१ ई. <span class="f">(साइट का हृदय)</span>
+├── <b>ग्रन्थ-प्रांगण</b> <span class="p">(९०)</span> → granth/&lt;नाम&gt;/ <span class="f">× ९०</span> → pdf/&lt;नाम&gt;.pdf <span class="f">× ९०</span>
+├── <b>आचार्य-परम्परा</b> <span class="p">(४२०)</span> — शताब्दीवार, गुरु-कड़ियाँ
+├── <b>भट्टारक एवं विद्वान</b> <span class="p">(१७२)</span> — भाषा-छन्नियाँ · मानचित्र
+├── <b>मूल स्रोत</b> — २५ छायाचित्र, हर पंक्ति का प्रमाण
+└── <b>परिचय</b> — श्रेय: भावत्रयफलप्रदर्शी · मुमुक्षु पोस्टर</pre>
+      </div>
+      <div class="techline">
+        <span class="tech">शून्य फ्रेमवर्क — शुद्ध HTML/CSS/JS</span>
+        <span class="tech">Khand + Mukta रेपो में vendored</span>
+        <span class="tech">GitHub Actions: push → build → PDF → deploy</span>
+        <span class="tech">हर पृष्ठ का WhatsApp साझा-कार्ड</span>
+        <span class="tech">कोई लॉगिन · कोई ट्रैकिंग · सदा निःशुल्क</span>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="k">॥ ❖ ॥</div>
+  <p>डिज़ाइन-पूर्वावलोकन — वास्तविक साइट में सम्पूर्ण ६८२ प्रविष्टियाँ, खोज व पीडीएफ़ सजीव होंगे।<br>“इनका अध्ययन और स्वाध्याय ही आत्मकल्याण का मार्ग है।”</p>
+</footer>
+
+<script>
+document.documentElement.classList.add('js');
+(function(){
+  var btn = document.getElementById('themeBtn');
+  btn.addEventListener('click', function(){
+    var r = document.documentElement;
+    var dark = matchMedia('(prefers-color-scheme: dark)').matches;
+    var cur = r.getAttribute('data-theme') || (dark ? 'dark' : 'light');
+    r.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+  });
+  var secs = document.querySelectorAll('section');
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced || !('IntersectionObserver' in window)) {
+    secs.forEach(function(s){ s.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  }, {rootMargin:'0px 0px -8% 0px'});
+  secs.forEach(function(s){ io.observe(s); });
+})();
+</script>
+</body>
+</html>

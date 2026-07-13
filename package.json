@@ -1,0 +1,13 @@
+{
+  "name": "shrutdhara",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build/build.mjs",
+    "pdf": "node build/pdf.mjs",
+    "serve": "python3 -m http.server 8788 -d dist"
+  },
+  "devDependencies": {
+    "puppeteer": "^23.11.1"
+  }
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="hi" data-root="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>मूल स्रोत (२५ छायाचित्र) — श्रुतधारा</title>
+<meta name="description" content="भावत्रयफलप्रदर्शी के पृष्ठ ६–२९ एवं ९०-ग्रन्थ पोस्टर के मूल छायाचित्र — साइट की हर पंक्ति का प्रमाण।">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="sources">
+
+<header class="site-head">
+  <div class="wrap bar">
+    <a class="brand inlay khand" href="./">श्रुतधारा</a>
+    <nav class="site-nav" aria-label="मुख्य">
+      <a href="./">द्वार</a>
+      <a href="kaal.html">काल-स्तर</a>
+      <a href="granths.html">ग्रन्थ</a>
+      <a href="acharya.html">आचार्य</a>
+      <a href="bhattarak.html">भट्टारक-विद्वान</a>
+      <a href="sources.html" aria-current="page">मूल स्रोत</a>
+      <a href="about.html">परिचय</a>
+    </nav>
+    <div class="tools"><button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="page-head">
+    <h1>मूल स्रोत <span class="r">· हर पंक्ति का प्रमाण</span></h1>
+    <p class="lede">साइट का समस्त डेटा इन्हीं २५ छायाचित्रों से अक्षरशः लिया गया है — ९०-ग्रन्थ सूची का पोस्टर एवं <em>भावत्रयफलप्रदर्शी</em> के पृष्ठ ६–२९। किसी चित्र पर स्पर्श करें: पूर्ण आकार खुलेगा।</p>
+  </div>
+
+  <section class="block" style="padding-top:0">
+    <div class="block-head"><h2>९० ग्रन्थ — <span class="r">पोस्टर</span></h2><span class="ln"></span></div>
+    <div class="shots" style="grid-template-columns:minmax(210px,340px)">
+      <a href="assets/photos/poster.jpg" target="_blank" rel="noopener"><img src="assets/photos/poster.jpg" loading="lazy" alt="९० प्रमुख प्राचीन ग्रन्थों की कालानुक्रमिक सूची — पोस्टर"><span class="cap">पोस्टर · ९० ग्रन्थ (मुमुक्षु)</span></a>
+    </div>
+  </section>
+
+  <section class="block" style="padding-top:0">
+    <div class="block-head"><h2>भावत्रयफलप्रदर्शी — <span class="r">पृष्ठ ६–२९</span></h2><span class="ln"></span></div>
+    <div class="shots" id="pages"></div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="k">॥ ❖ ॥</div>
+  <p>छायाचित्र मूल पुस्तक एवं पोस्टर के प्रमाण-स्वरूप, शैक्षणिक/स्वाध्याय हेतु।</p>
+</footer>
+
+<script type="module" src="js/app.js"></script>
+<script>
+  const grid = document.getElementById('pages');
+  const dd = ['०','१','२','३','४','५','६','७','८','९'];
+  const deva = (n) => String(n).split('').map(c => /[0-9]/.test(c) ? dd[+c] : c).join('');
+  let html = '';
+  for (let p = 6; p <= 29; p++) {
+    const f = 'assets/photos/page-' + String(p).padStart(2, '0') + '.jpg';
+    html += `<a href="${f}" target="_blank" rel="noopener"><img src="${f}" loading="lazy" alt="भावत्रयफलप्रदर्शी पृष्ठ ${p}"><span class="cap">पृष्ठ ${deva(p)}</span></a>`;
+  }
+  grid.innerHTML = html;
+</script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+/* ============================================================
+   श्रुतधारा · design system "अभिलेख" (the Inscription)
+   rule: screen = stone, print = paper (see print.css)
+   ============================================================ */
+
+/* ---------- tokens: dark "गर्भगृह" is the primary scene ---------- */
+:root{
+  --stone-0:#0e0d0b; --stone-1:#161411; --stone-2:#1d1a16; --stone-3:#26221c;
+  --edge:rgba(255,244,214,.09); --hairline:rgba(255,244,214,.13);
+  --etch:#cfc6b2; --etch-dim:#948b76;
+  --gold-1:#f0d288; --gold-2:#c99a34; --gold-3:#8a6420; --gold:#d9ae56;
+  --kumkum:#d4552f; --patina:#63b19b;
+  --carve-hi:rgba(255,255,255,.06); --carve-lo:rgba(0,0,0,.85);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --stone-0:#e9e1d0; --stone-1:#e2d9c5; --stone-2:#d9cfb8; --stone-3:#cfc3a8;
+    --edge:rgba(38,30,14,.16); --hairline:rgba(38,30,14,.2);
+    --etch:#2b2517; --etch-dim:#6d6350;
+    --gold-1:#a97c1e; --gold-2:#8a6420; --gold-3:#6b4d15; --gold:#8f6a1c;
+    --kumkum:#b03d1e; --patina:#1e6f5c;
+    --carve-hi:rgba(0,0,0,.28); --carve-lo:rgba(255,255,255,.55);
+  }
+}
+:root[data-theme="dark"]{
+  --stone-0:#0e0d0b; --stone-1:#161411; --stone-2:#1d1a16; --stone-3:#26221c;
+  --edge:rgba(255,244,214,.09); --hairline:rgba(255,244,214,.13);
+  --etch:#cfc6b2; --etch-dim:#948b76;
+  --gold-1:#f0d288; --gold-2:#c99a34; --gold-3:#8a6420; --gold:#d9ae56;
+  --kumkum:#d4552f; --patina:#63b19b;
+  --carve-hi:rgba(255,255,255,.06); --carve-lo:rgba(0,0,0,.85);
+}
+:root[data-theme="light"]{
+  --stone-0:#e9e1d0; --stone-1:#e2d9c5; --stone-2:#d9cfb8; --stone-3:#cfc3a8;
+  --edge:rgba(38,30,14,.16); --hairline:rgba(38,30,14,.2);
+  --etch:#2b2517; --etch-dim:#6d6350;
+  --gold-1:#a97c1e; --gold-2:#8a6420; --gold-3:#6b4d15; --gold:#8f6a1c;
+  --kumkum:#b03d1e; --patina:#1e6f5c;
+  --carve-hi:rgba(0,0,0,.28); --carve-lo:rgba(255,255,255,.55);
+}
+
+/* ---------- base ---------- */
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+body{
+  margin:0;
+  background:radial-gradient(1100px 460px at 70% -8%, rgba(217,174,86,.05), transparent 60%), var(--stone-0);
+  color:var(--etch);
+  font-family:'Mukta','Kohinoor Devanagari','Nirmala UI',system-ui,sans-serif;
+  font-size:17px; line-height:1.75;
+}
+a{color:var(--patina); text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--patina); outline-offset:3px}
+::selection{background:var(--gold-2); color:var(--stone-0)}
+img{max-width:100%; height:auto}
+.wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+.khand{font-family:'Khand','Kohinoor Devanagari','Nirmala UI',sans-serif}
+.lat{letter-spacing:.22em; text-transform:uppercase; font-size:.66rem; color:var(--etch-dim); font-weight:500}
+.lat.dv{letter-spacing:.04em} /* Devanagari labels: tracking breaks akshara rhythm */
+.num{font-variant-numeric:tabular-nums}
+.carve{text-shadow:0 -1px 1px var(--carve-lo), 0 1px 0 var(--carve-hi)}
+.inlay{
+  background:linear-gradient(103deg, var(--gold-1) 8%, var(--gold-2) 42%, var(--gold-3) 58%, var(--gold-1) 92%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.kum{width:9px; height:9px; background:var(--kumkum); transform:rotate(45deg); display:inline-block; flex:none}
+.visually-hidden{position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+
+/* ---------- site header / nav ---------- */
+.site-head{border-bottom:1px solid var(--hairline); position:sticky; top:0; z-index:8;
+  background:color-mix(in srgb, var(--stone-0) 92%, transparent);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
+.site-head .bar{display:flex; align-items:center; gap:18px; padding:10px 0}
+.brand{font-family:'Khand',sans-serif; font-weight:700; font-size:1.5rem; text-decoration:none; line-height:1}
+.site-nav{margin-left:auto; display:flex; gap:2px 14px; flex-wrap:wrap; font-size:.88rem}
+.site-nav a{color:var(--etch-dim); text-decoration:none; padding:4px 2px}
+.site-nav a[aria-current="page"]{color:var(--etch); border-bottom:2px solid var(--gold-2)}
+.site-nav a:hover{color:var(--etch)}
+.tools{display:flex; gap:8px; align-items:center}
+.icon-btn{background:var(--stone-2); color:var(--etch); border:1px solid var(--hairline);
+  font-family:inherit; font-size:.8rem; padding:4px 12px; cursor:pointer}
+
+/* ---------- page heads / sections ---------- */
+.page-head{padding:56px 0 34px}
+.page-head .crumb{margin-bottom:18px}
+.page-head h1{font-family:'Khand',sans-serif; font-weight:600; font-size:clamp(2rem,5vw,3.2rem); margin:0; line-height:1.15}
+.page-head h1 .r{color:var(--kumkum)}
+.page-head .lede{max-width:46em; font-weight:300; font-size:1.06rem; color:var(--etch); margin:12px 0 0}
+.rule{height:1px; background:var(--hairline); border:none; margin:0}
+section.block{padding:44px 0 56px}
+.block-head{display:flex; align-items:baseline; gap:18px; margin-bottom:22px}
+.block-head h2{font-family:'Khand',sans-serif; font-weight:600; font-size:clamp(1.5rem,3vw,2.1rem); margin:0}
+.block-head h2 .r{color:var(--kumkum)}
+.block-head .ln{flex:1; height:1px; background:var(--hairline); align-self:center}
+.note{font-size:.85rem; color:var(--etch-dim); max-width:46em}
+.note b{color:var(--etch); font-weight:500}
+
+/* ---------- hero (home) ---------- */
+.hero{padding:80px 0 44px; border-bottom:1px solid var(--hairline); position:relative; overflow:hidden; text-align:center}
+.hero .seam{position:absolute; top:0; bottom:0; left:50%; width:2px;
+  background:linear-gradient(180deg, transparent, var(--gold-2) 30%, var(--gold-1) 50%, var(--gold-2) 70%, transparent);
+  opacity:.5; transform:scaleY(0); transform-origin:top; animation:seam 1.4s .2s ease forwards}
+@keyframes seam{to{transform:scaleY(1)}}
+@media (prefers-reduced-motion:reduce){ .hero .seam{animation:none; transform:none} }
+.hero .wordmark{margin:0; font-family:'Khand',sans-serif; font-weight:700; line-height:1.08; font-size:clamp(4rem,14vw,9.5rem)}
+.hero .below{margin:8px 0 0; font-size:clamp(1rem,2.3vw,1.25rem); font-weight:300}
+.hero .below b{color:var(--kumkum); font-weight:500}
+.plaques{display:flex; justify-content:center; gap:18px; flex-wrap:wrap; margin:44px 0 10px; position:relative}
+.plaque{
+  background:linear-gradient(180deg, var(--stone-2), var(--stone-1));
+  box-shadow:inset 0 0 0 1px var(--edge), 0 18px 30px -18px rgba(0,0,0,.6);
+  clip-path:polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
+  padding:20px 38px 16px; min-width:190px; text-decoration:none; display:block;
+}
+.plaque .n{font-family:'Khand',sans-serif; font-weight:700; font-size:3rem; line-height:1.1}
+.plaque .t{color:var(--etch); font-weight:500; margin-top:2px}
+.plaque .l{margin-top:6px}
+
+/* ---------- stele slab (granth card) ---------- */
+.slabs{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:20px}
+.slab{
+  position:relative; min-height:250px; display:flex; flex-direction:column;
+  background:linear-gradient(175deg, var(--stone-3) 0%, var(--stone-1) 70%);
+  box-shadow:inset 0 0 0 1px var(--edge), 0 24px 40px -24px rgba(0,0,0,.7);
+  clip-path:polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+  padding:24px 24px 20px; transition:transform .25s ease; text-decoration:none; color:var(--etch);
+}
+.slab:hover{transform:translateY(-4px)}
+@media (prefers-reduced-motion:reduce){ .slab, .slab:hover{transform:none; transition:none} }
+.slab .serial{font-family:'Khand',sans-serif; font-weight:700; font-size:.98rem; letter-spacing:.1em}
+.slab .gname{font-family:'Khand',sans-serif; font-weight:700; font-size:clamp(1.7rem,2.6vw,2.2rem); line-height:1.22; margin:12px 0 4px}
+.slab .foot{margin-top:auto; padding-top:16px; display:flex; align-items:baseline; gap:10px; border-top:1px solid var(--hairline)}
+.slab .foot .a{color:var(--kumkum); font-weight:500}
+.slab .foot .e{margin-left:auto; color:var(--etch-dim); font-size:.85rem}
+.slab .vein{position:absolute; top:0; bottom:0; left:0; width:3px;
+  background:linear-gradient(180deg, transparent, var(--gold-2), transparent); opacity:0; transition:opacity .25s ease}
+.slab:hover .vein{opacity:1}
+
+/* ---------- strata timeline / ledgers ---------- */
+.strata{position:relative; background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge)}
+.strata > .vein{position:absolute; top:0; bottom:0; left:118px; width:2px;
+  background:linear-gradient(180deg, var(--gold-3), var(--gold-1), var(--gold-3)); opacity:.55}
+@media (max-width:720px){ .strata > .vein{left:14px} }
+.stratum{display:grid; grid-template-columns:118px 1fr; border-bottom:1px solid var(--hairline)}
+.stratum:last-child{border-bottom:none}
+.stratum .age{padding:24px 16px; display:flex; flex-direction:column; gap:4px; align-items:flex-start; border-right:1px solid var(--hairline)}
+.stratum .age .cnum{font-family:'Khand',sans-serif; font-weight:700; font-size:2.3rem; line-height:1}
+.stratum .age .clab{font-size:.7rem; color:var(--etch-dim); letter-spacing:.12em}
+.rows{display:flex; flex-direction:column; min-width:0}
+.row{display:grid; grid-template-columns:112px 1.2fr 1fr 1.2fr; gap:14px; align-items:baseline;
+  padding:12px 20px; border-bottom:1px dashed var(--hairline); font-size:.94rem; scroll-margin-top:90px}
+.row:last-child{border-bottom:none}
+.row .yr{color:var(--gold); font-weight:500; font-size:.86rem}
+.row .who{font-weight:500; color:var(--etch)}
+.row .who small{display:block; font-weight:300; color:var(--etch-dim); font-size:.78rem}
+.row .guru{font-size:.84rem; color:var(--etch-dim)}
+.row .guru a{color:var(--patina)}
+.row .wk{font-size:.84rem; color:var(--etch-dim); overflow-wrap:anywhere}
+.row.granth{background:linear-gradient(90deg, rgba(217,174,86,.10), transparent 65%); border-left:3px solid var(--gold-2)}
+.row.granth .who{font-family:'Khand',sans-serif; font-weight:700; font-size:1.25rem}
+.row .tag{font-size:.6rem; letter-spacing:.2em; color:var(--stone-0); background:var(--gold-2); padding:1px 9px; vertical-align:3px}
+.row.flash{background:rgba(99,177,155,.16)}
+.row .warn{color:var(--kumkum); cursor:help}
+@media (max-width:720px){
+  .stratum{grid-template-columns:1fr}
+  .stratum .age{flex-direction:row; align-items:baseline; border-right:none; border-bottom:1px solid var(--hairline); padding:12px 16px 8px 28px}
+  .row{grid-template-columns:1fr; gap:2px; padding:12px 16px 12px 28px}
+}
+.scrub{position:sticky; top:52px; z-index:7; display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+  padding:10px 0; background:color-mix(in srgb, var(--stone-0) 92%, transparent);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px)}
+.scrub button{font-family:'Khand',sans-serif; font-size:.92rem; background:transparent; border:1px solid var(--hairline);
+  color:var(--etch-dim); padding:2px 12px; cursor:pointer}
+.scrub button.on, .scrub button:hover{border-color:var(--gold-2); color:var(--gold)}
+
+/* ---------- search ---------- */
+.searchbox{display:flex; align-items:center; gap:12px; background:var(--stone-0);
+  box-shadow:inset 0 0 0 1px var(--gold-3); padding:0 16px}
+.searchbox input{flex:1; background:transparent; border:none; color:var(--etch);
+  font-family:inherit; font-size:1rem; padding:13px 0}
+.searchbox input::placeholder{color:var(--etch-dim)}
+.searchbox .slash{box-shadow:inset 0 0 0 1px var(--hairline); color:var(--etch-dim); font-size:.75rem; padding:0 9px; line-height:1.7}
+.hits{margin-top:12px; box-shadow:inset 0 0 0 1px var(--edge); background:var(--stone-1)}
+.hit{display:flex; gap:12px; align-items:baseline; padding:10px 16px; border-bottom:1px solid var(--hairline);
+  font-size:.92rem; color:var(--etch); text-decoration:none}
+.hit:last-child{border-bottom:none}
+.hit:hover{background:var(--stone-2)}
+.hit .t{font-size:.6rem; letter-spacing:.16em; text-transform:uppercase; padding:1px 9px; white-space:nowrap}
+.hit .t.g{background:var(--gold-2); color:var(--stone-0)}
+.hit .t.a{box-shadow:inset 0 0 0 1px var(--kumkum); color:var(--kumkum)}
+.hit .t.b{box-shadow:inset 0 0 0 1px var(--patina); color:var(--patina)}
+.hit b{font-weight:500}
+.hit .d{margin-left:auto; color:var(--etch-dim); font-size:.8rem; white-space:nowrap}
+.hint{font-size:.78rem; color:var(--etch-dim); margin-top:12px}
+
+/* ---------- panels, chips, buttons ---------- */
+.panel{background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge); padding:24px 26px}
+.panel h3{font-family:'Khand',sans-serif; font-weight:600; font-size:1.3rem; margin:0; color:var(--etch)}
+.panel .lat{display:block; margin:2px 0 16px}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{box-shadow:inset 0 0 0 1px var(--edge); background:var(--stone-2); font-size:.8rem; padding:3px 14px;
+  color:var(--etch); text-decoration:none; border:none; font-family:inherit; cursor:pointer}
+.chip.on{box-shadow:inset 0 0 0 1px var(--gold-2); color:var(--gold)}
+.btn{font-family:inherit; font-size:.92rem; cursor:pointer; padding:10px 24px 8px; border:none; text-decoration:none; display:inline-block}
+.btn.kum{background:var(--kumkum); color:#fff; font-weight:500}
+.btn.ghost{background:transparent; color:var(--patina); box-shadow:inset 0 0 0 1px var(--patina)}
+
+/* ---------- granth page (folio) ---------- */
+.gpage{max-width:820px; margin:0 auto; padding:64px 24px 80px; text-align:center; position:relative}
+.gpage .gvein{position:absolute; top:0; bottom:0; left:50%; width:2px;
+  background:linear-gradient(180deg, transparent, var(--gold-2) 35%, transparent 80%); opacity:.3; pointer-events:none}
+.gpage .mang{letter-spacing:.4em; color:var(--kumkum); font-size:.9rem}
+.gpage h1{font-family:'Khand',sans-serif; font-weight:700; font-size:clamp(3rem,9vw,4.6rem); line-height:1.15; margin:12px 0 4px}
+.gpage .meta{color:var(--etch); font-weight:500; font-size:1.05rem}
+.gpage .meta span{color:var(--etch-dim); font-weight:300}
+.gpage .parampara{display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin:30px 0 0; font-size:.9rem}
+.gpage .parampara .arrow{color:var(--gold)}
+.gpage .parampara .me{background:var(--kumkum); color:#fff; padding:2px 14px; font-weight:500}
+.gpage .parampara .kin{box-shadow:inset 0 0 0 1px var(--hairline); padding:2px 14px; color:var(--etch-dim); text-decoration:none}
+.gpage .chips-l{margin-top:30px}
+.gpage .chips{justify-content:center; margin-top:10px}
+.gpage .btns{display:flex; gap:12px; justify-content:center; margin-top:34px; flex-wrap:wrap}
+.gpage .src{margin-top:22px; font-size:.75rem; color:var(--etch-dim)}
+.gpage .nextprev{display:flex; justify-content:space-between; gap:14px; margin-top:44px; padding-top:18px; border-top:1px solid var(--hairline); font-size:.88rem}
+.gpage .nextprev a{text-decoration:none}
+
+/* ---------- heatmap ---------- */
+.heat{overflow-x:auto; padding-bottom:6px}
+.heat table{border-collapse:collapse; font-size:.72rem; min-width:430px}
+.heat th{font-weight:400; color:var(--etch-dim); padding:3px 6px; text-align:left}
+.heat td{width:26px; height:20px; border:1px solid var(--stone-0); background:var(--stone-2)}
+.heat td.h1{background:var(--gold-3)}
+.heat td.h2{background:var(--gold-2)}
+.heat td.h3{background:var(--gold-1)}
+.heat td.h4{background:var(--kumkum)}
+.legend{display:flex; gap:14px; align-items:center; font-size:.72rem; color:var(--etch-dim); margin-top:10px; flex-wrap:wrap}
+.legend i{width:12px; height:12px; display:inline-block; margin-right:5px; vertical-align:-1px}
+
+/* ---------- gallery (मूल स्रोत) ---------- */
+.shots{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:14px}
+.shots a{display:block; box-shadow:inset 0 0 0 1px var(--edge); background:var(--stone-1); padding:8px; text-decoration:none}
+.shots img{display:block; width:100%; height:150px; object-fit:cover; filter:sepia(.12)}
+.shots .cap{font-size:.72rem; color:var(--etch-dim); padding:6px 2px 0; text-align:center}
+
+/* ---------- today ---------- */
+.today{margin-top:28px; display:grid; grid-template-columns:auto 1fr; gap:22px; align-items:center;
+  background:var(--stone-1); box-shadow:inset 0 0 0 1px var(--edge); padding:20px 26px; text-decoration:none}
+@media (max-width:720px){ .today{grid-template-columns:1fr} }
+.today .dnum{font-family:'Khand',sans-serif; font-weight:700; font-size:3rem; line-height:1}
+.today .tn{font-family:'Khand',sans-serif; font-weight:700; font-size:1.6rem; color:var(--etch)}
+.today .tm{color:var(--etch-dim); font-size:.9rem}
+.today .tm b{color:var(--kumkum); font-weight:500}
+
+/* ---------- footer ---------- */
+.site-foot{border-top:1px solid var(--hairline); margin-top:30px; padding:38px 0 64px; text-align:center}
+.site-foot .k{color:var(--gold); letter-spacing:.5em; font-size:1.05rem}
+.site-foot p{margin:10px auto 0; max-width:42em; font-size:.84rem; color:var(--etch-dim)}
+.site-foot a{color:var(--patina)}
+
+.loading{padding:40px 0; color:var(--etch-dim); text-align:center; font-size:.9rem}
