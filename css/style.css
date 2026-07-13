@@ -221,6 +221,14 @@ section.block{padding:44px 0 56px}
 .gpage .chips-l{margin-top:30px}
 .gpage .chips{justify-content:center; margin-top:10px}
 .gpage .btns{display:flex; gap:12px; justify-content:center; margin-top:34px; flex-wrap:wrap}
+.gpage .translit-line{margin:2px 0 6px; font-size:.8rem; letter-spacing:.14em; text-transform:uppercase; color:var(--etch-dim); display:none}
+html[data-lang="en"] .gpage .translit-line{display:block}
+.gpage .prose{text-align:left; max-width:40em; margin:36px auto 0}
+.gpage .prose h2{font-family:'Khand',sans-serif; font-weight:600; font-size:1.15rem; color:var(--kumkum); margin:0 0 8px}
+.gpage .prose p{margin:0 0 13px; font-size:.98rem; font-weight:300; line-height:1.95; color:var(--etch)}
+.gpage .prose .prose-note{font-size:.72rem; color:var(--etch-dim); border-top:1px solid var(--hairline); padding-top:8px}
+html[data-lang="en"] .lang-hi{display:none}
+html:not([data-lang="en"]) .lang-en{display:none}
 .gpage .src{margin-top:22px; font-size:.75rem; color:var(--etch-dim)}
 .gpage .nextprev{display:flex; justify-content:space-between; gap:14px; margin-top:44px; padding-top:18px; border-top:1px solid var(--hairline); font-size:.88rem}
 .gpage .nextprev a{text-decoration:none}

@@ -2,6 +2,7 @@
    Pages declare <body data-page="..."> and <html data-root="..."> (path prefix to site root). */
 
 import { romanKey, skeleton, slugify, devaNum, nameKey } from './translit.js';
+import { t, lang } from './i18n.js';
 
 const root = document.documentElement.getAttribute('data-root') || '';
 const page = document.body.getAttribute('data-page') || '';
@@ -66,7 +67,7 @@ function keysOf(...parts) {
 }
 
 /* ---------- search ---------- */
-const KIND_LABEL = { g: 'ग्रन्थ', a: 'आचार्य', b: 'विद्वान' };
+const KIND_LABEL = { g: t('kind.g'), a: t('kind.a'), b: t('kind.b') };
 function initSearch() {
   const input = document.getElementById('q');
   const out = document.getElementById('hits');
@@ -99,7 +100,7 @@ function initSearch() {
         <b>${esc(c.label)}</b>${c.sub ? ' — ' + esc(trim(c.sub, 60)) : ''}
         <span class="d num">${esc(deva(c.d))}</span>
       </a>`).join('') ||
-      `<div class="hit"><span class="t b">रिक्त</span> कोई परिणाम नहीं — वर्तनी बदल कर देखें</div>`;
+      `<div class="hit"><span class="t b">∅</span> ${t('ui.no_results')}</div>`;
   }
 }
 
@@ -107,8 +108,16 @@ function initSearch() {
 function esc(s) { return String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 function trim(s, n) { s = String(s); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
 function deva(s) { return devaNum(String(s ?? '')); }
-const CENT_NAME = { 'ई.पू.': 'ईसवी पूर्व', '?': 'काल अनिश्चित' };
-function centLabel(sec) { return CENT_NAME[sec] || (deva(sec) + 'वीं शताब्दी ई.'); }
+const CENT_NAME = {
+  hi: { 'ई.पू.': 'ईसवी पूर्व', '?': 'काल अनिश्चित', f: (s) => deva(s) + 'वीं शताब्दी ई.' },
+  en: { 'ई.पू.': 'Before CE', '?': 'undated', f: (s) => { const n = +s, o = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (o[(v - 20) % 10] || o[v] || o[0]) + ' century CE'; } },
+  sa: { 'ई.पू.': 'ईसापूर्वम्', '?': 'अज्ञातकालः', f: (s) => 'शतकम् ' + deva(s) },
+  pra: { 'ई.पू.': 'ईसापुव्वं', '?': 'अण्णायकालो', f: (s) => 'सयं ' + deva(s) },
+};
+function centLabel(sec) {
+  const L = CENT_NAME[lang] || CENT_NAME.hi;
+  return L[sec] || L.f(sec);
+}
 function firstYear(period) {
   const m = String(period || '').match(/(\d{1,4})/);
   return m ? +m[1] : null;
@@ -153,9 +162,9 @@ async function renderHome() {
     mount.innerHTML = `
       <div class="dnum inlay num">${deva(g.id)}</div>
       <div>
-        <p class="lat dv" style="margin:0 0 4px">आज का अभिलेख · ${esc(deva(df))} · प्रतिदिन नया</p>
+        <p class="lat dv" style="margin:0 0 4px">${t('ui.today')} · ${esc(deva(df))} · ${t('ui.daily')}</p>
         <div class="tn carve">${esc(g.name)}</div>
-        <div class="tm num"><b>${esc(g.author)}</b> · ${esc(deva(g.century || ''))} · आज के स्वाध्याय हेतु</div>
+        <div class="tm num"><b>${esc(g.author)}</b> · ${esc(deva(g.century || ''))}</div>
       </div>`;
   }
   const stats = document.getElementById('stats');
@@ -176,8 +185,8 @@ async function renderGranths() {
   let cent = '';
   const cents = [...new Set(data.granths.map((g) => centuryOf(g)))];
   if (filters) {
-    filters.innerHTML = `<button class="chip on" data-c="">सभी</button>` +
-      cents.map((c) => `<button class="chip" data-c="${esc(c)}">${esc(deva(c))}वीं</button>`).join('');
+    filters.innerHTML = `<button class="chip on" data-c="">${t('ui.all')}</button>` +
+      cents.map((c) => `<button class="chip" data-c="${esc(c)}">${esc(deva(c))}</button>`).join('');
     filters.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-c]');
       if (!b) return;
@@ -262,7 +271,7 @@ async function renderStrata({ withGranths }) {
   mount.innerHTML = html;
   const sc = document.getElementById('scrub');
   if (sc) {
-    sc.innerHTML = `<span class="lat">शताब्दी</span>` + scrub.map((s) =>
+    sc.innerHTML = `<span class="lat dv">${t('ui.century_jump')}</span>` + scrub.map((s) =>
       `<button data-s="cent-${esc(s)}">${esc(s === 'ई.पू.' ? 'ई.पू.' : deva(s))}</button>`).join('');
     sc.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-s]');
@@ -284,7 +293,7 @@ async function renderBhattarak() {
   let lang = '';
   const filters = document.getElementById('langFilters');
   if (filters) {
-    filters.innerHTML = `<button class="chip on" data-l="">सभी</button>` +
+    filters.innerHTML = `<button class="chip on" data-l="">${t('ui.all')}</button>` +
       LANGS.map((l) => `<button class="chip" data-l="${l}">${l}</button>`).join('');
     filters.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-l]');

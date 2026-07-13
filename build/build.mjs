@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { slugify, devaNum, nameKey } from '../js/translit.js';
+import { slugify, devaNum, nameKey, translit } from '../js/translit.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
@@ -18,6 +18,19 @@ const readJson = (f) => {
 const granths = readJson('granths-90.json');
 const acharyas = readJson('acharyas-420.json');
 const bhattarak = readJson('bhattarak-172.json');
+
+/* curated editorial intros (optional, keyed by id; name-checked before use) */
+const intros = new Map();
+for (const it of readJson('granth-intros.json')) {
+  const g = granths.find((x) => x.id === it.id);
+  if (!g) continue;
+  const a = (s) => String(s || '').replace(/\s+/g, '');
+  if (a(g.name) !== a(it.for)) {
+    console.warn(`! intro #${it.id} name mismatch ("${it.for}" vs "${g.name}") — skipped`);
+    continue;
+  }
+  intros.set(it.id, it.text);
+}
 
 /* ---------- enrich: slugs + author links ---------- */
 const seen = new Set();
@@ -73,6 +86,35 @@ writeFileSync(join(DIST, 'data/bhattarak-172.json'), JSON.stringify(bhattarak, n
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const deva = (s) => devaNum(String(s ?? ''));
 
+const ord = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+function centuryEn(c) {
+  if (/मध्यकाल/.test(c)) return 'the medieval period';
+  const m = String(c || '').match(/(\d{1,2})(?:–(\d{1,2}))?/);
+  if (!m) return c;
+  return m[2] ? `the ${ord(+m[1])}–${ord(+m[2])} century CE` : `the ${ord(+m[1])} century CE`;
+}
+const listHi = (a) => a.map((x) => x.name).join(', ');
+
+function autoIntroHi(g, author, sameAuthor, sameCentury) {
+  let s = `${g.name} — दिगम्बर जैन सम्प्रदाय के 90 प्रमुख प्राचीन ग्रन्थों की कालानुक्रमिक सूची में क्रमांक ${g.id} पर अंकित ग्रन्थ है। रचयिता ${g.author}; रचना-काल ${g.century} (लगभग)।`;
+  if (author) {
+    s += ` आचार्य-समयानुक्रमणिका (क्रमांक ${author.id}) के अनुसार इनका समय ${author.period} है${author.guru ? ` तथा गुरु ${author.guru}` : ''}।`;
+    if (author.works) s += ` वहाँ इनकी विशेषता/प्रधान कृति के रूप में "${author.works}" उल्लिखित है।`;
+  }
+  if (sameAuthor.length) s += ` इसी लेखनी से ${listHi(sameAuthor)} भी इस सूची में सम्मिलित ${sameAuthor.length > 1 ? 'हैं' : 'है'}।`;
+  if (sameCentury.length) s += ` समकालीन ग्रन्थों में ${listHi(sameCentury)} परिगणित हैं।`;
+  return deva(s);
+}
+function autoIntroEn(g, author, sameAuthor, sameCentury) {
+  let s = `${g.name} (${translit(g.name)}) is entry ${g.id} in the chronological list of the 90 principal ancient granths of the Digambar Jain tradition, composed by ${g.author} around ${centuryEn(g.century)}.`;
+  if (author) {
+    s += ` The acharya chronology (entry ${author.id}) places the author in ${author.period}${author.guru ? `, disciple of ${author.guru}` : ''}${author.works ? `, and credits him with "${author.works}"` : ''}.`;
+  }
+  if (sameAuthor.length) s += ` From the same pen: ${listHi(sameAuthor)}.`;
+  if (sameCentury.length) s += ` Contemporary works include ${listHi(sameCentury)}.`;
+  return s;
+}
+
 function granthPage(g, i) {
   const author = resolveAcharya(g.author);
   const guru = author?.guru || '';
@@ -92,9 +134,24 @@ function granthPage(g, i) {
     successor ? '<span class="arrow">→</span>' + kin(successor, successor.name) : '',
   ].join('');
 
-  const chips = (list, title) => list.length ? `
-      <div class="chips-l lat dv">${title}</div>
+  const chips = (list, key) => list.length ? `
+      <div class="chips-l lat dv" data-i18n="${key}"></div>
       <div class="chips">${list.map((x) => `<a class="chip" href="../${x.slug}/">${esc(x.name)}</a>`).join('')}</div>` : '';
+
+  const curated = intros.get(g.id);
+  const introHtml = curated ? `
+  <section class="prose">
+    <h2 data-i18n="ui.intro">संक्षिप्त परिचय</h2>
+    ${curated.map((p) => `<p>${esc(p)}</p>`).join('')}
+    <p class="prose-note">— सम्पादकीय परिचय; नीचे की तालिका-सामग्री मूल स्रोतों से अक्षरशः है। · Editorial summary; all list data is verbatim from the sources.</p>
+  </section>` : '';
+  const sameAuthor2 = sameAuthor, sameCentury2 = sameCentury;
+  const recordHtml = `
+  <section class="prose">
+    <h2 data-i18n="ui.record">अभिलेख-विवरण</h2>
+    <p class="lang-hi">${esc(autoIntroHi(g, author, sameAuthor2, sameCentury2))}</p>
+    <p class="lang-en">${esc(autoIntroEn(g, author, sameAuthor2, sameCentury2))}</p>
+  </section>`;
 
   return `<!DOCTYPE html>
 <html lang="hi" data-root="../../">
@@ -115,15 +172,18 @@ function granthPage(g, i) {
   <div class="wrap bar">
     <a class="brand inlay khand" href="../../">श्रुतधारा</a>
     <nav class="site-nav" aria-label="मुख्य">
-      <a href="../../">द्वार</a>
-      <a href="../../kaal.html">काल-स्तर</a>
-      <a href="../../granths.html" aria-current="page">ग्रन्थ</a>
-      <a href="../../acharya.html">आचार्य</a>
-      <a href="../../bhattarak.html">भट्टारक-विद्वान</a>
-      <a href="../../sources.html">मूल स्रोत</a>
-      <a href="../../about.html">परिचय</a>
+      <a href="../../" data-i18n="nav.home">द्वार</a>
+      <a href="../../kaal.html" data-i18n="nav.kaal">काल-स्तर</a>
+      <a href="../../granths.html" aria-current="page" data-i18n="nav.granths">ग्रन्थ</a>
+      <a href="../../acharya.html" data-i18n="nav.acharya">आचार्य</a>
+      <a href="../../bhattarak.html" data-i18n="nav.bhattarak">भट्टारक-विद्वान</a>
+      <a href="../../sources.html" data-i18n="nav.sources">मूल स्रोत</a>
+      <a href="../../about.html" data-i18n="nav.about">परिचय</a>
     </nav>
-    <div class="tools"><button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button></div>
+    <div class="tools">
+      <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
+    </div>
   </div>
 </header>
 
@@ -131,15 +191,18 @@ function granthPage(g, i) {
   <div class="gvein" aria-hidden="true"></div>
   <div class="mang">॥ श्री ॥</div>
   <h1 class="inlay">${esc(g.name)}</h1>
+  <p class="translit-line">${esc(translit(g.name))}</p>
   <p class="meta num">${esc(g.author)} <span>· ${esc(deva(g.century || ''))} · अभिलेख ${deva(g.id)}/${deva(granths.length)}</span></p>
   ${parampara ? `<div class="parampara num">${parampara}</div>` : ''}
-  ${chips(sameAuthor, 'इसी लेखनी से')}
-  ${chips(sameCentury, 'समकालीन ग्रन्थ')}
+  ${introHtml}
+  ${recordHtml}
+  ${chips(sameAuthor, 'ui.same_pen')}
+  ${chips(sameCentury, 'ui.same_century')}
   <div class="btns">
-    <a class="btn kum" href="../../pdf/${g.slug}.pdf" download>पीडीएफ़ डाउनलोड</a>
-    <button class="btn ghost" id="shareBtn" type="button">साझा करें</button>
+    <a class="btn kum" href="../../pdf/${g.slug}.pdf" download data-i18n="ui.pdf">पीडीएफ़ डाउनलोड</a>
+    <button class="btn ghost" id="shareBtn" type="button" data-i18n="ui.share">साझा करें</button>
   </div>
-  <p class="src">प्रमाण: ९०-ग्रन्थ सूची-पोस्टर, पंक्ति ${deva(g.id)} — <a href="../../sources.html">मूल छायाचित्र</a></p>
+  <p class="src"><span data-i18n="ui.proof">प्रमाण</span>: ९०-ग्रन्थ सूची-पोस्टर, पंक्ति ${deva(g.id)} — <a href="../../sources.html">मूल छायाचित्र</a></p>
   <nav class="nextprev num" aria-label="क्रम">
     <span>${prev ? `<a href="../${prev.slug}/">← ${esc(prev.name)}</a>` : ''}</span>
     <span>${next ? `<a href="../${next.slug}/">${esc(next.name)} →</a>` : ''}</span>
