@@ -8,6 +8,7 @@ import { slugify, devaNum, nameKey, translit } from '../js/translit.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
+const SITE = 'https://alphanout.github.io/shrutdhara';
 
 const readJson = (f) => {
   const p = join(ROOT, 'data', f);
@@ -162,6 +163,12 @@ function granthPage(g, i) {
 <meta name="description" content="${esc(g.name)} — ${esc(g.author)} · ${esc(g.century || '')} · दिगम्बर जैन ९० प्रमुख प्राचीन ग्रन्थों में क्रम ${g.id}।">
 <meta property="og:title" content="${esc(g.name)} — श्रुतधारा">
 <meta property="og:description" content="${esc(g.author)} · ${esc(g.century || '')} · अभिलेख ${g.id}/${granths.length}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="${SITE}/granth/${g.slug}/">
+<meta property="og:image" content="${SITE}/og/${g.slug}.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../../fonts/fonts.css">
 <link rel="stylesheet" href="../../css/style.css">
 <link rel="stylesheet" href="../../css/print.css">

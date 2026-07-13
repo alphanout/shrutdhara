@@ -47,6 +47,23 @@ if (existsSync(join(DIST, 'catalog.html'))) {
   n++;
 }
 
+/* OG share cards: dark-theme 1200×630 snapshots of each granth page + home */
+mkdirSync(join(DIST, 'og'), { recursive: true });
+await page.emulateMediaFeatures([{ name: 'prefers-color-scheme', value: 'dark' }]);
+await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 });
+let m = 0;
+if (existsSync(granthDir)) {
+  for (const slug of readdirSync(granthDir)) {
+    await page.goto(`${base}/granth/${slug}/`, { waitUntil: 'networkidle0', timeout: 60000 });
+    await page.screenshot({ path: join(DIST, 'og', `${slug}.jpg`), type: 'jpeg', quality: 82 });
+    m++;
+  }
+}
+await page.goto(`${base}/`, { waitUntil: 'networkidle0', timeout: 60000 });
+await page.screenshot({ path: join(DIST, 'og', 'site.jpg'), type: 'jpeg', quality: 82 });
+m++;
+console.log(`og ok → dist/og/ (${m} cards)`);
+
 await browser.close();
 server.close();
 console.log(`pdf ok → dist/pdf/ (${n} files)`);
