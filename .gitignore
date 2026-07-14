@@ -1,3 +1,4 @@
 node_modules/
 dist/
+.qa-shots/
 .DS_Store

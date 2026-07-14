@@ -169,6 +169,7 @@ function granthPage(g, i) {
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
 <link rel="stylesheet" href="../../fonts/fonts.css">
 <link rel="stylesheet" href="../../css/style.css">
 <link rel="stylesheet" href="../../css/print.css">
@@ -195,7 +196,6 @@ function granthPage(g, i) {
 </header>
 
 <main class="gpage">
-  <div class="gvein" aria-hidden="true"></div>
   <div class="mang">॥ श्री ॥</div>
   <h1 class="inlay">${esc(g.name)}</h1>
   <p class="translit-line">${esc(translit(g.name))}</p>
@@ -205,6 +205,15 @@ function granthPage(g, i) {
   ${recordHtml}
   ${chips(sameAuthor, 'ui.same_pen')}
   ${chips(sameCentury, 'ui.same_century')}
+  <section class="fulltext">
+    <div class="chips-l lat dv" data-i18n="ui.fulltext">सम्पूर्ण ग्रन्थ पढ़ें</div>
+    <div class="chips">
+      <a class="chip ext" target="_blank" rel="noopener" href="https://www.jaingranthlibrary.com/search?q=${encodeURIComponent(g.name)}">जैन ग्रन्थ लाइब्रेरी ↗</a>
+      <a class="chip ext" target="_blank" rel="noopener" href="https://jainkosh.org/wiki/Special:Search?search=${encodeURIComponent(g.name)}">जैनकोश ↗</a>
+      <a class="chip ext" target="_blank" rel="noopener" href="https://archive.org/search?query=${encodeURIComponent(g.name)}">Archive.org ↗</a>
+    </div>
+    <p class="ext-note" data-i18n="ui.fulltext_note">बाह्य ग्रन्थालयों में खोज — नई टैब में खुलेगी</p>
+  </section>
   <div class="btns">
     <a class="btn kum" href="../../pdf/${g.slug}.pdf" download data-i18n="ui.pdf">पीडीएफ़ डाउनलोड</a>
     <button class="btn ghost" id="shareBtn" type="button" data-i18n="ui.share">साझा करें</button>

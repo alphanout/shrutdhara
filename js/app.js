@@ -126,7 +126,10 @@ function centuryOf(entry) {
   if (entry.centurySection) return entry.centurySection;
   const m = String(entry.century || '').match(/(\d{1,2})/);
   if (m) return m[1];
-  const y = firstYear(entry.period);
+  const p = String(entry.period || '');
+  const sh = p.match(/ई\.?\s*श\.?\s*(\d{1,2})(?!\d)/); // "ई.श. 7–8" = centuries, not years
+  if (sh) return sh[1];
+  const y = firstYear(p);
   if (y) return String(Math.floor((y - 1) / 100) + 1);
   return '?';
 }
@@ -183,7 +186,8 @@ async function renderGranths() {
   const data = await loadData();
   const filters = document.getElementById('centFilters');
   let cent = '';
-  const cents = [...new Set(data.granths.map((g) => centuryOf(g)))];
+  const cents = [...new Set(data.granths.map((g) => centuryOf(g)))]
+    .sort((a, b) => (a === '?') - (b === '?') || (+a) - (+b));
   if (filters) {
     filters.innerHTML = `<button class="chip on" data-c="">${t('ui.all')}</button>` +
       cents.map((c) => `<button class="chip" data-c="${esc(c)}">${esc(deva(c))}</button>`).join('');
@@ -202,7 +206,7 @@ async function renderGranths() {
         <span class="vein"></span>
         <span class="serial inlay num">अभिलेख ${deva(g.id)} / ${deva(data.granths.length)}</span>
         <span class="gname carve">${esc(g.name)}</span>
-        <span class="foot"><span class="kum"></span><span class="a">${esc(g.author)}</span><span class="e num">${esc(deva(g.century || ''))}</span></span>
+        <span class="foot"><span class="kum-mark"></span><span class="a">${esc(g.author)}</span><span class="e num">${esc(deva(g.century || ''))}</span></span>
       </a>`).join('') || `<p class="loading">डेटा उपलब्ध नहीं — data/granths-90.json अनुपस्थित।</p>`;
   }
   draw();

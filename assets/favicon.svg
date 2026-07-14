@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="6" fill="#17120a"/>
+  <path d="M32 5 L59 32 L32 59 L5 32 Z" fill="none" stroke="#c99a34" stroke-width="2.5"/>
+  <text x="32" y="43" font-family="Khand, Kohinoor Devanagari, Nirmala UI, Noto Sans Devanagari, sans-serif" font-size="27" font-weight="700" fill="#f0d288" text-anchor="middle">श्रु</text>
+</svg>
