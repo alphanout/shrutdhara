@@ -321,7 +321,7 @@ function paathPage(g, txt) {
   <div class="phead">
     <div class="mang">॥ श्री ॥</div>
     <h1 class="inlay">${esc(g.name)}</h1>
-    <p class="pmeta num">${esc(g.author)} · ${esc(meta.language || '')}${meta.verses ? ` · ${deva(meta.verses)} पद्य` : ''}</p>
+    <p class="pmeta num">${esc(g.author)} · ${esc(meta.language || '')}${meta.verses ? ` · ${deva(meta.verses)} पद्य · ~${deva(Math.max(1, Math.round(+meta.verses * 9 / 60)))} मिनट` : ''}</p>
   </div>
   ${body}
   <div class="attrib">
@@ -341,6 +341,7 @@ function paathPage(g, txt) {
 </footer>
 
 <script type="module" src="../../../js/app.js"></script>
+<script type="module" src="../../../js/reader.js"></script>
 </body>
 </html>
 `;

@@ -237,6 +237,30 @@ html:not([data-lang="en"]) .lang-en{display:none}
 .gpage .nextprev{display:flex; justify-content:space-between; gap:14px; margin-top:44px; padding-top:18px; border-top:1px solid var(--hairline); font-size:.88rem}
 .gpage .nextprev a{text-decoration:none}
 
+/* ---------- पाठ reader: surfaces, toolbar, zoom, progress, playing ---------- */
+body[data-surface="sepia"]{background:#f2e9d5; --etch:#3a2f1d; --etch-dim:#7c6c4c; --stone-1:#e9dec3; --edge:rgba(58,47,29,.18); --hairline:rgba(58,47,29,.22)}
+body[data-surface="white"]{background:#fbf9f4; --etch:#20202a; --etch-dim:#6b6b76; --stone-1:#f1efe8; --edge:rgba(32,32,42,.14); --hairline:rgba(32,32,42,.18)}
+body[data-surface="sepia"] .site-head, body[data-surface="white"] .site-head{background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none}
+body[data-surface="sepia"] .inlay, body[data-surface="white"] .inlay{background:none; -webkit-background-clip:initial; background-clip:initial; color:#8a6420}
+.reader-bar{position:sticky; top:0; z-index:8; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;
+  padding:10px 16px; background:color-mix(in srgb, var(--stone-0) 90%, transparent);
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); border-bottom:1px solid var(--hairline)}
+body[data-surface="sepia"] .reader-bar{background:rgba(242,233,213,.92)}
+body[data-surface="white"] .reader-bar{background:rgba(251,249,244,.92)}
+.reader-bar .icon-btn{border:1px solid var(--hairline); background:transparent; color:var(--etch)}
+.reader-bar .icon-btn.on{border-color:var(--gold-2); color:var(--gold)}
+.reader-bar .rb-sep{width:1px; height:20px; background:var(--hairline)}
+.read-progress{position:fixed; top:0; left:0; height:3px; width:0; z-index:10;
+  background:linear-gradient(90deg, var(--gold-2), var(--gold-1))}
+.paath.fs0 .verse{font-size:1rem; line-height:2}
+.paath.fs1 .verse{font-size:1.16rem; line-height:2.1}
+.paath.fs2 .verse{font-size:1.32rem; line-height:2.15}
+.paath.fs3 .verse{font-size:1.5rem; line-height:2.2}
+.paath.fs4 .verse{font-size:1.7rem; line-height:2.25}
+.verse.playing{background:linear-gradient(90deg, rgba(217,174,86,.14), transparent 85%);
+  border-left:3px solid var(--gold-2); padding-left:14px; margin-left:-17px}
+@media (prefers-reduced-motion:reduce){ .verse.playing{transition:none} }
+
 /* ---------- पाठ reader ---------- */
 .paath{max-width:37em; margin:0 auto; padding:56px 24px 80px}
 .paath .phead{text-align:center; margin-bottom:40px}
