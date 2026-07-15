@@ -282,23 +282,50 @@ function paathPage(g, txt) {
   const { meta, blocks } = txt;
   /* group: verse block + attached @-layer blocks (@अर्थ / @en / @छाया) */
   const LAYER = { '@अर्थ': 'arth', '@en': 'en', '@छाया': 'chhaya' };
+  const isProse = meta.format === 'prose';
   const out = [];
-  let hasArth = false, hasEn = false, hasChhaya = false;
+  const toc = [];
+  let vn = 0, sn = 0;
   for (const b of blocks) {
-    if (b.startsWith('## ')) { out.push(`<h2>${esc(b.slice(3))}</h2>`); continue; }
+    if (b.startsWith('## ')) {
+      sn++;
+      const name = b.slice(3);
+      toc.push({ id: `s${sn}`, name });
+      out.push(`<h2 id="s${sn}">${esc(name)}</h2>`);
+      continue;
+    }
     const lm = Object.keys(LAYER).find((k) => b.startsWith(k + ' ') || b.startsWith(k + '\n'));
     if (lm && out.length && out[out.length - 1].startsWith('<div class="vgroup"')) {
       const cls = LAYER[lm];
-      if (cls === 'arth') hasArth = true; if (cls === 'en') hasEn = true; if (cls === 'chhaya') hasChhaya = true;
       const content = esc(b.slice(lm.length).trim()).replace(/\n/g, '<br>');
       out[out.length - 1] = out[out.length - 1].replace('</div><!--vg-->',
-        `<div class="vlayer ${cls}">${content}</div></div><!--vg-->`);
+        `<div class="vlayer ${cls}" hidden>${content}</div></div><!--vg-->`);
       continue;
     }
-    out.push(`<div class="vgroup"><div class="verse">${esc(b).replace(/\n/g, '<br>')}</div><div class="vlayer lipi" aria-hidden="true"></div></div><!--vg-->`);
+    vn++;
+    out.push(`<div class="vgroup" id="v${vn}" data-n="${vn}" tabindex="0" role="button" aria-label="विवरण खोलें"><div class="verse">${esc(b).replace(/\n/g, '<br>')}</div></div><!--vg-->`);
   }
   const body = out.join('\n');
-  const layerFlags = `data-has-arth="${hasArth}" data-has-en="${hasEn}" data-has-chhaya="${hasChhaya}"`;
+  const tocHtml = `
+  <aside class="toc" id="toc" aria-label="विषय-सूची">
+    <div class="toc-h lat dv" data-i18n="ui.toc">विषय-सूची</div>
+    ${toc.length ? `<nav class="toc-secs">${toc.map((t) => `<a href="#${t.id}">${esc(t.name)}</a>`).join('')}</nav>` : ''}
+    ${!isProse && vn > 1 ? `<div class="toc-h lat dv" style="margin-top:16px">पद्य</div><div class="vgrid">${Array.from({ length: vn }, (_, i) => `<button type="button" data-v="${i + 1}" class="vg-btn num">${deva(i + 1)}</button>`).join('')}</div>` : ''}
+  </aside>`;
+  const panelHtml = `
+  <div class="vpanel-scrim" id="vpanelScrim" hidden></div>
+  <aside class="vpanel" id="vpanel" aria-label="पद्य-विवरण" hidden>
+    <div class="vp-head">
+      <b id="vpTitle" class="num"></b>
+      <button class="icon-btn" id="vpClose" type="button" aria-label="बंद करें">✕</button>
+    </div>
+    <div class="vp-body" id="vpBody"></div>
+    <div class="vp-actions">
+      <button class="btn kum" id="vpListen" type="button">▶ <span data-i18n="ui.listen_this">यह सुनें</span></button>
+      <button class="btn ghost" id="vpLink" type="button" data-i18n="ui.copy_link">कड़ी कॉपी करें</button>
+    </div>
+  </aside>`;
+  const layerFlags = `data-prose="${isProse}"`;
   return `<!DOCTYPE html>
 <html lang="sa" data-root="../../../">
 <head>
@@ -332,6 +359,8 @@ function paathPage(g, txt) {
   </div>
 </header>
 
+<div class="reader-wrap">
+${tocHtml}
 <main class="paath${meta.format === 'prose' ? ' prose-text' : ''}" ${layerFlags}>
   <div class="phead">
     <div class="mang">॥ श्री ॥</div>
@@ -350,6 +379,8 @@ function paathPage(g, txt) {
   </div>
   <div class="print-foot num">श्रुतधारा · ${esc(g.name)} — मूल पाठ · स्रोत: ${esc(meta.source || '')}</div>
 </main>
+</div>
+${panelHtml}
 
 <footer class="site-foot">
   <div class="k">॥ ❖ ॥</div>

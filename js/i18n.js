@@ -4,6 +4,7 @@
 
 const DICT = {
   hi: {
+    'ui.toc': 'विषय-सूची', 'ui.listen_this': 'यह सुनें', 'ui.copy_link': 'कड़ी कॉपी करें',
     'ui.texts_avail': 'उपलब्ध मूल पाठ — पूरा ग्रन्थ पढ़ें',
     'ui.paath': 'मूल पाठ पढ़ें', 'ui.back_granth': 'ग्रन्थ-पृष्ठ',
     'ui.fulltext': 'सम्पूर्ण ग्रन्थ पढ़ें', 'ui.fulltext_note': 'बाह्य ग्रन्थालयों में खोज — नई टैब में खुलेगी',
@@ -23,6 +24,7 @@ const DICT = {
     'ui.warn': '⚠ चिह्न = मूल छायाचित्र में अस्पष्ट पंक्ति',
   },
   en: {
+    'ui.toc': 'Contents', 'ui.listen_this': 'Listen to this', 'ui.copy_link': 'Copy link',
     'ui.texts_avail': 'Full texts available — read the whole granth',
     'ui.paath': 'Read the original text', 'ui.back_granth': 'Granth page',
     'ui.fulltext': 'Read the full text', 'ui.fulltext_note': 'Searches external libraries — opens in a new tab',
@@ -42,6 +44,7 @@ const DICT = {
     'ui.warn': '⚠ marks a row unclear in the source photograph',
   },
   sa: {
+    'ui.toc': 'विषयसूची', 'ui.listen_this': 'इदं शृणुत', 'ui.copy_link': 'सङ्केतं प्रतिलिपयतु',
     'ui.texts_avail': 'उपलब्धाः मूलपाठाः',
     'ui.paath': 'मूलपाठः पठ्यताम्', 'ui.back_granth': 'ग्रन्थपृष्ठम्',
     'ui.fulltext': 'सम्पूर्णग्रन्थपठनम्', 'ui.fulltext_note': 'बाह्यग्रन्थालयेषु अन्वेषणम् — नवीने पटले उद्घाटयति',
@@ -61,6 +64,7 @@ const DICT = {
     'ui.warn': '⚠ चिह्नम् = मूलचित्रे अस्पष्टा पङ्क्तिः',
   },
   pra: {
+    'ui.toc': 'विसयसूई', 'ui.listen_this': 'एदं सुणह', 'ui.copy_link': 'संकेदं पडिलिवह',
     'ui.texts_avail': 'उवलद्धा मूलपाढा',
     'ui.paath': 'मूलपाढं पढह', 'ui.back_granth': 'गंथ-पत्तं',
     'ui.fulltext': 'पुण्णं गंथं पढह', 'ui.fulltext_note': 'बाहिरगंथालएसु गवेसणा — णवे पडले उग्घाडइ',

@@ -20,6 +20,7 @@ if (main) {
   const bar = document.createElement('div');
   bar.className = 'reader-bar';
   bar.innerHTML = `
+    <button class="icon-btn toc-toggle" id="rToc" type="button" title="विषय-सूची / Contents">☰</button>
     <button class="icon-btn" id="rPlay" type="button" title="सुनें / Listen">▶ सुनें</button>
     <select class="icon-btn" id="rRate" title="गति / Speed">
       <option value="0.8">०.८×</option><option value="1" selected>१×</option><option value="1.25">१.२५×</option>
@@ -30,13 +31,8 @@ if (main) {
     <span class="rb-sep"></span>
     <button class="icon-btn rs" data-s="stone" type="button" title="पत्थर / Stone">◆</button>
     <button class="icon-btn rs" data-s="sepia" type="button" title="कागज़ / Sepia">❖</button>
-    <button class="icon-btn rs" data-s="white" type="button" title="श्वेत / White">◇</button>
-    <span class="rb-sep"></span>
-    <button class="icon-btn rl" data-l="lipi" type="button" title="Roman lipi">Aa</button>
-    <button class="icon-btn rl" data-l="arth" type="button" title="हिन्दी अर्थ" hidden>अर्थ</button>
-    <button class="icon-btn rl" data-l="chhaya" type="button" title="संस्कृत छाया" hidden>छाया</button>
-    <button class="icon-btn rl" data-l="en" type="button" title="English" hidden>EN</button>`;
-  main.parentNode.insertBefore(bar, main);
+    <button class="icon-btn rs" data-s="white" type="button" title="श्वेत / White">◇</button>`;
+  document.querySelector('.reader-wrap').parentNode.insertBefore(bar, document.querySelector('.reader-wrap'));
   const markSurface = () => bar.querySelectorAll('.rs').forEach((b) => b.classList.toggle('on', b.dataset.s === surface));
   markSurface();
 
@@ -46,33 +42,93 @@ if (main) {
     surface = b.dataset.s; P.set('sd-reader-surface', surface); applySurface(); markSurface();
   }));
 
-  /* ---------- verse layers: lipi (auto), अर्थ, छाया, EN ---------- */
-  import(new URL('./translit.js', import.meta.url)).then(({ translit }) => {
-    const layers = ['lipi', 'arth', 'chhaya', 'en'];
-    const avail = (l) => l === 'lipi' || main.getAttribute('data-has-' + l) === 'true';
-    let lipiDone = false;
-    const fillLipi = () => {
-      if (lipiDone) return; lipiDone = true;
-      main.querySelectorAll('.vgroup').forEach((vg) => {
-        const v = vg.querySelector('.verse'), out = vg.querySelector('.vlayer.lipi');
-        if (v && out) out.textContent = translit(v.textContent).replace(/\s+/g, ' ').trim();
-      });
-    };
-    layers.forEach((l) => {
-      const btn = bar.querySelector(`.rl[data-l="${l}"]`);
-      if (!btn) return;
-      if (!avail(l)) { btn.hidden = true; return; }
-      btn.hidden = false;
-      let on = P.get('sd-layer-' + l, '0') === '1';
-      const apply = () => {
-        if (l === 'lipi' && on) fillLipi();
-        document.body.classList.toggle('show-' + l, on);
-        btn.classList.toggle('on', on);
-      };
-      apply();
-      btn.addEventListener('click', () => { on = !on; P.set('sd-layer-' + l, on ? '1' : '0'); apply(); });
+  /* ---------- विषय-सूची: drawer + scroll-spy + verse grid ---------- */
+  const toc = document.getElementById('toc');
+  bar.querySelector('#rToc').addEventListener('click', () => document.body.classList.toggle('toc-open'));
+  if (toc) {
+    toc.addEventListener('click', (e) => {
+      if (e.target.closest('a') || e.target.closest('.vg-btn')) document.body.classList.remove('toc-open');
+      const vb = e.target.closest('.vg-btn');
+      if (vb) {
+        const vg = document.getElementById('v' + vb.dataset.v);
+        if (vg) { vg.scrollIntoView({ block: 'center' }); openPanel(vg); }
+      }
     });
+    const links = [...toc.querySelectorAll('.toc-secs a')];
+    const byId = new Map(links.map((a) => [a.getAttribute('href').slice(1), a]));
+    if (links.length && 'IntersectionObserver' in window) {
+      let curLink = null;
+      const io = new IntersectionObserver((es) => {
+        for (const e of es) {
+          if (e.isIntersecting) {
+            if (curLink) curLink.classList.remove('cur');
+            curLink = byId.get(e.target.id) || null;
+            if (curLink) curLink.classList.add('cur');
+          }
+        }
+      }, { rootMargin: '-15% 0px -75% 0px' });
+      main.querySelectorAll('h2[id]').forEach((h) => io.observe(h));
+    }
+  }
+
+  /* ---------- verse detail panel ---------- */
+  const panel = document.getElementById('vpanel');
+  const scrim = document.getElementById('vpanelScrim');
+  let translitFn = null, openVg = null;
+  const devaFn = (x) => String(x).replace(/[0-9]/g, (d) => '०१२३४५६७८९'[+d]);
+  import(new URL('./translit.js', import.meta.url)).then((m) => { translitFn = m.translit; });
+
+  const LBL = { arth: 'हिन्दी अर्थ', chhaya: 'संस्कृत छाया', en: 'English' };
+  function openPanel(vg) {
+    if (!panel) return;
+    if (openVg) openVg.classList.remove('open');
+    openVg = vg;
+    vg.classList.add('open');
+    const n = vg.dataset.n;
+    const mool = vg.querySelector('.verse').innerHTML;
+    const moolText = vg.querySelector('.verse').textContent;
+    document.getElementById('vpTitle').textContent =
+      (main.getAttribute('data-prose') === 'true' ? 'खण्ड ' : 'पद्य ') + devaFn(n);
+    let html = `<div class="vp-sec"><span class="lat dv">मूल</span><div class="vp-mool">${mool}</div></div>`;
+    if (translitFn) {
+      html += `<div class="vp-sec"><span class="lat">Roman</span><div class="vp-lipi">${translitFn(moolText).replace(/\s+/g, ' ').trim()}</div></div>`;
+    }
+    for (const [cls, label] of Object.entries(LBL)) {
+      const el = vg.querySelector('.vlayer.' + cls);
+      if (el) html += `<div class="vp-sec"><span class="lat dv">${label}</span><div class="vp-txt">${el.innerHTML}</div></div>`;
+    }
+    document.getElementById('vpBody').innerHTML = html;
+    panel.hidden = false; scrim.hidden = false;
+    requestAnimationFrame(() => panel.classList.add('show'));
+    history.replaceState(null, '', '#v' + n);
+    panel.dataset.n = n;
+  }
+  function closePanel() {
+    if (!panel || panel.hidden) return;
+    panel.classList.remove('show');
+    scrim.hidden = true;
+    if (openVg) { openVg.classList.remove('open'); openVg = null; }
+    history.replaceState(null, '', location.pathname);
+    setTimeout(() => { panel.hidden = true; }, 260);
+  }
+  main.addEventListener('click', (e) => {
+    const vg = e.target.closest('.vgroup');
+    if (vg) openPanel(vg);
   });
+  main.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.classList?.contains('vgroup')) openPanel(e.target);
+  });
+  document.getElementById('vpClose')?.addEventListener('click', closePanel);
+  scrim?.addEventListener('click', closePanel);
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePanel(); document.body.classList.remove('toc-open'); } });
+  document.getElementById('vpLink')?.addEventListener('click', async () => {
+    const url = location.origin + location.pathname + '#v' + (panel.dataset.n || '');
+    try { await navigator.clipboard.writeText(url); document.getElementById('vpLink').textContent = '✓ कॉपी हुई'; } catch {}
+  });
+  if (location.hash.startsWith('#v')) {
+    const vg = document.getElementById(location.hash.slice(1));
+    if (vg) setTimeout(() => { vg.scrollIntoView({ block: 'center' }); openPanel(vg); }, 300);
+  }
 
   /* ---------- progress bar ---------- */
   const prog = document.createElement('div');
@@ -91,7 +147,7 @@ if (main) {
   const playBtn = bar.querySelector('#rPlay');
   const rateSel = bar.querySelector('#rRate');
   const synth = window.speechSynthesis;
-  let cur = -1, playing = false;
+  let cur = -1, playing = false, singleMode = false;
 
   const speechText = (el) => el.textContent
     .replace(/॥[^॥]*॥/g, '.')
@@ -118,8 +174,8 @@ if (main) {
     const v = pickVoice();
     if (v) u.voice = v;
     u.rate = +rateSel.value;
-    u.onend = () => { if (playing) speakFrom(cur + 1); };
-    u.onerror = () => { if (playing) speakFrom(cur + 1); };
+    u.onend = () => { if (playing && !singleMode) speakFrom(cur + 1); else if (singleMode) stop(); };
+    u.onerror = () => { if (playing && !singleMode) speakFrom(cur + 1); else if (singleMode) stop(); };
     synth.speak(u);
   }
 
@@ -137,7 +193,11 @@ if (main) {
     verses.forEach((v) => v.classList.remove('playing'));
   }
 
-  playBtn.addEventListener('click', () => (playing ? stop() : start(Math.max(0, cur))));
+  playBtn.addEventListener('click', () => { singleMode = false; playing ? stop() : start(Math.max(0, cur)); });
+  document.getElementById('vpListen')?.addEventListener('click', () => {
+    const n = +(panel?.dataset.n || 0);
+    if (n > 0) { singleMode = true; start(n - 1); }
+  });
   rateSel.addEventListener('change', () => { if (playing) { synth.cancel(); speakFrom(cur); } });
   verses.forEach((v, i) => v.addEventListener('dblclick', () => start(i))); // double-tap a verse: listen from there
   addEventListener('pagehide', stop);
