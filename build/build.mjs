@@ -95,6 +95,9 @@ rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'data'), { recursive: true });
 for (const d of ['css', 'js', 'fonts']) cpSync(join(ROOT, d), join(DIST, d), { recursive: true });
 if (existsSync(join(ROOT, 'assets/photos'))) cpSync(join(ROOT, 'assets/photos'), join(DIST, 'assets/photos'), { recursive: true });
+for (const f of ['assets/favicon.svg', 'assets/favicon-180.png']) {
+  if (existsSync(join(ROOT, f))) cpSync(join(ROOT, f), join(DIST, f));
+}
 for (const f of ['index.html', 'kaal.html', 'granths.html', 'acharya.html', 'bhattarak.html', 'sources.html', 'about.html']) {
   if (existsSync(join(ROOT, f))) cpSync(join(ROOT, f), join(DIST, f));
 }
@@ -189,6 +192,7 @@ function granthPage(g, i) {
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
+<link rel="apple-touch-icon" href="../../assets/favicon-180.png">
 <link rel="stylesheet" href="../../fonts/fonts.css">
 <link rel="stylesheet" href="../../css/style.css">
 <link rel="stylesheet" href="../../css/print.css">
@@ -292,6 +296,7 @@ function paathPage(g, txt) {
 <meta property="og:image" content="${SITE}/og/${g.slug}.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<link rel="apple-touch-icon" href="../../../assets/favicon-180.png">
 <link rel="stylesheet" href="../../../fonts/fonts.css">
 <link rel="stylesheet" href="../../../css/style.css">
 <link rel="stylesheet" href="../../../css/print.css">

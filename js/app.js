@@ -170,6 +170,16 @@ async function renderHome() {
         <div class="tm num"><b>${esc(g.author)}</b> · ${esc(deva(g.century || ''))}</div>
       </div>`;
   }
+  const strip = document.getElementById('paathStrip');
+  const list = document.getElementById('paathList');
+  if (strip && list) {
+    const withText = data.granths.filter((g) => g.hasText);
+    if (withText.length) {
+      strip.hidden = false;
+      list.innerHTML = withText.map((g) =>
+        `<a class="chip" href="${root}granth/${g.slug || slugify(g.name)}/paath/">${esc(g.name)} · पाठ</a>`).join('');
+    }
+  }
   const stats = document.getElementById('stats');
   if (stats && data.granths.length) {
     stats.querySelectorAll('[data-stat]').forEach((el) => {
