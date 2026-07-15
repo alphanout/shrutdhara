@@ -11,7 +11,7 @@ if (main) {
   };
   const SIZES = ['fs0', 'fs1', 'fs2', 'fs3', 'fs4'];
   let size = Math.min(4, Math.max(0, +P.get('sd-reader-size', 1)));
-  let surface = P.get('sd-reader-surface', 'sepia'); // sepia default: reading = paper
+  let surface = P.get('sd-reader-surface', 'stone'); // default follows the site theme (incl. dark); sepia/white are opt-in
   const applySize = () => { SIZES.forEach((c) => main.classList.remove(c)); main.classList.add(SIZES[size]); };
   const applySurface = () => { document.body.setAttribute('data-surface', surface); };
   applySize(); applySurface();
