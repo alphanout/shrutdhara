@@ -259,6 +259,9 @@ body[data-surface="white"] .reader-bar{background:rgba(251,249,244,.92)}
 .paath.fs4 .verse{font-size:1.7rem; line-height:2.25}
 .verse.playing{background:linear-gradient(90deg, rgba(217,174,86,.14), transparent 85%);
   border-left:3px solid var(--gold-2); padding-left:14px; margin-left:-17px}
+.paath.prose-text{max-width:42em}
+.paath.prose-text .verse{text-align:left; text-wrap:initial; font-weight:300; line-height:2}
+.paath.prose-text .vgroup{margin-bottom:18px}
 .vgroup{margin:0 0 24px}
 .vgroup .verse{margin-bottom:6px}
 .vlayer{display:none; text-align:left; font-size:.86em; line-height:1.9; margin:6px auto 0; max-width:34em;

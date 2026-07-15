@@ -332,7 +332,7 @@ function paathPage(g, txt) {
   </div>
 </header>
 
-<main class="paath" ${layerFlags}>
+<main class="paath${meta.format === 'prose' ? ' prose-text' : ''}" ${layerFlags}>
   <div class="phead">
     <div class="mang">॥ श्री ॥</div>
     <h1 class="inlay">${esc(g.name)}</h1>
