@@ -30,7 +30,12 @@ if (main) {
     <span class="rb-sep"></span>
     <button class="icon-btn rs" data-s="stone" type="button" title="पत्थर / Stone">◆</button>
     <button class="icon-btn rs" data-s="sepia" type="button" title="कागज़ / Sepia">❖</button>
-    <button class="icon-btn rs" data-s="white" type="button" title="श्वेत / White">◇</button>`;
+    <button class="icon-btn rs" data-s="white" type="button" title="श्वेत / White">◇</button>
+    <span class="rb-sep"></span>
+    <button class="icon-btn rl" data-l="lipi" type="button" title="Roman lipi">Aa</button>
+    <button class="icon-btn rl" data-l="arth" type="button" title="हिन्दी अर्थ" hidden>अर्थ</button>
+    <button class="icon-btn rl" data-l="chhaya" type="button" title="संस्कृत छाया" hidden>छाया</button>
+    <button class="icon-btn rl" data-l="en" type="button" title="English" hidden>EN</button>`;
   main.parentNode.insertBefore(bar, main);
   const markSurface = () => bar.querySelectorAll('.rs').forEach((b) => b.classList.toggle('on', b.dataset.s === surface));
   markSurface();
@@ -40,6 +45,34 @@ if (main) {
   bar.querySelectorAll('.rs').forEach((b) => b.addEventListener('click', () => {
     surface = b.dataset.s; P.set('sd-reader-surface', surface); applySurface(); markSurface();
   }));
+
+  /* ---------- verse layers: lipi (auto), अर्थ, छाया, EN ---------- */
+  import(new URL('./translit.js', import.meta.url)).then(({ translit }) => {
+    const layers = ['lipi', 'arth', 'chhaya', 'en'];
+    const avail = (l) => l === 'lipi' || main.getAttribute('data-has-' + l) === 'true';
+    let lipiDone = false;
+    const fillLipi = () => {
+      if (lipiDone) return; lipiDone = true;
+      main.querySelectorAll('.vgroup').forEach((vg) => {
+        const v = vg.querySelector('.verse'), out = vg.querySelector('.vlayer.lipi');
+        if (v && out) out.textContent = translit(v.textContent).replace(/\s+/g, ' ').trim();
+      });
+    };
+    layers.forEach((l) => {
+      const btn = bar.querySelector(`.rl[data-l="${l}"]`);
+      if (!btn) return;
+      if (!avail(l)) { btn.hidden = true; return; }
+      btn.hidden = false;
+      let on = P.get('sd-layer-' + l, '0') === '1';
+      const apply = () => {
+        if (l === 'lipi' && on) fillLipi();
+        document.body.classList.toggle('show-' + l, on);
+        btn.classList.toggle('on', on);
+      };
+      apply();
+      btn.addEventListener('click', () => { on = !on; P.set('sd-layer-' + l, on ? '1' : '0'); apply(); });
+    });
+  });
 
   /* ---------- progress bar ---------- */
   const prog = document.createElement('div');

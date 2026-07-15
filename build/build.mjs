@@ -280,10 +280,25 @@ for (let i = 0; i < granths.length; i++) {
 /* ---------- पाठ (reader) pages ---------- */
 function paathPage(g, txt) {
   const { meta, blocks } = txt;
-  const body = blocks.map((b) => {
-    if (b.startsWith('## ')) return `<h2>${esc(b.slice(3))}</h2>`;
-    return `<div class="verse">${esc(b).replace(/\n/g, '<br>')}</div>`;
-  }).join('\n');
+  /* group: verse block + attached @-layer blocks (@अर्थ / @en / @छाया) */
+  const LAYER = { '@अर्थ': 'arth', '@en': 'en', '@छाया': 'chhaya' };
+  const out = [];
+  let hasArth = false, hasEn = false, hasChhaya = false;
+  for (const b of blocks) {
+    if (b.startsWith('## ')) { out.push(`<h2>${esc(b.slice(3))}</h2>`); continue; }
+    const lm = Object.keys(LAYER).find((k) => b.startsWith(k + ' ') || b.startsWith(k + '\n'));
+    if (lm && out.length && out[out.length - 1].startsWith('<div class="vgroup"')) {
+      const cls = LAYER[lm];
+      if (cls === 'arth') hasArth = true; if (cls === 'en') hasEn = true; if (cls === 'chhaya') hasChhaya = true;
+      const content = esc(b.slice(lm.length).trim()).replace(/\n/g, '<br>');
+      out[out.length - 1] = out[out.length - 1].replace('</div><!--vg-->',
+        `<div class="vlayer ${cls}">${content}</div></div><!--vg-->`);
+      continue;
+    }
+    out.push(`<div class="vgroup"><div class="verse">${esc(b).replace(/\n/g, '<br>')}</div><div class="vlayer lipi" aria-hidden="true"></div></div><!--vg-->`);
+  }
+  const body = out.join('\n');
+  const layerFlags = `data-has-arth="${hasArth}" data-has-en="${hasEn}" data-has-chhaya="${hasChhaya}"`;
   return `<!DOCTYPE html>
 <html lang="sa" data-root="../../../">
 <head>
@@ -317,7 +332,7 @@ function paathPage(g, txt) {
   </div>
 </header>
 
-<main class="paath">
+<main class="paath" ${layerFlags}>
   <div class="phead">
     <div class="mang">॥ श्री ॥</div>
     <h1 class="inlay">${esc(g.name)}</h1>

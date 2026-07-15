@@ -259,6 +259,17 @@ body[data-surface="white"] .reader-bar{background:rgba(251,249,244,.92)}
 .paath.fs4 .verse{font-size:1.7rem; line-height:2.25}
 .verse.playing{background:linear-gradient(90deg, rgba(217,174,86,.14), transparent 85%);
   border-left:3px solid var(--gold-2); padding-left:14px; margin-left:-17px}
+.vgroup{margin:0 0 24px}
+.vgroup .verse{margin-bottom:6px}
+.vlayer{display:none; text-align:left; font-size:.86em; line-height:1.9; margin:6px auto 0; max-width:34em;
+  padding:8px 14px; border-left:2px solid var(--hairline); color:var(--etch-dim)}
+.vlayer.lipi{font-style:italic; letter-spacing:.01em; text-align:center; border-left:none; padding:0 14px}
+.vlayer.arth, .vlayer.chhaya{color:var(--etch)}
+body.show-lipi .vlayer.lipi{display:block}
+body.show-arth .vlayer.arth{display:block}
+body.show-chhaya .vlayer.chhaya{display:block}
+body.show-en .vlayer.en{display:block}
+.reader-bar .rl.on{border-color:var(--patina); color:var(--patina)}
 @media (prefers-reduced-motion:reduce){ .verse.playing{transition:none} }
 
 /* ---------- पाठ reader ---------- */
