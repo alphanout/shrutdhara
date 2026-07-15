@@ -4,6 +4,7 @@
 
 const DICT = {
   hi: {
+    'ui.paath': 'मूल पाठ पढ़ें', 'ui.back_granth': 'ग्रन्थ-पृष्ठ',
     'ui.fulltext': 'सम्पूर्ण ग्रन्थ पढ़ें', 'ui.fulltext_note': 'बाह्य ग्रन्थालयों में खोज — नई टैब में खुलेगी',
     'nav.home': 'द्वार', 'nav.kaal': 'काल-स्तर', 'nav.granths': 'ग्रन्थ', 'nav.acharya': 'आचार्य',
     'nav.bhattarak': 'भट्टारक-विद्वान', 'nav.sources': 'मूल स्रोत', 'nav.about': 'परिचय',
@@ -21,6 +22,7 @@ const DICT = {
     'ui.warn': '⚠ चिह्न = मूल छायाचित्र में अस्पष्ट पंक्ति',
   },
   en: {
+    'ui.paath': 'Read the original text', 'ui.back_granth': 'Granth page',
     'ui.fulltext': 'Read the full text', 'ui.fulltext_note': 'Searches external libraries — opens in a new tab',
     'nav.home': 'Home', 'nav.kaal': 'Timeline', 'nav.granths': 'Granths', 'nav.acharya': 'Acharyas',
     'nav.bhattarak': 'Bhattarakas & Scholars', 'nav.sources': 'Sources', 'nav.about': 'About',
@@ -38,6 +40,7 @@ const DICT = {
     'ui.warn': '⚠ marks a row unclear in the source photograph',
   },
   sa: {
+    'ui.paath': 'मूलपाठः पठ्यताम्', 'ui.back_granth': 'ग्रन्थपृष्ठम्',
     'ui.fulltext': 'सम्पूर्णग्रन्थपठनम्', 'ui.fulltext_note': 'बाह्यग्रन्थालयेषु अन्वेषणम् — नवीने पटले उद्घाटयति',
     'nav.home': 'द्वारम्', 'nav.kaal': 'कालयात्रा', 'nav.granths': 'ग्रन्थाः', 'nav.acharya': 'आचार्याः',
     'nav.bhattarak': 'भट्टारकाः विद्वांसश्च', 'nav.sources': 'मूलस्रोतांसि', 'nav.about': 'परिचयः',
@@ -55,6 +58,7 @@ const DICT = {
     'ui.warn': '⚠ चिह्नम् = मूलचित्रे अस्पष्टा पङ्क्तिः',
   },
   pra: {
+    'ui.paath': 'मूलपाढं पढह', 'ui.back_granth': 'गंथ-पत्तं',
     'ui.fulltext': 'पुण्णं गंथं पढह', 'ui.fulltext_note': 'बाहिरगंथालएसु गवेसणा — णवे पडले उग्घाडइ',
     'nav.home': 'दुवारं', 'nav.kaal': 'कालजत्ता', 'nav.granths': 'गंथा', 'nav.acharya': 'आयरिया',
     'nav.bhattarak': 'भट्टारया विउसा य', 'nav.sources': 'मूलपमाणाइं', 'nav.about': 'परिचओ',

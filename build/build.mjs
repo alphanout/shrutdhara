@@ -1,7 +1,7 @@
 /* श्रुतधारा build — generates dist/: static shell + 90 granth pages + catalog print page.
    No framework; run: node build/build.mjs */
 
-import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync, existsSync, rmSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { slugify, devaNum, nameKey, translit } from '../js/translit.js';
@@ -70,6 +70,25 @@ for (const g of granths) {
   const a = resolveAcharya(g.author);
   if (a) g.authorId = a.id;
 }
+
+/* ---------- shastra/ — full mool texts (markdown: frontmatter + verse blocks) ---------- */
+const texts = new Map();
+const SHASTRA = join(ROOT, 'shastra');
+if (existsSync(SHASTRA)) {
+  for (const f of readdirSync(SHASTRA).filter((x) => x.endsWith('.md') && x !== 'README.md')) {
+    const raw = readFileSync(join(SHASTRA, f), 'utf8');
+    const fm = raw.match(/^---\n([\s\S]*?)\n---\n?/);
+    const meta = {};
+    if (fm) for (const line of fm[1].split('\n')) {
+      const mm = line.match(/^(\w+):\s*(.*)$/);
+      if (mm) meta[mm[1]] = mm[2].replace(/^"(.*)"$/, '$1');
+    }
+    const blocks = raw.slice(fm ? fm[0].length : 0).trim().split(/\n\s*\n/).map((b) => b.trim()).filter(Boolean);
+    const slug = meta.slug || f.replace(/\.md$/, '');
+    texts.set(slug, { meta, blocks });
+  }
+}
+for (const g of granths) if (texts.has(g.slug)) g.hasText = true;
 
 /* ---------- dist skeleton ---------- */
 rmSync(DIST, { recursive: true, force: true });
@@ -215,7 +234,8 @@ function granthPage(g, i) {
     <p class="ext-note" data-i18n="ui.fulltext_note">बाह्य ग्रन्थालयों में खोज — नई टैब में खुलेगी</p>
   </section>
   <div class="btns">
-    <a class="btn kum" href="../../pdf/${g.slug}.pdf" download data-i18n="ui.pdf">पीडीएफ़ डाउनलोड</a>
+    ${texts.has(g.slug) ? `<a class="btn kum" href="paath/" data-i18n="ui.paath">मूल पाठ पढ़ें</a>` : ''}
+    <a class="btn ${texts.has(g.slug) ? 'ghost' : 'kum'}" href="../../pdf/${g.slug}.pdf" download data-i18n="ui.pdf">पीडीएफ़ डाउनलोड</a>
     <button class="btn ghost" id="shareBtn" type="button" data-i18n="ui.share">साझा करें</button>
   </div>
   <p class="src"><span data-i18n="ui.proof">प्रमाण</span>: ९०-ग्रन्थ सूची-पोस्टर, पंक्ति ${deva(g.id)} — <a href="../../sources.html">मूल छायाचित्र</a></p>
@@ -251,6 +271,84 @@ for (let i = 0; i < granths.length; i++) {
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'index.html'), granthPage(g, i));
   pages++;
+}
+
+/* ---------- पाठ (reader) pages ---------- */
+function paathPage(g, txt) {
+  const { meta, blocks } = txt;
+  const body = blocks.map((b) => {
+    if (b.startsWith('## ')) return `<h2>${esc(b.slice(3))}</h2>`;
+    return `<div class="verse">${esc(b).replace(/\n/g, '<br>')}</div>`;
+  }).join('\n');
+  return `<!DOCTYPE html>
+<html lang="sa" data-root="../../../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${esc(g.name)} — मूल पाठ · श्रुतधारा</title>
+<meta name="description" content="${esc(g.name)} का सम्पूर्ण मूल पाठ — ${esc(meta.verses || '')} पद्य। ${esc(g.author)}।">
+<meta property="og:title" content="${esc(g.name)} — मूल पाठ">
+<meta property="og:description" content="${esc(g.author)} · सम्पूर्ण पाठ, श्रुतधारा पर">
+<meta property="og:image" content="${SITE}/og/${g.slug}.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
+<link rel="stylesheet" href="../../../fonts/fonts.css">
+<link rel="stylesheet" href="../../../css/style.css">
+<link rel="stylesheet" href="../../../css/print.css">
+</head>
+<body data-page="paath">
+
+<header class="site-head">
+  <div class="wrap bar">
+    <a class="brand inlay khand" href="../../../">श्रुतधारा</a>
+    <nav class="site-nav" aria-label="मुख्य">
+      <a href="../" >← ${esc(g.name)}</a>
+      <a href="../../../granths.html" data-i18n="nav.granths">ग्रन्थ</a>
+    </nav>
+    <div class="tools">
+      <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
+    </div>
+  </div>
+</header>
+
+<main class="paath">
+  <div class="phead">
+    <div class="mang">॥ श्री ॥</div>
+    <h1 class="inlay">${esc(g.name)}</h1>
+    <p class="pmeta num">${esc(g.author)} · ${esc(meta.language || '')}${meta.verses ? ` · ${deva(meta.verses)} पद्य` : ''}</p>
+  </div>
+  ${body}
+  <div class="attrib">
+    <b>पाठ-स्रोत:</b> ${esc(meta.source || '')}${meta.license ? ` · ${esc(meta.license)}` : ''}${meta.sourceUrl ? ` · <a href="${esc(meta.sourceUrl)}" target="_blank" rel="noopener">मूल e-text ↗</a>` : ''}<br>
+    यह मूल पाठ है — अर्थ/टीका सम्मिलित नहीं। अशुद्धि दिखे तो GitHub पर <code>shastra/${esc(g.slug)}.md</code> सुधारें।
+  </div>
+  <div class="btns">
+    <a class="btn kum" href="../../../pdf/${g.slug}-paath.pdf" download data-i18n="ui.pdf">पीडीएफ़ डाउनलोड</a>
+    <a class="btn ghost" href="../">← <span data-i18n="ui.back_granth">ग्रन्थ-पृष्ठ</span></a>
+  </div>
+  <div class="print-foot num">श्रुतधारा · ${esc(g.name)} — मूल पाठ · स्रोत: ${esc(meta.source || '')}</div>
+</main>
+
+<footer class="site-foot">
+  <div class="k">॥ ❖ ॥</div>
+  <p>“इनका अध्ययन और स्वाध्याय ही आत्मकल्याण का मार्ग है।”</p>
+</footer>
+
+<script type="module" src="../../../js/app.js"></script>
+</body>
+</html>
+`;
+}
+
+let paathCount = 0;
+for (const g of granths) {
+  const txt = texts.get(g.slug);
+  if (!txt) continue;
+  const dir = join(DIST, 'granth', g.slug, 'paath');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'index.html'), paathPage(g, txt));
+  paathCount++;
 }
 
 /* ---------- catalog print page (source of the सम्पूर्ण-सूची PDF) ---------- */
@@ -289,4 +387,4 @@ if (granths.length) {
 `);
 }
 
-console.log(`build ok → dist/ (${pages} granth pages, data: ${granths.length}/${acharyas.length}/${bhattarak.length})`);
+console.log(`build ok → dist/ (${pages} granth pages, ${paathCount} paath texts, data: ${granths.length}/${acharyas.length}/${bhattarak.length})`);

@@ -46,6 +46,15 @@ if (existsSync(join(DIST, 'catalog.html'))) {
   await print(`${base}/catalog.html`, join(DIST, 'pdf', 'sampurna-suchi.pdf'));
   n++;
 }
+/* full mool-text PDFs where a paath page exists */
+if (existsSync(granthDir)) {
+  for (const slug of readdirSync(granthDir)) {
+    if (existsSync(join(granthDir, slug, 'paath', 'index.html'))) {
+      await print(`${base}/granth/${slug}/paath/`, join(DIST, 'pdf', `${slug}-paath.pdf`));
+      n++;
+    }
+  }
+}
 
 /* OG share cards: dark-theme 1200×630 snapshots of each granth page + home */
 mkdirSync(join(DIST, 'og'), { recursive: true });

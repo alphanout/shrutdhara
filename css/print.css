@@ -23,6 +23,10 @@
   .gpage .translit-line { display: block; }
   .gpage .prose p { font-size: 10.5pt; line-height: 1.9; text-align: justify; }
   .lang-en { display: none; }
+  .paath { padding: 0; max-width: none; }
+  .paath .verse { font-size: 12pt; line-height: 2; break-inside: avoid; }
+  .paath .attrib { font-size: 8pt; }
+  .paath .btns { display: none !important; }
   .inlay { background: none; -webkit-background-clip: initial; background-clip: initial; color: #8a6420; }
   a { color: inherit; text-decoration: none; }
   .print-foot {

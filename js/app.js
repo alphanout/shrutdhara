@@ -204,7 +204,7 @@ async function renderGranths() {
     mount.innerHTML = list.map((g) => `
       <a class="slab" href="${root}granth/${g.slug || slugify(g.name)}/">
         <span class="vein"></span>
-        <span class="serial inlay num">अभिलेख ${deva(g.id)} / ${deva(data.granths.length)}</span>
+        <span class="serial inlay num">अभिलेख ${deva(g.id)} / ${deva(data.granths.length)}${g.hasText ? ' <span class="tag">पाठ ✓</span>' : ''}</span>
         <span class="gname carve">${esc(g.name)}</span>
         <span class="foot"><span class="kum-mark"></span><span class="a">${esc(g.author)}</span><span class="e num">${esc(deva(g.century || ''))}</span></span>
       </a>`).join('') || `<p class="loading">डेटा उपलब्ध नहीं — data/granths-90.json अनुपस्थित।</p>`;
