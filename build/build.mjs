@@ -95,7 +95,8 @@ rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'data'), { recursive: true });
 for (const d of ['css', 'js', 'fonts']) cpSync(join(ROOT, d), join(DIST, d), { recursive: true });
 if (existsSync(join(ROOT, 'assets/photos'))) cpSync(join(ROOT, 'assets/photos'), join(DIST, 'assets/photos'), { recursive: true });
-for (const f of ['assets/favicon.svg', 'assets/favicon-180.png']) {
+if (existsSync(join(ROOT, 'audio'))) cpSync(join(ROOT, 'audio'), join(DIST, 'audio'), { recursive: true });
+for (const f of ['assets/favicon.svg', 'assets/favicon-180.png', 'assets/favicon-32.png', 'assets/favicon-192.png']) {
   if (existsSync(join(ROOT, f))) cpSync(join(ROOT, f), join(DIST, f));
 }
 for (const f of ['index.html', 'kaal.html', 'granths.html', 'acharya.html', 'bhattarak.html', 'sources.html', 'about.html']) {
@@ -191,6 +192,8 @@ function granthPage(g, i) {
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="../../assets/favicon-192.png">
 <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
 <link rel="apple-touch-icon" href="../../assets/favicon-180.png">
 <link rel="manifest" href="../../manifest.webmanifest">
@@ -327,7 +330,8 @@ function paathPage(g, txt) {
       <button class="btn ghost" id="vpLink" type="button" data-i18n="ui.copy_link">कड़ी कॉपी करें</button>
     </div>
   </aside>`;
-  const layerFlags = `data-prose="${isProse}"`;
+  const hasAudio = existsSync(join(ROOT, 'audio', g.slug));
+  const layerFlags = `data-prose="${isProse}"${hasAudio ? ` data-audio="../../../audio/${g.slug}/"` : ''}`;
   return `<!DOCTYPE html>
 <html lang="sa" data-root="../../../">
 <head>
@@ -339,6 +343,7 @@ function paathPage(g, txt) {
 <meta property="og:description" content="${esc(g.author)} · सम्पूर्ण पाठ, श्रुतधारा पर">
 <meta property="og:image" content="${SITE}/og/${g.slug}.jpg">
 <meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="32x32" href="../../../assets/favicon-32.png">
 <link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg">
 <link rel="apple-touch-icon" href="../../../assets/favicon-180.png">
 <link rel="stylesheet" href="../../../fonts/fonts.css">

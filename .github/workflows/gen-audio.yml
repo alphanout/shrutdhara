@@ -1,0 +1,40 @@
+name: gen-audio
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "granth slug (shastra/<slug>.md)"
+        required: true
+        default: "ishtopadesha"
+      range:
+        description: "verse range, e.g. '1 51' (blank = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        run: |
+          sudo apt-get -y -qq install ffmpeg
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q soundfile "transformers<4.47" git+https://github.com/huggingface/parler-tts.git
+      - name: Generate
+        run: python3 build/gen-audio.py "${{ github.event.inputs.slug }}" ${{ github.event.inputs.range }}
+      - name: Commit audio
+        run: |
+          git config user.name "shrutdhara-audio-bot"
+          git config user.email "actions@github.com"
+          git add audio/
+          git diff --cached --quiet || git commit -m "स्वर: ${{ github.event.inputs.slug }} की पाठ-ध्वनि (Indic Parler-TTS)"
+          git push

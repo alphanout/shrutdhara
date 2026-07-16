@@ -23,7 +23,9 @@ if (main) {
     <button class="icon-btn toc-toggle" id="rToc" type="button" title="विषय-सूची / Contents">☰</button>
     <button class="icon-btn" id="rPlay" type="button" title="सुनें / Listen">▶ सुनें</button>
     <select class="icon-btn" id="rRate" title="गति / Speed">
-      <option value="0.8">०.८×</option><option value="1" selected>१×</option><option value="1.25">१.२५×</option>
+      <option value="0.5">०.५×</option><option value="0.6">०.६×</option><option value="0.7">०.७×</option>
+      <option value="0.8">०.८×</option><option value="0.9">०.९×</option><option value="1">१×</option>
+      <option value="1.2">१.२×</option>
     </select>
     <span class="rb-sep"></span>
     <button class="icon-btn" id="rMinus" type="button" title="अक्षर छोटे / Smaller">A−</button>
@@ -146,13 +148,26 @@ if (main) {
   const verses = [...main.querySelectorAll('.verse')];
   const playBtn = bar.querySelector('#rPlay');
   const rateSel = bar.querySelector('#rRate');
+  rateSel.value = P.get('sd-rate', '0.7');            // recitation pace by default
+  if (!rateSel.value) rateSel.value = '0.7';
+  rateSel.addEventListener('change', () => P.set('sd-rate', rateSel.value));
   const synth = window.speechSynthesis;
   let cur = -1, playing = false, singleMode = false;
 
-  const speechText = (el) => el.textContent
-    .replace(/॥[^॥]*॥/g, '.')
-    .replace(/[।/]/g, ',')
-    .replace(/\s+/g, ' ').trim();
+  /* पद-boundaries: each <br> line and each दण्ड becomes its own breath-group */
+  const padaChunks = (el) => {
+    const lines = el.innerHTML.split(/<br\s*\/?>/i).map((h) => {
+      const d = document.createElement('div'); d.innerHTML = h; return d.textContent;
+    });
+    const chunks = [];
+    for (const ln of lines) {
+      for (const part of ln.split('।')) {
+        const t = part.replace(/॥[^॥]*॥/g, ' ').replace(/[/]/g, ' ').replace(/\s+/g, ' ').trim();
+        if (t) chunks.push(t);
+      }
+    }
+    return chunks.length ? chunks : [el.textContent.replace(/\s+/g, ' ').trim()];
+  };
 
   function pickVoice() {
     const vs = synth.getVoices();
@@ -165,18 +180,52 @@ if (main) {
     if (verses[i]) verses[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
 
+  /* real recitation audio (audio/<slug>/N.mp3) preferred over TTS when present */
+  const audioBase = main.getAttribute('data-audio');
+  let player = null;
   function speakFrom(i) {
-    if (!synth || i >= verses.length) { stop(); return; }
+    if (i >= verses.length) { stop(); return; }
     cur = i;
     highlight(i);
-    const u = new SpeechSynthesisUtterance(speechText(verses[i]));
-    u.lang = 'hi-IN';
-    const v = pickVoice();
-    if (v) u.voice = v;
-    u.rate = +rateSel.value;
-    u.onend = () => { if (playing && !singleMode) speakFrom(cur + 1); else if (singleMode) stop(); };
-    u.onerror = () => { if (playing && !singleMode) speakFrom(cur + 1); else if (singleMode) stop(); };
-    synth.speak(u);
+    if (audioBase) {
+      if (!player) player = new Audio();
+      player.src = audioBase + (i + 1) + '.mp3';
+      player.playbackRate = +rateSel.value;
+      player.onended = () => {
+        if (!playing || cur !== i) return;
+        if (singleMode) { stop(); return; }
+        setTimeout(() => { if (playing && cur === i) speakFrom(i + 1); }, 600);
+      };
+      player.onerror = () => { if (playing && cur === i) speakTTS(i); }; // fallback per-verse
+      player.play().catch(() => speakTTS(i));
+      return;
+    }
+    speakTTS(i);
+  }
+  function speakTTS(i) {
+    if (!synth) { stop(); return; }
+    const chunks = padaChunks(verses[i]);
+    const voice = pickVoice();
+    let ci = 0;
+    const next = () => {
+      if (!playing || cur !== i) return;
+      if (ci >= chunks.length) {
+        // verse complete: a longer breath, then the next verse (or stop in single mode)
+        if (singleMode) { stop(); return; }
+        setTimeout(() => { if (playing && cur === i) speakFrom(i + 1); }, 750);
+        return;
+      }
+      const u = new SpeechSynthesisUtterance(chunks[ci]);
+      u.lang = 'hi-IN';
+      if (voice) u.voice = voice;
+      u.rate = +rateSel.value;
+      u.pitch = ci === chunks.length - 1 ? 0.88 : 1;   // cadence falls on the final pada
+      ci++;
+      u.onend = () => setTimeout(next, 340);           // breath between padas
+      u.onerror = () => setTimeout(next, 120);
+      synth.speak(u);
+    };
+    next();
   }
 
   function start(from) {
@@ -189,6 +238,7 @@ if (main) {
   function stop() {
     playing = false;
     if (synth) synth.cancel();
+    if (player) { player.pause(); player.currentTime = 0; }
     playBtn.textContent = '▶ सुनें';
     verses.forEach((v) => v.classList.remove('playing'));
   }
