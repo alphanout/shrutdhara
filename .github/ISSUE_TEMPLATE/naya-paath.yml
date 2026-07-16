@@ -1,0 +1,33 @@
+name: नया मूल पाठ / टंकण-सेवा
+description: किसी ग्रन्थ का मूल पाठ जोड़ना चाहते हैं? (public-domain संस्करण से टाइप किया हुआ या मशीन-पठनीय स्रोत)
+title: "[पाठ] "
+labels: [naya-paath]
+body:
+  - type: input
+    id: granth
+    attributes:
+      label: ग्रन्थ का नाम
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: स्रोत-संस्करण (सम्पादक/प्रकाशक/वर्ष)
+      description: मूल प्राचीन पाठ public domain है; आधुनिक अर्थ/टीका केवल अधिकार-मुक्त हो तो ही
+    validations:
+      required: true
+  - type: dropdown
+    id: format
+    attributes:
+      label: आपके पास क्या है?
+      options:
+        - टाइप किया हुआ Unicode पाठ (सबसे अच्छा)
+        - text-layer वाला PDF
+        - scan/छायाचित्र (टंकण करूँगा/करूँगी)
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: टिप्पणी
+      description: प्रारूप के लिये shastra/README.md देखें — एक फ़ाइल, पूरा ग्रन्थ जीवित।

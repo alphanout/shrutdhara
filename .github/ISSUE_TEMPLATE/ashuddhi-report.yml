@@ -1,0 +1,29 @@
+name: अशुद्धि-सूचना / Correction report
+description: किसी पंक्ति, गाथा या तिथि में भूल दिखे तो यहाँ बतायें — एक सुधार से पृष्ठ और PDF दोनों स्वतः ठीक हो जाते हैं
+title: "[अशुद्धि] "
+labels: [ashuddhi]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: कहाँ? (पृष्ठ की कड़ी / granth का नाम)
+      placeholder: "https://alphanout.github.io/shrutdhara/granth/samayasaara/paath/#v12"
+    validations:
+      required: true
+  - type: input
+    id: current
+    attributes:
+      label: अभी क्या लिखा है (वर्तमान पाठ)
+    validations:
+      required: true
+  - type: input
+    id: correct
+    attributes:
+      label: सही क्या होना चाहिये
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: प्रमाण (कौन-सा संस्करण/पृष्ठ)
+      placeholder: "जैसे: फलटन संस्करण पृ. 42 / मूल छायाचित्र पंक्ति 12"

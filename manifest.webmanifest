@@ -1,0 +1,15 @@
+{
+  "name": "श्रुतधारा — दिगम्बर जैन श्रुत-परम्परा",
+  "short_name": "श्रुतधारा",
+  "description": "90 प्राचीन ग्रन्थ · 420 आचार्य · 172 विद्वान — मूल पाठ सहित, offline भी",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0e0d0b",
+  "theme_color": "#0e0d0b",
+  "lang": "hi",
+  "icons": [
+    { "src": "assets/favicon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

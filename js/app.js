@@ -77,6 +77,18 @@ function initSearch() {
     if (e.key === 'Escape' && document.activeElement === input) { input.blur(); }
   });
   let t = null;
+  let verseIdx = null, verseIdxLoading = false;
+  async function loadVerseIndex() {
+    if (verseIdx || verseIdxLoading) return verseIdx;
+    verseIdxLoading = true;
+    try {
+      const r = await fetch(root + 'data/paath-index.json');
+      verseIdx = r.ok ? await r.json() : [];
+      for (const v of verseIdx) { v.rk = romanKey(v.t); v.sk = skeleton(v.t); }
+    } catch { verseIdx = []; }
+    verseIdxLoading = false;
+    return verseIdx;
+  }
   input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 90); });
   async function run() {
     const q = input.value.trim();
@@ -94,13 +106,36 @@ function initSearch() {
       if (scored.length > 400) break;
     }
     scored.sort((x, y) => x[0] - y[0]);
-    out.innerHTML = scored.slice(0, 12).map(([, c]) => `
+    let html = scored.slice(0, 10).map(([, c]) => `
       <a class="hit" href="${c.href}">
         <span class="t ${c.kind}">${KIND_LABEL[c.kind]}</span>
         <b>${esc(c.label)}</b>${c.sub ? ' — ' + esc(trim(c.sub, 60)) : ''}
         <span class="d num">${esc(deva(c.d))}</span>
-      </a>`).join('') ||
-      `<div class="hit"><span class="t b">∅</span> ${t('ui.no_results')}</div>`;
+      </a>`).join('');
+    /* गाथा-खोज: match inside full texts (lazy index) */
+    if (q.length >= 3) {
+      const vi = await loadVerseIndex();
+      if (input.value.trim() !== q) return;   // stale
+      if (vi && vi.length) {
+        const qDeva2 = /[ऀ-ॿ]/.test(q);
+        const qrk2 = romanKey(q), qsk2 = skeleton(q);
+        const vHits = [];
+        for (const v of vi) {
+          if (qDeva2 ? v.t.includes(q) : (qrk2 && v.rk.includes(qrk2)) || (qsk2.length > 3 && v.sk.includes(qsk2))) {
+            vHits.push(v);
+            if (vHits.length >= 8) break;
+          }
+        }
+        if (vHits.length) {
+          html += vHits.map((v) => `
+      <a class="hit" href="${root}granth/${v.s}/paath/#v${v.n}">
+        <span class="t g">पाठ</span>
+        <b>${esc(v.g)}</b> ${esc(deva(v.n))} — ${esc(trim(v.t, 64))}
+      </a>`).join('');
+        }
+      }
+    }
+    out.innerHTML = html || `<div class="hit"><span class="t b">∅</span> ${t('ui.no_results')}</div>`;
   }
 }
 
@@ -336,6 +371,9 @@ async function renderBhattarak() {
 }
 
 /* ---------- boot ---------- */
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  navigator.serviceWorker.register(root + 'sw.js', { scope: root || './' }).catch(() => {});
+}
 initTheme();
 initSearch();
 initFlash();

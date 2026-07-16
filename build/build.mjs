@@ -193,6 +193,8 @@ function granthPage(g, i) {
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
 <link rel="apple-touch-icon" href="../../assets/favicon-180.png">
+<link rel="manifest" href="../../manifest.webmanifest">
+<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Book', name: g.name, author: { '@type': 'Person', name: g.author }, inLanguage: 'hi', url: `${SITE}/granth/${g.slug}/`, isAccessibleForFree: true })}</script>
 <link rel="stylesheet" href="../../fonts/fonts.css">
 <link rel="stylesheet" href="../../css/style.css">
 <link rel="stylesheet" href="../../css/print.css">
@@ -395,6 +397,7 @@ ${panelHtml}
 }
 
 let paathCount = 0;
+const verseIndex = [];
 for (const g of granths) {
   const txt = texts.get(g.slug);
   if (!txt) continue;
@@ -402,6 +405,35 @@ for (const g of granths) {
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'index.html'), paathPage(g, txt));
   paathCount++;
+  let vn = 0;
+  for (const b of txt.blocks) {
+    if (b.startsWith('## ') || b.startsWith('@')) continue;
+    vn++;
+    const t = b.replace(/\s+/g, ' ').trim().slice(0, 170);
+    verseIndex.push({ s: g.slug, g: g.name, n: vn, t });
+  }
+}
+writeFileSync(join(DIST, 'data/paath-index.json'), JSON.stringify(verseIndex));
+console.log(`verse index: ${verseIndex.length} entries`);
+
+/* ---------- PWA: manifest + versioned service worker ---------- */
+if (existsSync(join(ROOT, 'manifest.webmanifest'))) cpSync(join(ROOT, 'manifest.webmanifest'), join(DIST, 'manifest.webmanifest'));
+if (existsSync(join(ROOT, 'assets/icon-512.png'))) cpSync(join(ROOT, 'assets/icon-512.png'), join(DIST, 'assets/icon-512.png'));
+if (existsSync(join(ROOT, 'sw.js'))) {
+  writeFileSync(join(DIST, 'sw.js'), readFileSync(join(ROOT, 'sw.js'), 'utf8').replace('__BUILD_VERSION__', String(Date.now())));
+}
+
+/* ---------- SEO: sitemap + robots ---------- */
+{
+  const urls = ['', 'kaal.html', 'granths.html', 'acharya.html', 'bhattarak.html', 'sources.html', 'about.html'];
+  for (const g of granths) {
+    urls.push(`granth/${g.slug}/`);
+    if (texts.has(g.slug)) urls.push(`granth/${g.slug}/paath/`);
+  }
+  const sm = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    urls.map((u) => `  <url><loc>${SITE}/${u}</loc></url>`).join('\n') + '\n</urlset>\n';
+  writeFileSync(join(DIST, 'sitemap.xml'), sm);
+  writeFileSync(join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
 }
 
 /* ---------- catalog print page (source of the सम्पूर्ण-सूची PDF) ---------- */
