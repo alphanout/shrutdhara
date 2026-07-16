@@ -27,7 +27,7 @@ jobs:
       - name: Install deps
         run: |
           sudo apt-get -y -qq install ffmpeg
-          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q torch torchaudio --index-url https://download.pytorch.org/whl/cpu
           pip install -q soundfile "transformers<4.47" git+https://github.com/huggingface/parler-tts.git
       - name: Generate
         run: python3 build/gen-audio.py "${{ github.event.inputs.slug }}" ${{ github.event.inputs.range }}
