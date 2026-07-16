@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       slug:
-        description: "granth slug (shastra/<slug>.md)"
+        description: "granth slug, or 'all' (= हर verse-granth; prose छोड़कर)"
         required: true
         default: "ishtopadesha"
       range:
@@ -20,10 +20,33 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: gen-audio
+  cancel-in-progress: false
+
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      slugs: ${{ steps.mk.outputs.slugs }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: mk
+        run: |
+          if [ "${{ github.event.inputs.slug }}" = "all" ]; then
+            S=$(grep -L "format: prose" shastra/*.md | grep -v README | xargs -n1 basename | sed 's/\.md$//' | jq -R . | jq -sc .)
+          else
+            S='["${{ github.event.inputs.slug }}"]'
+          fi
+          echo "slugs=$S" >> "$GITHUB_OUTPUT"
   generate:
+    needs: prepare
     runs-on: ubuntu-latest
     timeout-minutes: 340
+    strategy:
+      max-parallel: 1
+      matrix:
+        slug: ${{ fromJSON(needs.prepare.outputs.slugs) }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -38,11 +61,12 @@ jobs:
         env:
           ENGINE: ${{ github.event.inputs.engine }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: python3 build/gen-audio.py "${{ github.event.inputs.slug }}" ${{ github.event.inputs.range }}
+        run: python3 build/gen-audio.py "${{ matrix.slug }}" ${{ github.event.inputs.range }}
       - name: Commit audio
         run: |
           git config user.name "shrutdhara-audio-bot"
           git config user.email "actions@github.com"
           git add audio/
-          git diff --cached --quiet || git commit -m "स्वर: ${{ github.event.inputs.slug }} की पाठ-ध्वनि (Indic Parler-TTS)"
+          git diff --cached --quiet || git commit -m "स्वर: ${{ matrix.slug }} पाठ-ध्वनि (${{ github.event.inputs.engine }})"
+          git pull --rebase origin main
           git push
