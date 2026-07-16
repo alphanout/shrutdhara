@@ -27,6 +27,10 @@ if (main) {
       <option value="0.8">०.८×</option><option value="0.9">०.९×</option><option value="1">१×</option>
       <option value="1.2">१.२×</option>
     </select>
+    <select class="icon-btn" id="rVoice" title="स्वर-स्रोत / Voice" hidden>
+      <option value="ai">🎙 AI-पाठ</option>
+      <option value="tts">ब्राउज़र-स्वर</option>
+    </select>
     <span class="rb-sep"></span>
     <button class="icon-btn" id="rMinus" type="button" title="अक्षर छोटे / Smaller">A−</button>
     <button class="icon-btn" id="rPlus" type="button" title="अक्षर बड़े / Larger">A+</button>
@@ -180,14 +184,21 @@ if (main) {
     if (verses[i]) verses[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
 
-  /* real recitation audio (audio/<slug>/N.mp3) preferred over TTS when present */
+  /* real recitation audio (audio/<slug>/N.mp3) preferred over TTS when present;
+     user can switch source via the rVoice selector */
   const audioBase = main.getAttribute('data-audio');
+  const voiceSel = bar.querySelector('#rVoice');
+  if (audioBase && voiceSel) {
+    voiceSel.hidden = false;
+    voiceSel.value = P.get('sd-voice', 'ai');
+    voiceSel.addEventListener('change', () => { P.set('sd-voice', voiceSel.value); stop(); });
+  }
   let player = null;
   function speakFrom(i) {
     if (i >= verses.length) { stop(); return; }
     cur = i;
     highlight(i);
-    if (audioBase) {
+    if (audioBase && voiceSel && voiceSel.value === 'ai') {
       if (!player) player = new Audio();
       player.src = audioBase + (i + 1) + '.mp3';
       player.playbackRate = +rateSel.value;
