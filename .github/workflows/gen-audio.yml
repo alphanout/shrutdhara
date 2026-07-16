@@ -11,6 +11,11 @@ on:
         description: "verse range, e.g. '1 51' (blank = all)"
         required: false
         default: ""
+      engine:
+        description: "TTS engine"
+        type: choice
+        options: [mms-hin, parler]
+        default: mms-hin
 
 permissions:
   contents: write
@@ -30,6 +35,9 @@ jobs:
           pip install -q torch torchaudio --index-url https://download.pytorch.org/whl/cpu
           pip install -q soundfile "transformers<4.47" git+https://github.com/huggingface/parler-tts.git
       - name: Generate
+        env:
+          ENGINE: ${{ github.event.inputs.engine }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python3 build/gen-audio.py "${{ github.event.inputs.slug }}" ${{ github.event.inputs.range }}
       - name: Commit audio
         run: |
