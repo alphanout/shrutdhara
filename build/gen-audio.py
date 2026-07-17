@@ -101,7 +101,7 @@ def main():
         tmp = outdir / f'{n}.wav'
         sf.write(tmp, wav, sr)
         subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', str(tmp),
-                        '-ac', '1', '-b:a', '48k', str(mp3)], check=True)
+                        '-ac', '1', '-b:a', '32k', str(mp3)], check=True)
         tmp.unlink()
         print(f'  {n}/{end} ok ({mp3.stat().st_size // 1024} KB)')
 
