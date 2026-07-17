@@ -45,10 +45,13 @@ jobs:
     timeout-minutes: 340
     strategy:
       max-parallel: 1
+      fail-fast: false
       matrix:
         slug: ${{ fromJSON(needs.prepare.outputs.slugs) }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -67,6 +70,13 @@ jobs:
           git config user.name "shrutdhara-audio-bot"
           git config user.email "actions@github.com"
           git add audio/
-          git diff --cached --quiet || git commit -m "स्वर: ${{ matrix.slug }} पाठ-ध्वनि (${{ github.event.inputs.engine }})"
-          git pull --rebase origin main
-          git push
+          if git diff --cached --quiet; then
+            echo "no new audio — nothing to commit"
+            exit 0
+          fi
+          git commit -m "स्वर: ${{ matrix.slug }} पाठ-ध्वनि (${{ github.event.inputs.engine }})"
+          for i in 1 2 3; do
+            git pull --rebase --autostash origin main && git push && exit 0
+            echo "push retry $i"; sleep 5
+          done
+          exit 1
