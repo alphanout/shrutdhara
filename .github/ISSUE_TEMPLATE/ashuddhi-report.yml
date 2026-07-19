@@ -7,7 +7,7 @@ body:
     id: page
     attributes:
       label: कहाँ? (पृष्ठ की कड़ी / granth का नाम)
-      placeholder: "https://alphanout.github.io/shrutdhara/granth/samayasaara/paath/#v12"
+      placeholder: "https://shrutdhara.com/granth/samayasaara/paath/#v12"
     validations:
       required: true
   - type: input

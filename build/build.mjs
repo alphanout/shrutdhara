@@ -8,7 +8,7 @@ import { slugify, devaNum, nameKey, translit } from '../js/translit.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST = join(ROOT, 'dist');
-const SITE = 'https://alphanout.github.io/shrutdhara';
+const SITE = 'https://shrutdhara.com';
 
 const readJson = (f) => {
   const p = join(ROOT, 'data', f);
