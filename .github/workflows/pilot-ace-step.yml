@@ -1,0 +1,30 @@
+name: pilot-ace-step
+
+# One-off manual probe: can the hosted ACE-Step 1.5 Space genuinely SING a
+# Hindi/Sanskrit devotional-style verse? Not part of the site build.
+on:
+  workflow_dispatch:
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install client
+        run: pip install -q gradio_client
+      - name: Probe ACE-Step Space
+        run: python3 build/pilot-ace-step.py
+      - name: Upload any audio output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ace-step-pilot-audio
+          path: |
+            /tmp/gradio/**
+            *.wav
+            *.mp3
+          if-no-files-found: ignore
