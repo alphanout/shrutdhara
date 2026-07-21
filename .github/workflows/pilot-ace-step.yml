@@ -15,7 +15,9 @@ jobs:
         with:
           python-version: "3.11"
       - name: Install client
-        run: pip install -q gradio_client
+        run: |
+          sudo apt-get -y -qq install ffmpeg
+          pip install -q gradio_client
       - name: Probe ACE-Step Space
         run: python3 build/pilot-ace-step.py
       - name: Upload any audio output
