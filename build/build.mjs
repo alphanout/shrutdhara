@@ -99,7 +99,7 @@ if (existsSync(join(ROOT, 'audio'))) cpSync(join(ROOT, 'audio'), join(DIST, 'aud
 for (const f of ['assets/favicon.svg', 'assets/favicon-180.png', 'assets/favicon-32.png', 'assets/favicon-192.png']) {
   if (existsSync(join(ROOT, f))) cpSync(join(ROOT, f), join(DIST, f));
 }
-for (const f of ['index.html', 'kaal.html', 'granths.html', 'acharya.html', 'bhattarak.html', 'sources.html', 'about.html']) {
+for (const f of ['index.html', 'kaal.html', 'granths.html', 'acharya.html', 'bhattarak.html', 'sources.html', 'about.html', '404.html']) {
   if (existsSync(join(ROOT, f))) cpSync(join(ROOT, f), join(DIST, f));
 }
 writeFileSync(join(DIST, 'data/granths-90.json'), JSON.stringify(granths, null, 1));
@@ -439,6 +439,12 @@ if (existsSync(join(ROOT, 'sw.js'))) {
     urls.map((u) => `  <url><loc>${SITE}/${u}</loc></url>`).join('\n') + '\n</urlset>\n';
   writeFileSync(join(DIST, 'sitemap.xml'), sm);
   writeFileSync(join(DIST, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
+}
+
+/* ---------- custom domain: persist CNAME so a redeploy never drops it ---------- */
+{
+  const host = SITE.replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+  if (host && !host.includes('github.io')) writeFileSync(join(DIST, 'CNAME'), host + '\n');
 }
 
 /* ---------- catalog print page (source of the सम्पूर्ण-सूची PDF) ---------- */

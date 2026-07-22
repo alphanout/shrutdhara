@@ -300,9 +300,14 @@ body[data-surface="white"] .reader-bar{background:rgba(251,249,244,.92)}
   box-shadow:-24px 0 60px rgba(0,0,0,.45); display:flex; flex-direction:column;
   transform:translateX(103%); transition:transform .25s ease}
 .vpanel.show{transform:none}
-.vp-head{display:flex; align-items:center; justify-content:space-between; gap:10px;
+.vp-head{display:flex; align-items:center; gap:10px;
   padding:14px 18px; border-bottom:1px solid var(--hairline)}
-.vp-head b{font-family:'Khand',sans-serif; font-size:1.15rem; color:var(--gold)}
+.vp-head b{font-family:'Khand',sans-serif; font-size:1.15rem; color:var(--gold); flex:1}
+.vp-nav{display:flex; gap:4px; order:-1}
+.vp-nav .icon-btn{font-size:1.3rem; line-height:1; padding:2px 12px; background:var(--stone-2); border:1px solid var(--hairline); color:var(--etch)}
+.vp-nav .icon-btn:disabled{opacity:.3; cursor:default}
+.vp-copy{background:none; border:none; color:var(--etch-dim); cursor:pointer; font-size:.9rem; padding:0 4px; vertical-align:baseline}
+.vp-copy:hover{color:var(--gold)}
 .vp-body{flex:1; overflow-y:auto; padding:18px 20px}
 .vp-sec{margin-bottom:18px}
 .vp-sec .lat{display:block; margin-bottom:6px}

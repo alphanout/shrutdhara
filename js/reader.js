@@ -80,9 +80,20 @@ if (main) {
   /* ---------- verse detail panel ---------- */
   const panel = document.getElementById('vpanel');
   const scrim = document.getElementById('vpanelScrim');
-  let translitFn = null, openVg = null;
+  let translitFn = null, openVg = null, curMoolText = '';
   const devaFn = (x) => String(x).replace(/[0-9]/g, (d) => '०१२३४५६७८९'[+d]);
   import(new URL('./translit.js', import.meta.url)).then((m) => { translitFn = m.translit; });
+  const groups = [...main.querySelectorAll('.vgroup')];
+
+  /* inject prev/next arrows into the panel head, once */
+  const vpHead = panel && panel.querySelector('.vp-head');
+  if (vpHead && !vpHead.querySelector('.vp-nav')) {
+    const nav = document.createElement('div');
+    nav.className = 'vp-nav';
+    nav.innerHTML = `<button class="icon-btn" id="vpPrev" type="button" title="पिछला पद्य" aria-label="पिछला">‹</button>` +
+                    `<button class="icon-btn" id="vpNext" type="button" title="अगला पद्य" aria-label="अगला">›</button>`;
+    vpHead.insertBefore(nav, vpHead.firstChild);
+  }
 
   const LBL = { arth: 'हिन्दी अर्थ', chhaya: 'संस्कृत छाया', en: 'English' };
   function openPanel(vg) {
@@ -91,11 +102,17 @@ if (main) {
     openVg = vg;
     vg.classList.add('open');
     const n = vg.dataset.n;
+    const idx = groups.indexOf(vg);
+    const prevBtn = document.getElementById('vpPrev');
+    const nextBtn = document.getElementById('vpNext');
+    if (prevBtn) prevBtn.disabled = idx <= 0;
+    if (nextBtn) nextBtn.disabled = idx < 0 || idx >= groups.length - 1;
     const mool = vg.querySelector('.verse').innerHTML;
     const moolText = vg.querySelector('.verse').textContent;
+    curMoolText = moolText.replace(/\s+/g, ' ').trim();
     document.getElementById('vpTitle').textContent =
       (main.getAttribute('data-prose') === 'true' ? 'खण्ड ' : 'पद्य ') + devaFn(n);
-    let html = `<div class="vp-sec"><span class="lat dv">मूल</span><div class="vp-mool">${mool}</div></div>`;
+    let html = `<div class="vp-sec"><span class="lat dv">मूल <button class="vp-copy" id="vpCopyMool" type="button" title="मूल कॉपी करें">⧉</button></span><div class="vp-mool">${mool}</div></div>`;
     if (translitFn) {
       html += `<div class="vp-sec"><span class="lat">Roman</span><div class="vp-lipi">${translitFn(moolText).replace(/\s+/g, ' ').trim()}</div></div>`;
     }
@@ -104,10 +121,21 @@ if (main) {
       if (el) html += `<div class="vp-sec"><span class="lat dv">${label}</span><div class="vp-txt">${el.innerHTML}</div></div>`;
     }
     document.getElementById('vpBody').innerHTML = html;
+    const copyBtn = document.getElementById('vpCopyMool');
+    if (copyBtn) copyBtn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(curMoolText); copyBtn.textContent = '✓'; setTimeout(() => { copyBtn.textContent = '⧉'; }, 1200); } catch {}
+    });
     panel.hidden = false; scrim.hidden = false;
     requestAnimationFrame(() => panel.classList.add('show'));
     history.replaceState(null, '', '#v' + n);
     panel.dataset.n = n;
+  }
+  function goRel(delta) {
+    if (!openVg) return;
+    const i = groups.indexOf(openVg) + delta;
+    if (i < 0 || i >= groups.length) return;
+    groups[i].scrollIntoView({ block: 'center' });
+    openPanel(groups[i]);
   }
   function closePanel() {
     if (!panel || panel.hidden) return;
@@ -125,8 +153,16 @@ if (main) {
     if (e.key === 'Enter' && e.target.classList?.contains('vgroup')) openPanel(e.target);
   });
   document.getElementById('vpClose')?.addEventListener('click', closePanel);
+  document.getElementById('vpPrev')?.addEventListener('click', () => goRel(-1));
+  document.getElementById('vpNext')?.addEventListener('click', () => goRel(1));
   scrim?.addEventListener('click', closePanel);
-  addEventListener('keydown', (e) => { if (e.key === 'Escape') { closePanel(); document.body.classList.remove('toc-open'); } });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closePanel(); document.body.classList.remove('toc-open'); }
+    if (panel && !panel.hidden) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); goRel(1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goRel(-1); }
+    }
+  });
   document.getElementById('vpLink')?.addEventListener('click', async () => {
     const url = location.origin + location.pathname + '#v' + (panel.dataset.n || '');
     try { await navigator.clipboard.writeText(url); document.getElementById('vpLink').textContent = '✓ कॉपी हुई'; } catch {}
