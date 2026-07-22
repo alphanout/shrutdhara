@@ -85,6 +85,33 @@ if (main) {
   import(new URL('./translit.js', import.meta.url)).then((m) => { translitFn = m.translit; });
   const groups = [...main.querySelectorAll('.vgroup')];
 
+  /* ---------- scroll hash-sync observer ---------- */
+  if ('IntersectionObserver' in window && groups.length) {
+    const verseObserver = new IntersectionObserver((entries) => {
+      const visible = entries.filter((e) => e.isIntersecting);
+      if (visible.length) {
+        const target = visible[0].target;
+        const n = target.dataset.n;
+        if (n && location.hash !== '#v' + n) {
+          history.replaceState(null, '', '#v' + n);
+        }
+      }
+    }, { rootMargin: '-20% 0px -60% 0px' });
+    groups.forEach((vg) => verseObserver.observe(vg));
+  }
+
+  /* ---------- initial bookmark highlight ---------- */
+  try {
+    const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
+    const bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]');
+    const bookmarkedSet = new Set(bookmarks.map((b) => (typeof b === 'string' ? b : b.id)));
+    groups.forEach((vg) => {
+      if (bookmarkedSet.has(`${slug}#v${vg.dataset.n}`)) {
+        vg.classList.add('is-bookmarked');
+      }
+    });
+  } catch {}
+
   /* inject prev/next arrows into the panel head, once */
   const vpHead = panel && panel.querySelector('.vp-head');
   if (vpHead && !vpHead.querySelector('.vp-nav')) {
@@ -93,6 +120,25 @@ if (main) {
     nav.innerHTML = `<button class="icon-btn" id="vpPrev" type="button" title="पिछला पद्य" aria-label="पिछला">‹</button>` +
                     `<button class="icon-btn" id="vpNext" type="button" title="अगला पद्य" aria-label="अगला">›</button>`;
     vpHead.insertBefore(nav, vpHead.firstChild);
+  }
+
+  /* inject quote / bookmark buttons into panel actions if missing */
+  const vpActions = panel && panel.querySelector('.vp-actions');
+  if (vpActions && !vpActions.querySelector('#vpQuote')) {
+    const qBtn = document.createElement('button');
+    qBtn.className = 'btn ghost';
+    qBtn.id = 'vpQuote';
+    qBtn.type = 'button';
+    qBtn.textContent = '❝ उद्धरण';
+    vpActions.insertBefore(qBtn, document.getElementById('vpLink'));
+  }
+  if (vpActions && !vpActions.querySelector('#vpBookmark')) {
+    const bBtn = document.createElement('button');
+    bBtn.className = 'btn ghost';
+    bBtn.id = 'vpBookmark';
+    bBtn.type = 'button';
+    bBtn.textContent = '🔖 बुकमार्क';
+    vpActions.insertBefore(bBtn, document.getElementById('vpLink'));
   }
 
   const LBL = { arth: 'हिन्दी अर्थ', chhaya: 'संस्कृत छाया', en: 'English' };
@@ -110,8 +156,14 @@ if (main) {
     const mool = vg.querySelector('.verse').innerHTML;
     const moolText = vg.querySelector('.verse').textContent;
     curMoolText = moolText.replace(/\s+/g, ' ').trim();
-    document.getElementById('vpTitle').textContent =
-      (main.getAttribute('data-prose') === 'true' ? 'खण्ड ' : 'पद्य ') + devaFn(n);
+
+    const lang = main.getAttribute('data-lang') || '';
+    const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
+    const isProse = main.getAttribute('data-prose') === 'true';
+    const isGatha = lang.includes('प्राकृत') || /गाथा/i.test(lang) || /समयसार|नियमसार|प्रवचनसार|पंचास्तिकाय|अष्टपाहुड/i.test(gName);
+    const unitLabel = isProse ? 'खण्ड' : (isGatha ? 'गाथा' : 'पद्य');
+
+    document.getElementById('vpTitle').textContent = unitLabel + ' ' + devaFn(n);
     let html = `<div class="vp-sec"><span class="lat dv">मूल <button class="vp-copy" id="vpCopyMool" type="button" title="मूल कॉपी करें">⧉</button></span><div class="vp-mool">${mool}</div></div>`;
     if (translitFn) {
       html += `<div class="vp-sec"><span class="lat">Roman</span><div class="vp-lipi">${translitFn(moolText).replace(/\s+/g, ' ').trim()}</div></div>`;
@@ -125,6 +177,19 @@ if (main) {
     if (copyBtn) copyBtn.addEventListener('click', async () => {
       try { await navigator.clipboard.writeText(curMoolText); copyBtn.textContent = '✓'; setTimeout(() => { copyBtn.textContent = '⧉'; }, 1200); } catch {}
     });
+
+    /* update bookmark button status */
+    const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
+    const bookmarkId = `${slug}#v${n}`;
+    const bmBtn = document.getElementById('vpBookmark');
+    if (bmBtn) {
+      let bookmarks = [];
+      try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
+      const isBm = bookmarks.some((b) => (typeof b === 'string' ? b === bookmarkId : b.id === bookmarkId));
+      bmBtn.classList.toggle('on', isBm);
+      bmBtn.textContent = isBm ? '🔖 सहेजा गया' : '🔖 बुकमार्क';
+    }
+
     panel.hidden = false; scrim.hidden = false;
     requestAnimationFrame(() => panel.classList.add('show'));
     history.replaceState(null, '', '#v' + n);
@@ -142,7 +207,7 @@ if (main) {
     panel.classList.remove('show');
     scrim.hidden = true;
     if (openVg) { openVg.classList.remove('open'); openVg = null; }
-    history.replaceState(null, '', location.pathname);
+    /* preserved current #v{N} hash in URL instead of clearing to location.pathname */
     setTimeout(() => { panel.hidden = true; }, 260);
   }
   main.addEventListener('click', (e) => {
@@ -162,6 +227,49 @@ if (main) {
       if (e.key === 'ArrowRight') { e.preventDefault(); goRel(1); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); goRel(-1); }
     }
+  });
+  document.getElementById('vpQuote')?.addEventListener('click', async () => {
+    const n = panel?.dataset.n || '';
+    if (!n) return;
+    const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
+    const lang = main.getAttribute('data-lang') || '';
+    const isProse = main.getAttribute('data-prose') === 'true';
+    const isGatha = lang.includes('प्राकृत') || /गाथा/i.test(lang) || /समयसार|नियमसार|प्रवचनसार|पंचास्तिकाय|अष्टपाहुड/i.test(gName);
+    const unitLabel = isProse ? 'खण्ड' : (isGatha ? 'गाथा' : 'पद्य');
+    const citeNum = devaFn(n);
+    const url = location.origin + location.pathname + '#v' + n;
+    const citation = `"${curMoolText}" — ${gName}, ${unitLabel} ${citeNum} (${url})`;
+    try {
+      await navigator.clipboard.writeText(citation);
+      const qBtn = document.getElementById('vpQuote');
+      if (qBtn) {
+        qBtn.textContent = '✓ उद्धरण कॉपी हुआ';
+        setTimeout(() => { qBtn.textContent = '❝ उद्धरण'; }, 1200);
+      }
+    } catch {}
+  });
+  document.getElementById('vpBookmark')?.addEventListener('click', () => {
+    const n = panel?.dataset.n || '';
+    if (!n) return;
+    const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
+    const bookmarkId = `${slug}#v${n}`;
+    const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
+    let bookmarks = [];
+    try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
+    const idx = bookmarks.findIndex((b) => (typeof b === 'string' ? b === bookmarkId : b.id === bookmarkId));
+    const bmBtn = document.getElementById('vpBookmark');
+    const targetVg = document.getElementById('v' + n);
+    if (idx >= 0) {
+      bookmarks.splice(idx, 1);
+      if (bmBtn) { bmBtn.classList.remove('on'); bmBtn.textContent = '🔖 बुकमार्क'; }
+      if (targetVg) targetVg.classList.remove('is-bookmarked');
+    } else {
+      const url = location.origin + location.pathname + '#v' + n;
+      bookmarks.push({ id: bookmarkId, slug, n, granthName: gName, text: curMoolText, url, createdAt: Date.now() });
+      if (bmBtn) { bmBtn.classList.add('on'); bmBtn.textContent = '🔖 सहेजा गया'; }
+      if (targetVg) targetVg.classList.add('is-bookmarked');
+    }
+    localStorage.setItem('sd-bookmarks', JSON.stringify(bookmarks));
   });
   document.getElementById('vpLink')?.addEventListener('click', async () => {
     const url = location.origin + location.pathname + '#v' + (panel.dataset.n || '');

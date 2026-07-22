@@ -293,6 +293,34 @@ body[data-surface="white"] .reader-bar{background:rgba(251,249,244,.92)}
 .vgroup:focus-visible{outline:2px solid var(--patina); outline-offset:4px}
 .vlayer{display:none}
 
+/* embedded shloka / doha / gatha in prose */
+.vgroup.is-shloka{
+  border-left:3px solid var(--gold-2);
+  background:linear-gradient(90deg, rgba(217,174,86,.09), rgba(217,174,86,.02) 60%, transparent);
+  padding:12px 18px;
+  margin:18px 0 22px 12px;
+  border-radius:0 4px 4px 0;
+  box-shadow:inset 0 0 0 1px rgba(217,174,86,.14);
+}
+.vgroup.is-shloka .verse{text-align:center; font-weight:400; color:var(--etch)}
+body[data-surface="sepia"] .vgroup.is-shloka{
+  background:linear-gradient(90deg, rgba(138,100,32,.1), rgba(138,100,32,.03) 60%, transparent);
+  box-shadow:inset 0 0 0 1px rgba(138,100,32,.18);
+}
+body[data-surface="white"] .vgroup.is-shloka{
+  background:linear-gradient(90deg, rgba(143,106,28,.08), rgba(143,106,28,.02) 60%, transparent);
+  box-shadow:inset 0 0 0 1px rgba(143,106,28,.14);
+}
+
+.vgroup.is-bookmarked::after{
+  content:'🔖';
+  position:absolute;
+  top:4px;
+  right:8px;
+  font-size:.8rem;
+  opacity:.75;
+}
+
 /* detail panel: right slide-in (desktop) / bottom sheet (mobile) */
 .vpanel-scrim{position:fixed; inset:0; z-index:24; background:rgba(0,0,0,.35)}
 .vpanel{position:fixed; top:0; right:0; bottom:0; width:min(400px, 92vw); z-index:25;
