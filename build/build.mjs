@@ -169,7 +169,7 @@ function granthPage(g, i) {
 
   const parampara = [
     guru ? kin(guruRec, guru) + '<span class="arrow">→</span>' : '',
-    `<span class="me">${esc(g.author)}</span>`,
+    author ? kin(author, g.author) : `<span class="me">${esc(g.author)}</span>`,
     successor ? '<span class="arrow">→</span>' + kin(successor, successor.name) : '',
   ].join('');
 
