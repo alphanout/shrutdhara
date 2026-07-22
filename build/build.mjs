@@ -355,7 +355,11 @@ function paathPage(g, txt) {
       continue;
     }
     vn++;
-    out.push(`<div class="vgroup" id="v${vn}" data-n="${vn}" tabindex="0" role="button" aria-label="विवरण खोलें"><div class="verse">${esc(b).replace(/\n/g, '<br>')}</div></div><!--vg-->`);
+    const isShloka = b.startsWith('दोहा-') || b.startsWith('श्लोक-') || b.startsWith('गाथा-') ||
+      /^(?:दोहा|श्लोक|गाथा)\s*[-:]/.test(b.trim()) ||
+      b.includes('॥') || b.includes('..');
+    const shlokaCls = isShloka ? ' is-shloka' : '';
+    out.push(`<div class="vgroup${shlokaCls}" id="v${vn}" data-n="${vn}" tabindex="0" role="button" aria-label="विवरण खोलें"><div class="verse">${esc(b).replace(/\n/g, '<br>')}</div></div><!--vg-->`);
   }
   const body = out.join('\n');
   const tocHtml = `
@@ -374,11 +378,13 @@ function paathPage(g, txt) {
     <div class="vp-body" id="vpBody"></div>
     <div class="vp-actions">
       <button class="btn kum" id="vpListen" type="button">▶ <span data-i18n="ui.listen_this">यह सुनें</span></button>
+      <button class="btn ghost" id="vpQuote" type="button">❝ उद्धरण</button>
+      <button class="btn ghost" id="vpBookmark" type="button">🔖 बुकमार्क</button>
       <button class="btn ghost" id="vpLink" type="button" data-i18n="ui.copy_link">कड़ी कॉपी करें</button>
     </div>
   </aside>`;
   const hasAudio = existsSync(join(ROOT, 'audio', g.slug));
-  const layerFlags = `data-prose="${isProse}"${hasAudio ? ` data-audio="../../../audio/${g.slug}/"` : ''}`;
+  const layerFlags = `data-prose="${isProse}" data-lang="${esc(meta.language || '')}"${hasAudio ? ` data-audio="../../../audio/${g.slug}/"` : ''}`;
   return `<!DOCTYPE html>
 <html lang="sa" data-root="../../../">
 <head>
