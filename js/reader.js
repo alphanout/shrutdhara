@@ -228,6 +228,68 @@ if (main) {
     voiceSel.hidden = false;
     voiceSel.value = P.get('sd-voice', 'ai');
     voiceSel.addEventListener('change', () => { P.set('sd-voice', voiceSel.value); stop(); });
+
+    const dlBtn = document.createElement('button');
+    dlBtn.className = 'icon-btn';
+    dlBtn.id = 'rDlAudio';
+    dlBtn.type = 'button';
+    dlBtn.title = 'ऑफ़लाइन ऑडियो सहेजें';
+    dlBtn.textContent = '⬇ ऑफ़लाइन ऑडियो';
+    voiceSel.parentNode.insertBefore(dlBtn, voiceSel.nextSibling);
+
+    const totalAudioFiles = verses.length;
+    async function getCache() {
+      if (!('caches' in window)) return null;
+      const keys = await caches.keys();
+      const active = keys.find((k) => k.startsWith('shrutdhara-'));
+      return caches.open(active || 'shrutdhara-audio');
+    }
+
+    async function checkAudioCache() {
+      const cache = await getCache();
+      if (!cache || !totalAudioFiles) return;
+      try {
+        let cachedCount = 0;
+        for (let i = 1; i <= totalAudioFiles; i++) {
+          const url = new URL(audioBase + i + '.mp3', location.href).href;
+          const match = await cache.match(url);
+          if (match) cachedCount++;
+        }
+        if (cachedCount === totalAudioFiles) {
+          dlBtn.textContent = '✓ ऑफ़लाइन उपलब्ध';
+          dlBtn.disabled = true;
+        }
+      } catch {}
+    }
+    checkAudioCache();
+
+    dlBtn.addEventListener('click', async () => {
+      const cache = await getCache();
+      if (!cache) {
+        dlBtn.textContent = 'ब्राउज़र समर्थित नहीं';
+        return;
+      }
+      dlBtn.disabled = true;
+      try {
+        for (let i = 1; i <= totalAudioFiles; i++) {
+          const fileUrl = audioBase + i + '.mp3';
+          const reqUrl = new URL(fileUrl, location.href).href;
+          try {
+            const res = await fetch(fileUrl);
+            if (res.ok) {
+              await cache.put(reqUrl, res.clone());
+              await cache.put(fileUrl, res);
+            }
+          } catch {}
+          const pct = Math.round((i / totalAudioFiles) * 100);
+          dlBtn.textContent = `सहेजा जा रहा है... ${pct}%`;
+        }
+        dlBtn.textContent = '✓ ऑफ़लाइन उपलब्ध';
+      } catch (err) {
+        dlBtn.textContent = 'त्रुटि हुई';
+        dlBtn.disabled = false;
+      }
+    });
   }
   let player = null;
   function speakFrom(i) {

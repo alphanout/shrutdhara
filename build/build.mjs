@@ -46,7 +46,12 @@ for (const a of acharyas) {
   const k = nameKey(a.name);
   if (k && !regByKey.has(k)) regByKey.set(k, a);
 }
-/* author → acharya record: exact key, then prefix, then containment (len ≥ 6) */
+const bhatByKey = new Map();
+for (const b of bhattarak) {
+  const k = nameKey(b.name);
+  if (k && !bhatByKey.has(k)) bhatByKey.set(k, b);
+}
+/* author → acharya/bhattarak record: exact key, then prefix, then containment (len ≥ 6) */
 function resolveAcharya(author) {
   const k = nameKey(author);
   if (!k) return null;
@@ -58,6 +63,16 @@ function resolveAcharya(author) {
     }
     for (const a of acharyas) {
       if (nameKey(a.name).includes(k)) return a;
+    }
+  }
+  if (bhatByKey.has(k)) return { ...bhatByKey.get(k), isBhattarak: true };
+  if (k.length >= 6) {
+    for (const b of bhattarak) {
+      const bk = nameKey(b.name);
+      if (bk.startsWith(k) || k.startsWith(bk)) return { ...b, isBhattarak: true };
+    }
+    for (const b of bhattarak) {
+      if (nameKey(b.name).includes(k)) return { ...b, isBhattarak: true };
     }
   }
   return null;
@@ -149,12 +164,12 @@ function granthPage(g, i) {
   const prev = granths[i - 1], next = granths[i + 1];
 
   const kin = (rec, label) => rec
-    ? `<a class="kin" href="../../acharya.html#a-${rec.id}">${esc(label)}</a>`
+    ? `<a class="kin" href="../../${rec.isBhattarak ? 'bhattarak.html#b-' : 'acharya.html#a-'}${rec.id}">${esc(label)}</a>`
     : (label ? `<span class="kin">${esc(label)}</span>` : '');
 
   const parampara = [
     guru ? kin(guruRec, guru) + '<span class="arrow">→</span>' : '',
-    `<span class="me">${esc(g.author)}</span>`,
+    author ? kin(author, g.author) : `<span class="me">${esc(g.author)}</span>`,
     successor ? '<span class="arrow">→</span>' + kin(successor, successor.name) : '',
   ].join('');
 
@@ -415,11 +430,12 @@ for (const g of granths) {
     if (b.startsWith('## ') || b.startsWith('@')) continue;
     vn++;
     const t = b.replace(/\s+/g, ' ').trim().slice(0, 170);
-    verseIndex.push({ s: g.slug, g: g.name, n: vn, t });
+    verseIndex.push({ s: g.slug, n: g.name, v: vn, t });
   }
 }
+writeFileSync(join(DIST, 'data/verse-index.json'), JSON.stringify(verseIndex));
 writeFileSync(join(DIST, 'data/paath-index.json'), JSON.stringify(verseIndex));
-console.log(`verse index: ${verseIndex.length} entries`);
+console.log(`verse index: ${verseIndex.length} entries -> dist/data/verse-index.json`);
 
 /* ---------- PWA: manifest + versioned service worker ---------- */
 if (existsSync(join(ROOT, 'manifest.webmanifest'))) cpSync(join(ROOT, 'manifest.webmanifest'), join(DIST, 'manifest.webmanifest'));

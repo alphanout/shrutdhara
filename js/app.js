@@ -79,10 +79,14 @@ function initSearch() {
   let t = null;
   let verseIdx = null, verseIdxLoading = false;
   async function loadVerseIndex() {
-    if (verseIdx || verseIdxLoading) return verseIdx;
+    if (verseIdx) return verseIdx;
+    if (verseIdxLoading) {
+      while (verseIdxLoading) await new Promise((r) => setTimeout(r, 50));
+      return verseIdx || [];
+    }
     verseIdxLoading = true;
     try {
-      const r = await fetch(root + 'data/paath-index.json');
+      const r = await fetch(root + 'data/verse-index.json');
       verseIdx = r.ok ? await r.json() : [];
       for (const v of verseIdx) { v.rk = romanKey(v.t); v.sk = skeleton(v.t); }
     } catch { verseIdx = []; }
@@ -128,9 +132,9 @@ function initSearch() {
         }
         if (vHits.length) {
           html += vHits.map((v) => `
-      <a class="hit" href="${root}granth/${v.s}/paath/#v${v.n}">
+      <a class="hit" href="${root}granth/${v.s}/paath/#v${v.v}">
         <span class="t g">पाठ</span>
-        <b>${esc(v.g)}</b> ${esc(deva(v.n))} — ${esc(trim(v.t, 64))}
+        <b>${esc(v.n)}</b> ${esc(deva(v.v))} — ${esc(trim(v.t, 64))}
       </a>`).join('');
         }
       }

@@ -3,7 +3,7 @@ title: मोक्षमार्गप्रकाशक
 slug: mokshamaargaprakaashaka
 language: हिन्दी (ढूंढारी)
 format: prose
-verses: 2518
+verses: 2460
 source: "AtmaDharma.com डिजिटल संस्करण (Version 002) से — पं. टोडरमलजी की मूल रचना public domain; डिजिटल-टंकण श्रेय: AtmaDharma.com (स्वाध्याय हेतु मुक्त वितरण); legacy-font→Unicode रूपान्तरण: श्रुतधारा"
 sourceUrl: https://www.atmadharma.com/
 license: "मूल पाठ public domain; डिजिटल-टंकण श्रेय यथोक्त — अशुद्धि मिले तो GitHub पर सुधारें"
