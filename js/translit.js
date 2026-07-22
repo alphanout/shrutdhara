@@ -66,7 +66,7 @@ export function nameKey(name) {
   const clean = String(name || '')
     .replace(/\([^)]*\)/g, ' ')
     .replace(/आचार्या?|ाचार्य/g, '')
-    .replace(/श्रीमान|श्री|स्वामी|महाराज|ब्र\.|पं\.|आ\.|जी\b/g, ' ')
+    .replace(/श्रीमान|श्री|सूरि|स्वामी|महाराज|ब्र\.|पं\.|आ\.|जी\b/g, ' ')
     .replace(/[0-9०-९–\-.]/g, ' ');
   return romanKey(clean);
 }

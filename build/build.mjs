@@ -51,6 +51,38 @@ for (const b of bhattarak) {
   const k = nameKey(b.name);
   if (k && !bhatByKey.has(k)) bhatByKey.set(k, b);
 }
+const bhattarakByKey = bhatByKey;
+
+function resolveGuru(guru) {
+  const k = nameKey(guru);
+  if (!k) return null;
+  if (regByKey.has(k)) return regByKey.get(k);
+  if (bhattarakByKey.has(k)) return { ...bhattarakByKey.get(k), isBhattarak: true };
+
+  for (const a of acharyas) {
+    const ak = nameKey(a.name);
+    if (!ak) continue;
+    if (ak.startsWith(k) || k.startsWith(ak) || ak.includes(k) || k.includes(ak)) return a;
+  }
+  for (const a of acharyas) {
+    const ak = nameKey(a.name);
+    if (!ak) continue;
+    if (ak.length >= 4 && k.length >= 4 && (ak.slice(0, 4) === k.slice(0, 4) || ak.slice(0, 5) === k.slice(0, 5))) return a;
+  }
+
+  for (const b of bhattarak) {
+    const bk = nameKey(b.name);
+    if (!bk) continue;
+    if (bk.startsWith(k) || k.startsWith(bk) || bk.includes(k) || k.includes(bk)) return { ...b, isBhattarak: true };
+  }
+  for (const b of bhattarak) {
+    const bk = nameKey(b.name);
+    if (!bk) continue;
+    if (bk.length >= 4 && k.length >= 4 && (bk.slice(0, 4) === k.slice(0, 4) || bk.slice(0, 5) === k.slice(0, 5))) return { ...b, isBhattarak: true };
+  }
+
+  return null;
+}
 /* author → acharya/bhattarak record: exact key, then prefix, then containment (len ≥ 6) */
 function resolveAcharya(author) {
   const k = nameKey(author);
@@ -157,7 +189,7 @@ function autoIntroEn(g, author, sameAuthor, sameCentury) {
 function granthPage(g, i) {
   const author = resolveAcharya(g.author);
   const guru = author?.guru || '';
-  const guruRec = guru ? regByKey.get(nameKey(guru)) : null;
+  const guruRec = guru ? resolveGuru(guru) : null;
   const successor = author ? acharyas.find((x) => x.id > author.id && nameKey(x.guru || '') === nameKey(author.name)) : null;
   const sameAuthor = granths.filter((x) => x.id !== g.id && nameKey(x.author) === nameKey(g.author)).slice(0, 8);
   const sameCentury = granths.filter((x) => x.id !== g.id && centuryOf(x) === centuryOf(g) && nameKey(x.author) !== nameKey(g.author)).slice(0, 6);
