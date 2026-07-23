@@ -4,8 +4,10 @@
   "type": "module",
   "scripts": {
     "build": "node build/build.mjs",
-    "pdf": "node build/pdf.mjs",
-    "serve": "python3 -m http.server 8788 -d dist"
+    "dev": "node build/build.mjs && python3 -m http.server 8788 -d dist",
+    "start": "python3 -m http.server 8788 -d dist",
+    "serve": "python3 -m http.server 8788 -d dist",
+    "pdf": "node build/pdf.mjs"
   },
   "devDependencies": {
     "puppeteer": "^23.11.1"
