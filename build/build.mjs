@@ -267,6 +267,7 @@ function granthPage(g, i) {
       <a href="../../about.html" data-i18n="nav.about">परिचय</a>
     </nav>
     <div class="tools">
+      <button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button>
       <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
     </div>
@@ -425,6 +426,7 @@ function paathPage(g, txt) {
       <a href="../../../granths.html" data-i18n="nav.granths">ग्रन्थ</a>
     </nav>
     <div class="tools">
+      <button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button>
       <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
     </div>

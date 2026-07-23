@@ -21,7 +21,7 @@ if (main) {
   bar.className = 'reader-bar';
   bar.innerHTML = `
     <button class="icon-btn toc-toggle" id="rToc" type="button" title="विषय-सूची / Contents" aria-controls="toc" aria-expanded="false">☰</button>
-    <button class="icon-btn" id="rBookmarks" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks">🔖</button>
+    <button class="icon-btn" id="rBookmarks" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks">🔖 बुकमार्क</button>
     <button class="icon-btn" id="rPlay" type="button" title="सुनें / Listen">▶ सुनें</button>
     <select class="icon-btn" id="rRate" title="गति / Speed">
       <option value="0.5">०.५×</option><option value="0.6">०.६×</option><option value="0.7">०.७×</option>
@@ -298,8 +298,13 @@ if (main) {
     const moolEl = targetVg?.querySelector('.verse');
     let moolFormatted = '';
     if (moolEl) {
-      const rawText = moolEl.innerText || moolEl.textContent || '';
-      const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const html = moolEl.innerHTML || '';
+      const textWithBreaks = html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<\/div>/gi, '\n')
+        .replace(/<[^>]+>/g, '');
+      const lines = textWithBreaks.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
       moolFormatted = lines.join('\n');
     }
     if (!moolFormatted) moolFormatted = curMoolText;
