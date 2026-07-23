@@ -239,19 +239,20 @@ if (main) {
     const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
     const bookmarkId = `${slug}#v${n}`;
     const bmBtn = document.getElementById('vpBookmark');
+    const _t = window.sdT || ((k) => k);
     if (bmBtn) {
       let bookmarks = [];
       try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
       const isBm = bookmarks.some((b) => (typeof b === 'string' ? b === bookmarkId : b.id === bookmarkId));
       bmBtn.classList.toggle('on', isBm);
-      bmBtn.textContent = isBm ? '🔖 सहेजा गया' : '🔖 बुकमार्क';
+      bmBtn.textContent = isBm ? _t('ui.bookmarked') : _t('ui.bookmark');
     }
 
     /* update vpListen button label */
     const listenBtn = document.getElementById('vpListen');
     if (listenBtn) {
       const isCurVersePlaying = playing && cur === (idx >= 0 ? idx : +n - 1);
-      listenBtn.textContent = isCurVersePlaying ? '⏸ रोकें' : '▶ यह सुनें';
+      listenBtn.textContent = isCurVersePlaying ? _t('ui.stop') : _t('ui.listen_verse');
     }
 
     panel.hidden = false; scrim.hidden = false;

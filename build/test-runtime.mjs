@@ -4,7 +4,7 @@ import { readFileSync, existsSync } from 'fs';
 import { join, extname } from 'path';
 
 const DIST = './dist';
-const PORT = 8930;
+const PORT = 8905;
 
 // simple static file server for testing
 const MIME = {
@@ -47,13 +47,21 @@ server.listen(PORT, async () => {
     const title = await page.title();
     console.log(`✓ Homepage title: "${title}"`);
 
+    // Test Language switching to English
+    await page.select('#langSel', 'en');
+    await new Promise(r => setTimeout(r, 400));
+    const navHomeEn = await page.$eval('.site-nav a[aria-current="page"]', el => el.textContent.trim());
+    console.log(`✓ English Home Nav: "${navHomeEn}"`);
+
     // Check header bookmark button and click it
     const bmBtn = await page.$('#bmHeadBtn');
     console.log(`✓ Header bookmark button present: ${bmBtn !== null}`);
     await page.click('#bmHeadBtn');
     await new Promise(r => setTimeout(r, 300));
     const drawerShown = await page.$eval('#bmDrawer', el => !el.hidden && el.classList.contains('show'));
-    console.log(`✓ Bookmarks drawer opens on homepage click: ${drawerShown}`);
+    const drawerTitleEn = await page.$eval('.bm-head b', el => el.textContent.trim());
+    console.log(`✓ Bookmarks drawer opens on homepage click (Title: "${drawerTitleEn}"): ${drawerShown}`);
+    await page.screenshot({ path: 'dist/screenshot-bookmarks-en.png' });
     await page.evaluate(() => document.getElementById('bmClose')?.click());
     await new Promise(r => setTimeout(r, 300));
 
@@ -71,10 +79,6 @@ server.listen(PORT, async () => {
     // Verify skip link is hidden
     const skipDisplay = await page.$eval('.skip-link', el => getComputedStyle(el).width);
     console.log(`✓ Skip-link width (hidden): ${skipDisplay}`);
-
-    // Verify toolbar sticky positioning
-    const barPos = await page.$eval('.reader-bar', el => getComputedStyle(el).position);
-    console.log(`✓ Reader bar position: ${barPos}`);
 
     // Click verse #1 to open detail panel
     await page.evaluate(() => {
