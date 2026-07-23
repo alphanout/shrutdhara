@@ -27,10 +27,12 @@ const base = `http://127.0.0.1:${server.address().port}`;
 mkdirSync(join(DIST, 'pdf'), { recursive: true });
 const browser = await puppeteer.launch({ args: ['--no-sandbox', '--font-render-hinting=none'] });
 const page = await browser.newPage();
+page.setDefaultNavigationTimeout(120000);
+page.setDefaultTimeout(120000);
 
 async function print(url, out) {
-  await page.goto(url, { waitUntil: 'networkidle0', timeout: 60000 });
-  await page.pdf({ path: out, format: 'A4', printBackground: true, preferCSSPageSize: true });
+  await page.goto(url, { waitUntil: 'load', timeout: 120000 });
+  await page.pdf({ path: out, format: 'A4', printBackground: true, preferCSSPageSize: true, timeout: 120000 });
 }
 
 let n = 0;
@@ -52,6 +54,7 @@ if (existsSync(granthDir)) {
     if (existsSync(join(granthDir, slug, 'paath', 'index.html'))) {
       await print(`${base}/granth/${slug}/paath/`, join(DIST, 'pdf', `${slug}-paath.pdf`));
       n++;
+      if (n % 15 === 0) console.log(`  …${n} PDFs`);
     }
   }
 }
@@ -63,12 +66,12 @@ await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 });
 let m = 0;
 if (existsSync(granthDir)) {
   for (const slug of readdirSync(granthDir)) {
-    await page.goto(`${base}/granth/${slug}/`, { waitUntil: 'networkidle0', timeout: 60000 });
-    await page.screenshot({ path: join(DIST, 'og', `${slug}.jpg`), type: 'jpeg', quality: 82 });
+    await page.goto(`${base}/granth/${slug}/`, { waitUntil: 'load', timeout: 120000 });
+    await page.screenshot({ path: join(DIST, 'og', `${slug}.jpg`), type: 'jpeg', quality: 82, timeout: 120000 });
     m++;
   }
 }
-await page.goto(`${base}/`, { waitUntil: 'networkidle0', timeout: 60000 });
+await page.goto(`${base}/`, { waitUntil: 'load', timeout: 120000 });
 await page.screenshot({ path: join(DIST, 'og', 'site.jpg'), type: 'jpeg', quality: 82 });
 m++;
 console.log(`og ok → dist/og/ (${m} cards)`);
