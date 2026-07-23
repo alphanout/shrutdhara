@@ -506,7 +506,9 @@ function initHomeResume() {
   if (page !== 'home') return;
   try {
     const lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}');
-    const entries = Object.values(lastRead).sort((a, b) => (b.time || 0) - (a.time || 0));
+    const entries = Object.values(lastRead)
+      .filter((item) => item && item.slug && item.slug !== 'undefined' && item.n)
+      .sort((a, b) => (b.time || 0) - (a.time || 0));
     if (!entries.length) return;
     const latest = entries[0];
     const statsEl = document.getElementById('stats');

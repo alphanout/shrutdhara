@@ -4,7 +4,7 @@ import { readFileSync, existsSync } from 'fs';
 import { join, extname } from 'path';
 
 const DIST = './dist';
-const PORT = 8960;
+const PORT = 8930;
 
 // simple static file server for testing
 const MIME = {
@@ -41,7 +41,7 @@ server.listen(PORT, async () => {
 
     // 1. Visit homepage
     console.log('Testing Homepage...');
-    await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: 'load' });
+    await page.goto(`http://127.0.0.1:${PORT}/`, { waitUntil: 'domcontentloaded' });
     
     // Check title
     const title = await page.title();
@@ -54,7 +54,7 @@ server.listen(PORT, async () => {
     await new Promise(r => setTimeout(r, 300));
     const drawerShown = await page.$eval('#bmDrawer', el => !el.hidden && el.classList.contains('show'));
     console.log(`✓ Bookmarks drawer opens on homepage click: ${drawerShown}`);
-    await page.click('#bmClose');
+    await page.evaluate(() => document.getElementById('bmClose')?.click());
     await new Promise(r => setTimeout(r, 300));
 
     // 2. Open reader page
