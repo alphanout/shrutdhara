@@ -41,78 +41,9 @@ for (const g of granths) {
   seen.add(s);
   g.slug = s;
 }
-const regByKey = new Map();
-for (const a of acharyas) {
-  const k = nameKey(a.name);
-  if (k && !regByKey.has(k)) regByKey.set(k, a);
-}
-const bhatByKey = new Map();
-for (const b of bhattarak) {
-  const k = nameKey(b.name);
-  if (k && !bhatByKey.has(k)) bhatByKey.set(k, b);
-}
+import { createResolvers, centuryOf } from './utils.mjs';
+const { resolveGuru, resolveAcharya, regByKey, bhatByKey } = createResolvers(acharyas, bhattarak);
 const bhattarakByKey = bhatByKey;
-
-function resolveGuru(guru) {
-  const k = nameKey(guru);
-  if (!k) return null;
-  if (regByKey.has(k)) return regByKey.get(k);
-  if (bhattarakByKey.has(k)) return { ...bhattarakByKey.get(k), isBhattarak: true };
-
-  for (const a of acharyas) {
-    const ak = nameKey(a.name);
-    if (!ak) continue;
-    if (ak.startsWith(k) || k.startsWith(ak) || ak.includes(k) || k.includes(ak)) return a;
-  }
-  for (const a of acharyas) {
-    const ak = nameKey(a.name);
-    if (!ak) continue;
-    if (ak.length >= 4 && k.length >= 4 && (ak.slice(0, 4) === k.slice(0, 4) || ak.slice(0, 5) === k.slice(0, 5))) return a;
-  }
-
-  for (const b of bhattarak) {
-    const bk = nameKey(b.name);
-    if (!bk) continue;
-    if (bk.startsWith(k) || k.startsWith(bk) || bk.includes(k) || k.includes(bk)) return { ...b, isBhattarak: true };
-  }
-  for (const b of bhattarak) {
-    const bk = nameKey(b.name);
-    if (!bk) continue;
-    if (bk.length >= 4 && k.length >= 4 && (bk.slice(0, 4) === k.slice(0, 4) || bk.slice(0, 5) === k.slice(0, 5))) return { ...b, isBhattarak: true };
-  }
-
-  return null;
-}
-/* author → acharya/bhattarak record: exact key, then prefix, then containment (len ≥ 6) */
-function resolveAcharya(author) {
-  const k = nameKey(author);
-  if (!k) return null;
-  if (regByKey.has(k)) return regByKey.get(k);
-  if (k.length >= 6) {
-    for (const a of acharyas) {
-      const ak = nameKey(a.name);
-      if (ak.startsWith(k) || k.startsWith(ak)) return a;
-    }
-    for (const a of acharyas) {
-      if (nameKey(a.name).includes(k)) return a;
-    }
-  }
-  if (bhatByKey.has(k)) return { ...bhatByKey.get(k), isBhattarak: true };
-  if (k.length >= 6) {
-    for (const b of bhattarak) {
-      const bk = nameKey(b.name);
-      if (bk.startsWith(k) || k.startsWith(bk)) return { ...b, isBhattarak: true };
-    }
-    for (const b of bhattarak) {
-      if (nameKey(b.name).includes(k)) return { ...b, isBhattarak: true };
-    }
-  }
-  return null;
-}
-const centuryOf = (g) => {
-  const m = String(g.century || '').match(/(\d{1,2})/);
-  return m ? m[1] : '?';
-};
 for (const g of granths) {
   const a = resolveAcharya(g.author);
   if (a) g.authorId = a.id;
@@ -198,18 +129,18 @@ function granthPage(g, i) {
   const prev = granths[i - 1], next = granths[i + 1];
 
   const kin = (rec, label) => rec
-    ? `<a class="kin" href="../../${rec.isBhattarak ? 'bhattarak.html#b-' : 'acharya.html#a-'}${rec.id}">${esc(label)}</a>`
-    : (label ? `<span class="kin">${esc(label)}</span>` : '');
+    ? `<a class="kin" href="../../${rec.isBhattarak ? 'bhattarak.html#b-' : 'acharya.html#a-'}${rec.id}" data-dv="${esc(label)}">${esc(label)}</a>`
+    : (label ? `<span class="kin" data-dv="${esc(label)}">${esc(label)}</span>` : '');
 
   const parampara = [
     guru ? kin(guruRec, guru) + '<span class="arrow">→</span>' : '',
-    author ? kin(author, g.author) : `<span class="me">${esc(g.author)}</span>`,
+    author ? kin(author, g.author) : `<span class="me" data-dv="${esc(g.author)}">${esc(g.author)}</span>`,
     successor ? '<span class="arrow">→</span>' + kin(successor, successor.name) : '',
   ].join('');
 
   const chips = (list, key) => list.length ? `
       <div class="chips-l lat dv" data-i18n="${key}"></div>
-      <div class="chips">${list.map((x) => `<a class="chip" href="../${x.slug}/">${esc(x.name)}</a>`).join('')}</div>` : '';
+      <div class="chips">${list.map((x) => `<a class="chip" href="../${x.slug}/" data-dv="${esc(x.name)}">${esc(x.name)}</a>`).join('')}</div>` : '';
 
   const curated = intros.get(g.id);
   const introHtml = curated ? `
@@ -276,9 +207,9 @@ function granthPage(g, i) {
 
 <main class="gpage">
   <div class="mang">॥ श्री ॥</div>
-  <h1 class="inlay">${esc(g.name)}</h1>
+  <h1 class="inlay" data-dv="${esc(g.name)}">${esc(g.name)}</h1>
   <p class="translit-line">${esc(translit(g.name))}</p>
-  <p class="meta num">${esc(g.author)} <span>· ${esc(deva(g.century || ''))} · अभिलेख ${deva(g.id)}/${deva(granths.length)}</span></p>
+  <p class="meta num"><span data-dv="${esc(g.author)}">${esc(g.author)}</span> <span>· ${esc(deva(g.century || ''))} · अभिलेख ${deva(g.id)}/${deva(granths.length)}</span></p>
   ${parampara ? `<div class="parampara num">${parampara}</div>` : ''}
   ${introHtml}
   ${recordHtml}
@@ -422,7 +353,7 @@ function paathPage(g, txt) {
   <div class="wrap bar">
     <a class="brand inlay khand" href="../../../">श्रुतधारा</a>
     <nav class="site-nav" aria-label="मुख्य">
-      <a href="../" >← ${esc(g.name)}</a>
+      <a href="../" >← <span data-dv="${esc(g.name)}">${esc(g.name)}</span></a>
       <a href="../../../granths.html" data-i18n="nav.granths">ग्रन्थ</a>
     </nav>
     <div class="tools">
@@ -438,8 +369,8 @@ ${tocHtml}
 <main id="paath-main" class="paath${meta.format === 'prose' ? ' prose-text' : ''}" ${layerFlags} lang="${contentLang}">
   <div class="phead">
     <div class="mang">॥ श्री ॥</div>
-    <h1 class="inlay">${esc(g.name)}</h1>
-    <p class="pmeta num">${esc(g.author)} · ${esc(meta.language || '')}${meta.verses ? ` · ${deva(meta.verses)} पद्य · ~${deva(Math.max(1, Math.round(+meta.verses * 9 / 60)))} मिनट` : ''}${meta.partial === 'true' ? ' · <span class="warn">आंशिक पाठ</span>' : ''}</p>
+    <h1 class="inlay" data-dv="${esc(g.name)}">${esc(g.name)}</h1>
+    <p class="pmeta num"><span data-dv="${esc(g.author)}">${esc(g.author)}</span> · ${esc(meta.language || '')}${meta.verses ? ` · ${deva(meta.verses)} पद्य · ~${deva(Math.max(1, Math.round(+meta.verses * 9 / 60)))} मिनट` : ''}${meta.partial === 'true' ? ' · <span class="warn">आंशिक पाठ</span>' : ''}</p>
     ${meta.note ? `<p class="pmeta pnote">${esc(meta.note)}</p>` : ''}
   </div>
   ${body}

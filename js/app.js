@@ -6,6 +6,7 @@ import { t, lang } from './i18n.js';
 
 const root = document.documentElement.getAttribute('data-root') || '';
 const page = document.body.getAttribute('data-page') || '';
+const sdName = (s) => (window.sdName ? window.sdName(s) : s);
 
 /* ---------- theme ---------- */
 const THEME_KEY = 'sd-theme';
@@ -134,7 +135,7 @@ function initSearch() {
           html += vHits.map((v) => `
       <a class="hit" href="${root}granth/${v.s}/paath/#v${v.v}">
         <span class="t g">पाठ</span>
-        <b>${esc(v.n)}</b> ${esc(deva(v.v))} — ${esc(trim(v.t, 64))}
+        <b>${sdName(esc(v.n))}</b> ${esc(deva(v.v))} — ${esc(trim(v.t, 64))}
       </a>`).join('');
         }
       }
@@ -175,7 +176,7 @@ function centuryOf(entry) {
 function guruHtml(data, guru) {
   if (!guru) return '';
   const id = data.guruIndex.get(nameKey(guru));
-  return id ? `गुरु — <a href="#a-${id}" data-flash="a-${id}">${esc(guru)}</a>` : `गुरु — ${esc(guru)}`;
+  return id ? `गुरु — <a href="#a-${id}" data-flash="a-${id}">${sdName(esc(guru))}</a>` : `गुरु — ${sdName(esc(guru))}`;
 }
 function initFlash() {
   function flash() {
@@ -205,8 +206,8 @@ async function renderHome() {
       <div class="dnum inlay num">${deva(g.id)}</div>
       <div>
         <p class="lat dv" style="margin:0 0 4px">${t('ui.today')} · ${esc(deva(df))} · ${t('ui.daily')}</p>
-        <div class="tn carve">${esc(g.name)}</div>
-        <div class="tm num"><b>${esc(g.author)}</b> · ${esc(deva(g.century || ''))}</div>
+        <div class="tn carve">${sdName(esc(g.name))}</div>
+        <div class="tm num"><b>${sdName(esc(g.author))}</b> · ${esc(deva(g.century || ''))}</div>
       </div>`;
   }
   const strip = document.getElementById('paathStrip');
@@ -216,7 +217,7 @@ async function renderHome() {
     if (withText.length) {
       strip.hidden = false;
       list.innerHTML = withText.map((g) =>
-        `<a class="chip" href="${root}granth/${g.slug || slugify(g.name)}/paath/">${esc(g.name)} · पाठ</a>`).join('');
+        `<a class="chip" href="${root}granth/${g.slug || slugify(g.name)}/paath/">${sdName(esc(g.name))} · पाठ</a>`).join('');
     }
   }
   const stats = document.getElementById('stats');
@@ -254,8 +255,8 @@ async function renderGranths() {
       <a class="slab" href="${root}granth/${g.slug || slugify(g.name)}/">
         <span class="vein"></span>
         <span class="serial inlay num">अभिलेख ${deva(g.id)} / ${deva(data.granths.length)}${g.hasText ? ' <span class="tag">पाठ ✓</span>' : ''}</span>
-        <span class="gname carve">${esc(g.name)}</span>
-        <span class="foot"><span class="kum-mark"></span><span class="a">${esc(g.author)}</span><span class="e num">${esc(deva(g.century || ''))}</span></span>
+        <span class="gname carve">${sdName(esc(g.name))}</span>
+        <span class="foot"><span class="kum-mark"></span><span class="a">${sdName(esc(g.author))}</span><span class="e num">${esc(deva(g.century || ''))}</span></span>
       </a>`).join('') || `<p class="loading">डेटा उपलब्ध नहीं — data/granths-90.json अनुपस्थित।</p>`;
   }
   draw();
@@ -268,17 +269,17 @@ function ledgerRow(data, e, kind) {
   return `
     <div class="row" id="${kind}-${e.id}">
       <span class="yr num">${esc(deva(e.period || ''))}</span>
-      <span class="who">${esc(e.name)}${warn}</span>
-      <span class="guru">${kind === 'a' ? guruHtml(data, e.guru) : esc(e.guruOrType || '')}</span>
-      <span class="wk">${esc(kind === 'a' ? (e.works || '') : (e.works || ''))}</span>
+      <span class="who">${sdName(esc(e.name))}${warn}</span>
+      <span class="guru">${kind === 'a' ? guruHtml(data, e.guru) : sdName(esc(e.guruOrType || ''))}</span>
+      <span class="wk">${sdName(esc(kind === 'a' ? (e.works || '') : (e.works || '')))}</span>
     </div>`;
 }
 function granthRow(data, g) {
   return `
     <div class="row granth">
       <span class="yr num">${esc(deva(g.century || ''))}</span>
-      <span class="who"><a class="inlay" style="text-decoration:none" href="${root}granth/${g.slug || slugify(g.name)}/">${esc(g.name)}</a> <span class="tag">ग्रन्थ</span></span>
-      <span class="guru">${esc(g.author)}</span>
+      <span class="who"><a class="inlay" style="text-decoration:none" href="${root}granth/${g.slug || slugify(g.name)}/">${sdName(esc(g.name))}</a> <span class="tag">ग्रन्थ</span></span>
+      <span class="guru">${sdName(esc(g.author))}</span>
       <span class="wk num">अभिलेख ${deva(g.id)}/${deva(data.granths.length)}</span>
     </div>`;
 }
