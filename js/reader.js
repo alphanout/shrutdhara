@@ -21,6 +21,7 @@ if (main) {
   bar.className = 'reader-bar';
   bar.innerHTML = `
     <button class="icon-btn toc-toggle" id="rToc" type="button" title="विषय-सूची / Contents">☰</button>
+    <button class="icon-btn" id="rBookmarks" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks">🔖</button>
     <button class="icon-btn" id="rPlay" type="button" title="सुनें / Listen">▶ सुनें</button>
     <select class="icon-btn" id="rRate" title="गति / Speed">
       <option value="0.5">०.५×</option><option value="0.6">०.६×</option><option value="0.7">०.७×</option>
@@ -41,6 +42,10 @@ if (main) {
   document.querySelector('.reader-wrap').parentNode.insertBefore(bar, document.querySelector('.reader-wrap'));
   const markSurface = () => bar.querySelectorAll('.rs').forEach((b) => b.classList.toggle('on', b.dataset.s === surface));
   markSurface();
+
+  bar.querySelector('#rBookmarks')?.addEventListener('click', () => {
+    if (window.sdOpenBookmarks) window.sdOpenBookmarks();
+  });
 
   bar.querySelector('#rMinus').addEventListener('click', () => { size = Math.max(0, size - 1); P.set('sd-reader-size', size); applySize(); });
   bar.querySelector('#rPlus').addEventListener('click', () => { size = Math.min(4, size + 1); P.set('sd-reader-size', size); applySize(); });
@@ -94,10 +99,28 @@ if (main) {
         const n = target.dataset.n;
         if (n && location.hash !== '#v' + n) {
           history.replaceState(null, '', '#v' + n);
+          saveLastReadPosition(n);
         }
       }
     }, { rootMargin: '-20% 0px -60% 0px' });
     groups.forEach((vg) => verseObserver.observe(vg));
+  }
+
+  /* save last read position */
+  function saveLastReadPosition(n) {
+    if (!n) return;
+    const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
+    if (!slug) return;
+    const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
+    const isProse = main.getAttribute('data-prose') === 'true';
+    const lang = main.getAttribute('data-lang') || '';
+    const isGatha = lang.includes('प्राकृत') || /गाथा/i.test(lang) || /समयसार|नियमसार|प्रवचनसार|पंचास्तिकाय|अष्टपाहुड/i.test(gName);
+    const unitLabel = isProse ? 'खण्ड' : (isGatha ? 'गाथा' : 'पद्य');
+    const title = `${unitLabel} ${devaFn(n)}`;
+    let lastRead = {};
+    try { lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}'); } catch {}
+    lastRead[slug] = { n, title, granthName: gName, url: location.pathname + '#v' + n, time: Date.now() };
+    localStorage.setItem('sd-last-read', JSON.stringify(lastRead));
   }
 
   /* ---------- initial bookmark highlight ---------- */
@@ -194,6 +217,7 @@ if (main) {
     requestAnimationFrame(() => panel.classList.add('show'));
     history.replaceState(null, '', '#v' + n);
     panel.dataset.n = n;
+    saveLastReadPosition(n);
   }
   function goRel(delta) {
     if (!openVg) return;
@@ -228,9 +252,21 @@ if (main) {
       if (e.key === 'ArrowLeft') { e.preventDefault(); goRel(-1); }
     }
   });
+
+  /* Quote button: formatted multiline quote with citation */
   document.getElementById('vpQuote')?.addEventListener('click', async () => {
     const n = panel?.dataset.n || '';
     if (!n) return;
+    const targetVg = openVg || document.getElementById('v' + n);
+    const moolEl = targetVg?.querySelector('.verse');
+    let moolFormatted = '';
+    if (moolEl) {
+      const rawText = moolEl.innerText || moolEl.textContent || '';
+      const lines = rawText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      moolFormatted = lines.join('\n');
+    }
+    if (!moolFormatted) moolFormatted = curMoolText;
+
     const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
     const lang = main.getAttribute('data-lang') || '';
     const isProse = main.getAttribute('data-prose') === 'true';
@@ -238,7 +274,7 @@ if (main) {
     const unitLabel = isProse ? 'खण्ड' : (isGatha ? 'गाथा' : 'पद्य');
     const citeNum = devaFn(n);
     const url = location.origin + location.pathname + '#v' + n;
-    const citation = `"${curMoolText}" — ${gName}, ${unitLabel} ${citeNum} (${url})`;
+    const citation = `"${moolFormatted}"\n— ${gName}, ${unitLabel} ${citeNum}\n${url}`;
     try {
       await navigator.clipboard.writeText(citation);
       const qBtn = document.getElementById('vpQuote');
@@ -248,6 +284,7 @@ if (main) {
       }
     } catch {}
   });
+
   document.getElementById('vpBookmark')?.addEventListener('click', () => {
     const n = panel?.dataset.n || '';
     if (!n) return;
@@ -271,10 +308,36 @@ if (main) {
     }
     localStorage.setItem('sd-bookmarks', JSON.stringify(bookmarks));
   });
+
   document.getElementById('vpLink')?.addEventListener('click', async () => {
     const url = location.origin + location.pathname + '#v' + (panel.dataset.n || '');
     try { await navigator.clipboard.writeText(url); document.getElementById('vpLink').textContent = '✓ कॉपी हुई'; } catch {}
   });
+
+  /* ---------- Resume reading banner on paath page ---------- */
+  const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
+  if (slug && !location.hash.startsWith('#v')) {
+    try {
+      const lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}');
+      const item = lastRead[slug];
+      if (item && item.n && document.getElementById('v' + item.n)) {
+        const toast = document.createElement('div');
+        toast.className = 'resume-toast';
+        toast.innerHTML = `
+          <span>📖 पिछला पाठ: <b>${esc(item.title)}</b> से जारी रखें</span>
+          <button class="btn kum sm" type="button" id="rtResume">जारी रखें ▶</button>
+          <button class="icon-btn" type="button" id="rtClose" title="बंद करें">✕</button>`;
+        document.body.appendChild(toast);
+        toast.querySelector('#rtResume').addEventListener('click', () => {
+          const vg = document.getElementById('v' + item.n);
+          if (vg) { vg.scrollIntoView({ block: 'center' }); openPanel(vg); }
+          toast.remove();
+        });
+        toast.querySelector('#rtClose').addEventListener('click', () => toast.remove());
+      }
+    } catch {}
+  }
+
   if (location.hash.startsWith('#v')) {
     const vg = document.getElementById(location.hash.slice(1));
     if (vg) setTimeout(() => { vg.scrollIntoView({ block: 'center' }); openPanel(vg); }, 300);

@@ -374,6 +374,152 @@ async function renderBhattarak() {
   }
 }
 
+/* ---------- global bookmarks drawer & resume reading ---------- */
+function initBookmarksDrawer() {
+  const tools = document.querySelector('.site-head .tools');
+  if (tools && !tools.querySelector('#bmHeadBtn')) {
+    const btn = document.createElement('button');
+    btn.className = 'icon-btn';
+    btn.id = 'bmHeadBtn';
+    btn.type = 'button';
+    btn.title = 'सहेजे गए बुकमार्क / Saved Bookmarks';
+    btn.innerHTML = '🔖';
+    tools.insertBefore(btn, tools.firstChild);
+    btn.addEventListener('click', openDrawer);
+  }
+
+  let scrim = document.getElementById('bmScrim');
+  let drawer = document.getElementById('bmDrawer');
+  if (!drawer) {
+    scrim = document.createElement('div');
+    scrim.className = 'bm-drawer-scrim';
+    scrim.id = 'bmScrim';
+    scrim.hidden = true;
+    document.body.appendChild(scrim);
+
+    drawer = document.createElement('div');
+    drawer.className = 'bm-drawer';
+    drawer.id = 'bmDrawer';
+    drawer.hidden = true;
+    drawer.innerHTML = `
+      <div class="bm-head">
+        <b>🔖 सहेजे गए बुकमार्क</b>
+        <button class="icon-btn" id="bmClose" type="button">✕</button>
+      </div>
+      <div class="bm-body" id="bmList"></div>`;
+    document.body.appendChild(drawer);
+
+    drawer.querySelector('#bmClose').addEventListener('click', closeDrawer);
+    scrim.addEventListener('click', closeDrawer);
+    addEventListener('keydown', (e) => { if (e.key === 'Escape' && !drawer.hidden) closeDrawer(); });
+  }
+
+  function openDrawer() {
+    renderList();
+    scrim.hidden = false;
+    drawer.hidden = false;
+    requestAnimationFrame(() => drawer.classList.add('show'));
+  }
+  function closeDrawer() {
+    drawer.classList.remove('show');
+    scrim.hidden = true;
+    setTimeout(() => { drawer.hidden = true; }, 240);
+  }
+  window.sdOpenBookmarks = openDrawer;
+
+  function renderList() {
+    const listEl = drawer.querySelector('#bmList');
+    let bookmarks = [];
+    try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
+    if (!bookmarks.length) {
+      listEl.innerHTML = `<div class="bm-empty">
+        <p>कोई बुकमार्क सहेजा नहीं गया है।</p>
+        <small>पाठ पढ़ते समय <b>🔖 बुकमार्क</b> बटन दबाकर किसी भी श्लोक या गाथा को यहाँ सहेजें।</small>
+      </div>`;
+      return;
+    }
+
+    /* group bookmarks by granth */
+    const grouped = new Map();
+    for (const bm of bookmarks) {
+      const g = bm.granthName || bm.slug || 'ग्रन्थ';
+      if (!grouped.has(g)) grouped.set(g, []);
+      grouped.get(g).push(bm);
+    }
+
+    let html = '';
+    for (const [gName, items] of grouped) {
+      html += `<div class="bm-group"><h3>${esc(gName)}</h3>`;
+      for (const bm of items) {
+        const href = bm.url || `${root}granth/${bm.slug}/paath/#v${bm.n}`;
+        const title = bm.n ? `गाथा/पद्य ${devaNum(bm.n)}` : 'सहेजा गया पाठ';
+        html += `
+          <div class="bm-card">
+            <div class="bm-card-head">
+              <b>${esc(title)}</b>
+              <button class="bm-del" data-id="${esc(bm.id)}" type="button" title="हटाएं">🗑</button>
+            </div>
+            <div class="bm-card-txt">${esc(trim(bm.text || '', 110))}</div>
+            <a class="btn ghost sm" href="${esc(href)}">👉 पढ़ें</a>
+          </div>`;
+      }
+      html += `</div>`;
+    }
+    listEl.innerHTML = html;
+
+    listEl.querySelectorAll('.bm-del').forEach((b) => {
+      b.addEventListener('click', () => {
+        const id = b.dataset.id;
+        bookmarks = bookmarks.filter((x) => (typeof x === 'string' ? x !== id : x.id !== id));
+        localStorage.setItem('sd-bookmarks', JSON.stringify(bookmarks));
+        renderList();
+      });
+    });
+  }
+}
+
+/* ---------- granth page resume reading button ---------- */
+function initGranthResume() {
+  if (page !== 'granth') return;
+  const slug = location.pathname.split('/').filter(Boolean).slice(-1)[0] || '';
+  if (!slug) return;
+  try {
+    const lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}');
+    const item = lastRead[slug];
+    if (item && item.n) {
+      const btns = document.querySelector('.gpage .btns') || document.querySelector('.gpage');
+      if (btns) {
+        const rBtn = document.createElement('a');
+        rBtn.className = 'btn kum';
+        rBtn.style.marginRight = '10px';
+        rBtn.href = `paath/#v${item.n}`;
+        rBtn.innerHTML = `▶ जहाँ छोड़ा था वहीं से जारी रखें (${esc(item.title)})`;
+        btns.insertBefore(rBtn, btns.firstChild);
+      }
+    }
+  } catch {}
+}
+
+/* ---------- homepage resume card ---------- */
+function initHomeResume() {
+  if (page !== 'home') return;
+  try {
+    const lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}');
+    const entries = Object.values(lastRead).sort((a, b) => (b.time || 0) - (a.time || 0));
+    if (!entries.length) return;
+    const latest = entries[0];
+    const statsEl = document.getElementById('stats');
+    if (statsEl && statsEl.parentNode) {
+      const card = document.createElement('div');
+      card.className = 'home-resume-strip';
+      card.innerHTML = `
+        <span>📖 हाल ही में पढ़ा गया: <b>${esc(latest.granthName)}</b> — ${esc(latest.title)}</span>
+        <a class="btn kum sm" href="${root}granth/${latest.url.includes('/') ? latest.url : latest.url}">जारी रखें ▶</a>`;
+      statsEl.parentNode.insertBefore(card, statsEl.nextSibling);
+    }
+  } catch {}
+}
+
 /* ---------- boot ---------- */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   navigator.serviceWorker.register(root + 'sw.js', { scope: root || './' }).catch(() => {});
@@ -381,7 +527,9 @@ if ('serviceWorker' in navigator && location.protocol === 'https:') {
 initTheme();
 initSearch();
 initFlash();
-if (page === 'home') renderHome();
+initBookmarksDrawer();
+initGranthResume();
+if (page === 'home') { renderHome(); initHomeResume(); }
 if (page === 'kaal') renderStrata({ withGranths: true });
 if (page === 'acharya') renderStrata({ withGranths: false });
 if (page === 'granths') renderGranths();
