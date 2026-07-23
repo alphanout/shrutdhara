@@ -247,9 +247,9 @@ body[data-surface="sepia"]{background:#f2e9d5; --etch:#3a2f1d; --etch-dim:#6b5c3
 body[data-surface="white"]{background:#fbf9f4; --etch:#20202a; --etch-dim:#6b6b76; --stone-1:#f1efe8; --edge:rgba(32,32,42,.14); --hairline:rgba(32,32,42,.18)}
 body[data-surface="sepia"] .site-head, body[data-surface="white"] .site-head{background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none}
 body[data-surface="sepia"] .inlay, body[data-surface="white"] .inlay{background:none; -webkit-background-clip:initial; background-clip:initial; color:#8a6420}
-.reader-bar{position:sticky; top:0; z-index:8; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;
-  padding:10px 16px; background:color-mix(in srgb, var(--stone-0) 90%, transparent);
-  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); border-bottom:1px solid var(--hairline)}
+.reader-bar{position:sticky; top:52px; z-index:15; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;
+  padding:10px 16px; background:color-mix(in srgb, var(--stone-0) 94%, transparent);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); border-bottom:1px solid var(--hairline)}
 body[data-surface="sepia"] .reader-bar{background:rgba(242,233,213,.92)}
 body[data-surface="white"] .reader-bar{background:rgba(251,249,244,.92)}
 .reader-bar .icon-btn{border:1px solid var(--hairline); background:transparent; color:var(--etch)}

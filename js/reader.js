@@ -139,8 +139,20 @@ if (main) {
     const title = `${unitLabel} ${devaFn(n)}`;
     let lastRead = {};
     try { lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}'); } catch {}
-    lastRead[slug] = { n, title, granthName: gName, url: location.pathname + '#v' + n, time: Date.now() };
+    lastRead[slug] = { slug, n, title, granthName: gName, time: Date.now() };
     localStorage.setItem('sd-last-read', JSON.stringify(lastRead));
+  }
+
+  /* helper: find currently visible verse index in viewport */
+  function findVisibleVerseIndex() {
+    let topIdx = 0;
+    for (let i = 0; i < groups.length; i++) {
+      const rect = groups[i].getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.4 && rect.bottom >= 0) {
+        topIdx = i;
+      }
+    }
+    return topIdx;
   }
 
   /* ---------- initial bookmark highlight ---------- */
@@ -235,6 +247,13 @@ if (main) {
       bmBtn.textContent = isBm ? '🔖 सहेजा गया' : '🔖 बुकमार्क';
     }
 
+    /* update vpListen button label */
+    const listenBtn = document.getElementById('vpListen');
+    if (listenBtn) {
+      const isCurVersePlaying = playing && cur === (idx >= 0 ? idx : +n - 1);
+      listenBtn.textContent = isCurVersePlaying ? '⏸ रोकें' : '▶ यह सुनें';
+    }
+
     panel.hidden = false; scrim.hidden = false;
     requestAnimationFrame(() => { panel.classList.add('show'); document.getElementById('vpClose')?.focus(); });
     history.replaceState(null, '', '#v' + n);
@@ -259,20 +278,16 @@ if (main) {
   }
   function closePanel() {
     if (!panel || panel.hidden) return;
-    const restore = openVg;   // return focus to the verse that opened the panel
     panel.classList.remove('show');
     scrim.hidden = true;
     if (openVg) { openVg.classList.remove('open'); openVg = null; }
-    /* preserved current #v{N} hash in URL instead of clearing to location.pathname */
     setTimeout(() => { panel.hidden = true; }, 260);
-    restore?.focus?.();
   }
   main.addEventListener('click', (e) => {
     const vg = e.target.closest('.vgroup');
     if (vg) openPanel(vg);
   });
   main.addEventListener('keydown', (e) => {
-    // Enter or Space activates a focused verse (native button semantics)
     if ((e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') && e.target.classList?.contains('vgroup')) {
       e.preventDefault();
       openPanel(e.target);
@@ -343,7 +358,7 @@ if (main) {
       if (bmBtn) { bmBtn.classList.remove('on'); bmBtn.textContent = '🔖 बुकमार्क'; }
       if (targetVg) targetVg.classList.remove('is-bookmarked');
     } else {
-      const url = location.origin + location.pathname + '#v' + n;
+      const url = `${location.pathname}#v${n}`;
       bookmarks.push({ id: bookmarkId, slug, n, granthName: gName, text: curMoolText, url, createdAt: Date.now() });
       if (bmBtn) { bmBtn.classList.add('on'); bmBtn.textContent = '🔖 सहेजा गया'; }
       if (targetVg) targetVg.classList.add('is-bookmarked');
@@ -401,13 +416,12 @@ if (main) {
   const verses = [...main.querySelectorAll('.verse')];
   const playBtn = bar.querySelector('#rPlay');
   const rateSel = bar.querySelector('#rRate');
-  rateSel.value = P.get('sd-rate', '0.7');            // recitation pace by default
+  rateSel.value = P.get('sd-rate', '0.7');
   if (!rateSel.value) rateSel.value = '0.7';
   rateSel.addEventListener('change', () => P.set('sd-rate', rateSel.value));
   const synth = window.speechSynthesis;
   let cur = -1, playing = false, singleMode = false;
 
-  /* पद-boundaries: each <br> line and each दण्ड becomes its own breath-group */
   const padaChunks = (el) => {
     const lines = el.innerHTML.split(/<br\s*\/?>/i).map((h) => {
       const d = document.createElement('div'); d.innerHTML = h; return d.textContent;
@@ -434,8 +448,6 @@ if (main) {
     if (verses[i]) verses[i].scrollIntoView({ block: 'center', behavior: prefersReduced ? 'auto' : 'smooth' });
   }
 
-  /* real recitation audio (audio/<slug>/N.mp3) preferred over TTS when present;
-     user can switch source via the rVoice selector */
   const audioBase = main.getAttribute('data-audio');
   const voiceSel = bar.querySelector('#rVoice');
   if (audioBase && voiceSel) {
@@ -505,11 +517,13 @@ if (main) {
       }
     });
   }
+
   let player = null;
   function speakFrom(i) {
     if (i >= verses.length) { stop(); return; }
     cur = i;
     highlight(i);
+    updateListenBtnLabels();
     if (audioBase && voiceSel && voiceSel.value === 'ai') {
       if (!player) player = new Audio();
       player.src = audioBase + (i + 1) + '.mp3';
@@ -519,8 +533,6 @@ if (main) {
         if (singleMode) { stop(); return; }
         setTimeout(() => { if (playing && cur === i) speakFrom(i + 1); }, 600);
       };
-      // fallback to TTS exactly ONCE if the mp3 fails (both onerror and the
-      // play() rejection can fire for a single failure — guard against double play)
       let fellBack = false;
       const fallback = () => { if (!fellBack && playing && cur === i) { fellBack = true; speakTTS(i); } };
       player.onerror = fallback;
@@ -529,6 +541,7 @@ if (main) {
     }
     speakTTS(i);
   }
+
   function speakTTS(i) {
     if (!synth) { stop(); return; }
     const chunks = padaChunks(verses[i]);
@@ -537,7 +550,6 @@ if (main) {
     const next = () => {
       if (!playing || cur !== i) return;
       if (ci >= chunks.length) {
-        // verse complete: a longer breath, then the next verse (or stop in single mode)
         if (singleMode) { stop(); return; }
         setTimeout(() => { if (playing && cur === i) speakFrom(i + 1); }, 750);
         return;
@@ -546,37 +558,60 @@ if (main) {
       u.lang = 'hi-IN';
       if (voice) u.voice = voice;
       u.rate = +rateSel.value;
-      u.pitch = ci === chunks.length - 1 ? 0.88 : 1;   // cadence falls on the final pada
+      u.pitch = ci === chunks.length - 1 ? 0.88 : 1;
       ci++;
-      u.onend = () => setTimeout(next, 340);           // breath between padas
+      u.onend = () => setTimeout(next, 340);
       u.onerror = () => setTimeout(next, 120);
       synth.speak(u);
     };
     next();
   }
 
+  function updateListenBtnLabels() {
+    if (playBtn) playBtn.textContent = playing ? '⏸ रोकें' : '▶ सुनें';
+    const vpListen = document.getElementById('vpListen');
+    if (vpListen) vpListen.textContent = (playing && singleMode) ? '⏸ रोकें' : '▶ यह सुनें';
+  }
+
   function start(from) {
     if (!synth) { playBtn.textContent = 'इस ब्राउज़र में उपलब्ध नहीं'; playBtn.disabled = true; return; }
     playing = true;
-    playBtn.textContent = '⏸ रोकें';
-    synth.cancel();
+    updateListenBtnLabels();
+    if (synth) synth.cancel();
     speakFrom(from);
   }
+
   function stop() {
     playing = false;
     if (synth) synth.cancel();
     if (player) { player.pause(); player.currentTime = 0; }
-    playBtn.textContent = '▶ सुनें';
+    updateListenBtnLabels();
     verses.forEach((v) => v.classList.remove('playing'));
   }
 
-  playBtn.addEventListener('click', () => { singleMode = false; playing ? stop() : start(Math.max(0, cur)); });
+  playBtn.addEventListener('click', () => {
+    if (playing) {
+      stop();
+    } else {
+      singleMode = false;
+      const startIdx = cur >= 0 ? cur : findVisibleVerseIndex();
+      start(startIdx);
+    }
+  });
+
   document.getElementById('vpListen')?.addEventListener('click', () => {
     const n = +(panel?.dataset.n || 0);
-    if (n > 0) { singleMode = true; start(n - 1); }
+    const targetIdx = n > 0 ? n - 1 : 0;
+    if (playing && cur === targetIdx) {
+      stop();
+    } else {
+      singleMode = true;
+      start(targetIdx);
+    }
   });
+
   rateSel.addEventListener('change', () => { if (playing) { synth.cancel(); speakFrom(cur); } });
-  verses.forEach((v, i) => v.addEventListener('dblclick', () => start(i))); // double-tap a verse: listen from there
+  verses.forEach((v, i) => v.addEventListener('dblclick', () => { singleMode = false; start(i); }));
   addEventListener('pagehide', stop);
   if (synth && synth.getVoices().length === 0) synth.addEventListener?.('voiceschanged', () => {});
 

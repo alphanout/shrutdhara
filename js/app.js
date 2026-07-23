@@ -451,7 +451,7 @@ function initBookmarksDrawer() {
     for (const [gName, items] of grouped) {
       html += `<div class="bm-group"><h3>${esc(gName)}</h3>`;
       for (const bm of items) {
-        const href = bm.url || `${root}granth/${bm.slug}/paath/#v${bm.n}`;
+        const href = `${root}granth/${bm.slug}/paath/#v${bm.n}`;
         const title = bm.n ? `गाथा/पद्य ${devaNum(bm.n)}` : 'सहेजा गया पाठ';
         html += `
           <div class="bm-card">
@@ -510,11 +510,12 @@ function initHomeResume() {
     const latest = entries[0];
     const statsEl = document.getElementById('stats');
     if (statsEl && statsEl.parentNode) {
+      const href = `${root}granth/${latest.slug}/paath/#v${latest.n}`;
       const card = document.createElement('div');
       card.className = 'home-resume-strip';
       card.innerHTML = `
         <span>📖 हाल ही में पढ़ा गया: <b>${esc(latest.granthName)}</b> — ${esc(latest.title)}</span>
-        <a class="btn kum sm" href="${root}granth/${latest.url.includes('/') ? latest.url : latest.url}">जारी रखें ▶</a>`;
+        <a class="btn kum sm" href="${esc(href)}">जारी रखें ▶</a>`;
       statsEl.parentNode.insertBefore(card, statsEl.nextSibling);
     }
   } catch {}
