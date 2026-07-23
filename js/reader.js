@@ -20,7 +20,7 @@ if (main) {
   const bar = document.createElement('div');
   bar.className = 'reader-bar';
   bar.innerHTML = `
-    <button class="icon-btn toc-toggle" id="rToc" type="button" title="विषय-सूची / Contents">☰</button>
+    <button class="icon-btn toc-toggle" id="rToc" type="button" title="विषय-सूची / Contents" aria-controls="toc" aria-expanded="false">☰</button>
     <button class="icon-btn" id="rBookmarks" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks">🔖</button>
     <button class="icon-btn" id="rPlay" type="button" title="सुनें / Listen">▶ सुनें</button>
     <select class="icon-btn" id="rRate" title="गति / Speed">
@@ -39,7 +39,9 @@ if (main) {
     <button class="icon-btn rs" data-s="stone" type="button" title="पत्थर / Stone">◆</button>
     <button class="icon-btn rs" data-s="sepia" type="button" title="कागज़ / Sepia">❖</button>
     <button class="icon-btn rs" data-s="white" type="button" title="श्वेत / White">◇</button>`;
-  document.querySelector('.reader-wrap').parentNode.insertBefore(bar, document.querySelector('.reader-wrap'));
+  const readerWrap = document.querySelector('.reader-wrap');
+  if (readerWrap) readerWrap.parentNode.insertBefore(bar, readerWrap);
+  else main.parentNode.insertBefore(bar, main);
   const markSurface = () => bar.querySelectorAll('.rs').forEach((b) => b.classList.toggle('on', b.dataset.s === surface));
   markSurface();
 
@@ -55,10 +57,28 @@ if (main) {
 
   /* ---------- विषय-सूची: drawer + scroll-spy + verse grid ---------- */
   const toc = document.getElementById('toc');
-  bar.querySelector('#rToc').addEventListener('click', () => document.body.classList.toggle('toc-open'));
+  const tocBtn = bar.querySelector('#rToc');
+  const isNarrow = () => matchMedia('(max-width: 980px)').matches;
+  const syncTocInert = () => {
+    if (toc && 'inert' in HTMLElement.prototype) {
+      toc.inert = isNarrow() && !document.body.classList.contains('toc-open');
+    }
+  };
+  tocBtn.addEventListener('click', () => {
+    const open = document.body.classList.toggle('toc-open');
+    tocBtn.setAttribute('aria-expanded', String(open));
+    syncTocInert();
+    if (open) toc?.querySelector('a, .vg-btn')?.focus();
+  });
+  syncTocInert();
+  addEventListener('resize', syncTocInert);
   if (toc) {
     toc.addEventListener('click', (e) => {
-      if (e.target.closest('a') || e.target.closest('.vg-btn')) document.body.classList.remove('toc-open');
+      if (e.target.closest('a') || e.target.closest('.vg-btn')) {
+        document.body.classList.remove('toc-open');
+        tocBtn.setAttribute('aria-expanded', 'false');
+        syncTocInert();
+      }
       const vb = e.target.closest('.vg-btn');
       if (vb) {
         const vg = document.getElementById('v' + vb.dataset.v);
@@ -176,8 +196,10 @@ if (main) {
     const nextBtn = document.getElementById('vpNext');
     if (prevBtn) prevBtn.disabled = idx <= 0;
     if (nextBtn) nextBtn.disabled = idx < 0 || idx >= groups.length - 1;
-    const mool = vg.querySelector('.verse').innerHTML;
-    const moolText = vg.querySelector('.verse').textContent;
+    const verseEl = vg.querySelector('.verse');
+    if (!verseEl) return;
+    const mool = verseEl.innerHTML;
+    const moolText = verseEl.textContent;
     curMoolText = moolText.replace(/\s+/g, ' ').trim();
 
     const lang = main.getAttribute('data-lang') || '';
@@ -214,11 +236,20 @@ if (main) {
     }
 
     panel.hidden = false; scrim.hidden = false;
-    requestAnimationFrame(() => panel.classList.add('show'));
+    requestAnimationFrame(() => { panel.classList.add('show'); document.getElementById('vpClose')?.focus(); });
     history.replaceState(null, '', '#v' + n);
     panel.dataset.n = n;
     saveLastReadPosition(n);
   }
+  // keep Tab focus inside the open dialog
+  panel?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab' || panel.hidden) return;
+    const f = [...panel.querySelectorAll('button:not([disabled]), a[href], [tabindex="0"]')].filter((el) => el.offsetParent !== null);
+    if (!f.length) return;
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
   function goRel(delta) {
     if (!openVg) return;
     const i = groups.indexOf(openVg) + delta;
@@ -228,25 +259,31 @@ if (main) {
   }
   function closePanel() {
     if (!panel || panel.hidden) return;
+    const restore = openVg;   // return focus to the verse that opened the panel
     panel.classList.remove('show');
     scrim.hidden = true;
     if (openVg) { openVg.classList.remove('open'); openVg = null; }
     /* preserved current #v{N} hash in URL instead of clearing to location.pathname */
     setTimeout(() => { panel.hidden = true; }, 260);
+    restore?.focus?.();
   }
   main.addEventListener('click', (e) => {
     const vg = e.target.closest('.vgroup');
     if (vg) openPanel(vg);
   });
   main.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && e.target.classList?.contains('vgroup')) openPanel(e.target);
+    // Enter or Space activates a focused verse (native button semantics)
+    if ((e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') && e.target.classList?.contains('vgroup')) {
+      e.preventDefault();
+      openPanel(e.target);
+    }
   });
   document.getElementById('vpClose')?.addEventListener('click', closePanel);
   document.getElementById('vpPrev')?.addEventListener('click', () => goRel(-1));
   document.getElementById('vpNext')?.addEventListener('click', () => goRel(1));
   scrim?.addEventListener('click', closePanel);
   addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { closePanel(); document.body.classList.remove('toc-open'); }
+    if (e.key === 'Escape') { closePanel(); document.body.classList.remove('toc-open'); tocBtn.setAttribute('aria-expanded', 'false'); syncTocInert(); }
     if (panel && !panel.hidden) {
       if (e.key === 'ArrowRight') { e.preventDefault(); goRel(1); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); goRel(-1); }
@@ -386,9 +423,10 @@ if (main) {
            vs.find((v) => /india/i.test(v.name)) || null;
   }
 
+  const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   function highlight(i) {
     verses.forEach((v, j) => v.classList.toggle('playing', j === i));
-    if (verses[i]) verses[i].scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (verses[i]) verses[i].scrollIntoView({ block: 'center', behavior: prefersReduced ? 'auto' : 'smooth' });
   }
 
   /* real recitation audio (audio/<slug>/N.mp3) preferred over TTS when present;
@@ -476,8 +514,12 @@ if (main) {
         if (singleMode) { stop(); return; }
         setTimeout(() => { if (playing && cur === i) speakFrom(i + 1); }, 600);
       };
-      player.onerror = () => { if (playing && cur === i) speakTTS(i); }; // fallback per-verse
-      player.play().catch(() => speakTTS(i));
+      // fallback to TTS exactly ONCE if the mp3 fails (both onerror and the
+      // play() rejection can fire for a single failure — guard against double play)
+      let fellBack = false;
+      const fallback = () => { if (!fellBack && playing && cur === i) { fellBack = true; speakTTS(i); } };
+      player.onerror = fallback;
+      player.play().catch(fallback);
       return;
     }
     speakTTS(i);
@@ -532,4 +574,41 @@ if (main) {
   verses.forEach((v, i) => v.addEventListener('dblclick', () => start(i))); // double-tap a verse: listen from there
   addEventListener('pagehide', stop);
   if (synth && synth.getVoices().length === 0) synth.addEventListener?.('voiceschanged', () => {});
+
+  /* ---------- reading-position memory: resume where you left off ---------- */
+  (function readingPosition() {
+    const POS_KEY = 'sd-pos-' + location.pathname;
+    let saveT = null;
+    const save = () => {
+      clearTimeout(saveT);
+      saveT = setTimeout(() => {
+        if (window.scrollY < 300) { localStorage.removeItem(POS_KEY); return; }
+        let topN = 0;
+        for (const g of groups) {
+          if (g.getBoundingClientRect().top > 120) break;
+          topN = +g.dataset.n || topN;
+        }
+        if (topN > 1) localStorage.setItem(POS_KEY, String(topN));
+      }, 400);
+    };
+    addEventListener('scroll', save, { passive: true });
+    if (!location.hash) {
+      const saved = +localStorage.getItem(POS_KEY);
+      if (saved > 1) {
+        const el = document.getElementById('v' + saved);
+        if (el) {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'resume-chip';
+          chip.textContent = `↧ जहाँ छोड़ा था — ${devaFn(saved)}`;
+          chip.addEventListener('click', () => {
+            el.scrollIntoView({ block: 'center', behavior: prefersReduced ? 'auto' : 'smooth' });
+            chip.remove();
+          });
+          document.querySelector('.reader-bar')?.appendChild(chip);
+          setTimeout(() => chip.isConnected && chip.remove(), 12000);
+        }
+      }
+    }
+  })();
 }

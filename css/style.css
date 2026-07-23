@@ -66,6 +66,12 @@ img{max-width:100%; height:auto}
 }
 .kum-mark{width:9px; height:9px; background:var(--kumkum); transform:rotate(45deg); display:inline-block; flex:none}
 .visually-hidden{position:absolute; width:1px; height:1px; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.skip-link{position:absolute; left:8px; top:-48px; z-index:30; background:var(--kumkum); color:#fff;
+  padding:8px 16px; border-radius:0 0 4px 4px; transition:top .15s ease; text-decoration:none}
+.skip-link:focus{top:0}
+.resume-chip{font-family:inherit; font-size:.82rem; cursor:pointer; margin-left:8px;
+  background:var(--gold-2); color:var(--stone-0); border:none; padding:5px 14px 4px}
+.resume-chip:hover{background:var(--gold-1)}
 
 /* ---------- site header / nav ---------- */
 .site-head{border-bottom:1px solid var(--hairline); position:sticky; top:0; z-index:8;
@@ -204,7 +210,7 @@ section.block{padding:44px 0 56px}
   color:var(--etch); text-decoration:none; border:none; font-family:inherit; cursor:pointer}
 .chip.on{box-shadow:inset 0 0 0 1px var(--gold-2); color:var(--gold)}
 .btn{font-family:inherit; font-size:.92rem; cursor:pointer; padding:10px 24px 8px; border:none; text-decoration:none; display:inline-block}
-.btn.kum{background:var(--kumkum); color:#fff; font-weight:500}
+.btn.kum{background:#b8401d; color:#fff; font-weight:600}  /* fixed shade: white-on-kumkum ≥4.5:1 in both themes */
 .btn.ghost{background:transparent; color:var(--patina); box-shadow:inset 0 0 0 1px var(--patina)}
 
 /* ---------- granth page (folio) ---------- */
@@ -238,7 +244,7 @@ html:not([data-lang="en"]) .lang-en{display:none}
 .gpage .nextprev a{text-decoration:none}
 
 /* ---------- पाठ reader: surfaces, toolbar, zoom, progress, playing ---------- */
-body[data-surface="sepia"]{background:#f2e9d5; --etch:#3a2f1d; --etch-dim:#7c6c4c; --stone-1:#e9dec3; --edge:rgba(58,47,29,.18); --hairline:rgba(58,47,29,.22)}
+body[data-surface="sepia"]{background:#f2e9d5; --etch:#3a2f1d; --etch-dim:#6b5c3e; --stone-1:#e9dec3; --edge:rgba(58,47,29,.18); --hairline:rgba(58,47,29,.22)}
 body[data-surface="white"]{background:#fbf9f4; --etch:#20202a; --etch-dim:#6b6b76; --stone-1:#f1efe8; --edge:rgba(32,32,42,.14); --hairline:rgba(32,32,42,.18)}
 body[data-surface="sepia"] .site-head, body[data-surface="white"] .site-head{background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none}
 body[data-surface="sepia"] .inlay, body[data-surface="white"] .inlay{background:none; -webkit-background-clip:initial; background-clip:initial; color:#8a6420}

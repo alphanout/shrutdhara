@@ -156,6 +156,8 @@ writeFileSync(join(DIST, 'data/bhattarak-172.json'), JSON.stringify(bhattarak, n
 /* ---------- granth pages ---------- */
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const deva = (s) => devaNum(String(s ?? ''));
+// JSON-LD must not let a "</script>" inside any string break out of the block
+const ldjson = (obj) => JSON.stringify(obj).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
 
 const ord = (n) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 function centuryEn(c) {
@@ -243,8 +245,9 @@ function granthPage(g, i) {
 <link rel="icon" type="image/png" sizes="192x192" href="../../assets/favicon-192.png">
 <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg">
 <link rel="apple-touch-icon" href="../../assets/favicon-180.png">
+<link rel="canonical" href="${SITE}/granth/${g.slug}/">
 <link rel="manifest" href="../../manifest.webmanifest">
-<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@type': 'Book', name: g.name, author: { '@type': 'Person', name: g.author }, inLanguage: 'hi', url: `${SITE}/granth/${g.slug}/`, isAccessibleForFree: true })}</script>
+<script type="application/ld+json">${ldjson({ '@context': 'https://schema.org', '@type': 'Book', name: g.name, author: { '@type': 'Person', name: g.author }, inLanguage: 'hi', url: `${SITE}/granth/${g.slug}/`, isAccessibleForFree: true })}</script>
 <link rel="stylesheet" href="../../fonts/fonts.css">
 <link rel="stylesheet" href="../../css/style.css">
 <link rel="stylesheet" href="../../css/print.css">
@@ -359,7 +362,9 @@ function paathPage(g, txt) {
       /^(?:दोहा|श्लोक|गाथा)\s*[-:]/.test(b.trim()) ||
       b.includes('॥') || b.includes('..');
     const shlokaCls = isShloka ? ' is-shloka' : '';
-    out.push(`<div class="vgroup${shlokaCls}" id="v${vn}" data-n="${vn}" tabindex="0" role="button" aria-label="विवरण खोलें"><div class="verse">${esc(b).replace(/\n/g, '<br>')}</div></div><!--vg-->`);
+    // aria-labelledby points at the verse text so screen readers ANNOUNCE the
+    // scripture (not a repeated "विवरण खोलें"); aria-describedby adds the action hint.
+    out.push(`<div class="vgroup${shlokaCls}" id="v${vn}" data-n="${vn}" tabindex="0" role="button" aria-labelledby="vt${vn}" aria-describedby="vp-hint"><div class="verse" id="vt${vn}">${esc(b).replace(/\n/g, '<br>')}</div></div><!--vg-->`);
   }
   const body = out.join('\n');
   const tocHtml = `
@@ -370,7 +375,7 @@ function paathPage(g, txt) {
   </aside>`;
   const panelHtml = `
   <div class="vpanel-scrim" id="vpanelScrim" hidden></div>
-  <aside class="vpanel" id="vpanel" aria-label="पद्य-विवरण" hidden>
+  <aside class="vpanel" id="vpanel" role="dialog" aria-modal="true" aria-labelledby="vpTitle" hidden>
     <div class="vp-head">
       <b id="vpTitle" class="num"></b>
       <button class="icon-btn" id="vpClose" type="button" aria-label="बंद करें">✕</button>
@@ -385,6 +390,11 @@ function paathPage(g, txt) {
   </aside>`;
   const hasAudio = existsSync(join(ROOT, 'audio', g.slug));
   const layerFlags = `data-prose="${isProse}" data-lang="${esc(meta.language || '')}"${hasAudio ? ` data-audio="../../../audio/${g.slug}/"` : ''}`;
+  // BCP-47 language of the actual scripture text (independent of UI chrome lang)
+  const contentLang = /संस्कृत/.test(meta.language || '') ? 'sa'
+    : /प्राकृत/.test(meta.language || '') ? 'pra'
+    : 'hi';
+  const safeSrcUrl = /^https?:\/\//.test(meta.sourceUrl || '') ? meta.sourceUrl : '';
   return `<!DOCTYPE html>
 <html lang="sa" data-root="../../../">
 <head>
@@ -404,6 +414,8 @@ function paathPage(g, txt) {
 <link rel="stylesheet" href="../../../css/print.css">
 </head>
 <body data-page="paath">
+<a class="skip-link" href="#paath-main">मुख्य पाठ पर जाएँ</a>
+<span id="vp-hint" class="visually-hidden">विवरण देखने के लिये चुनें · select to view details</span>
 
 <header class="site-head">
   <div class="wrap bar">
@@ -421,7 +433,7 @@ function paathPage(g, txt) {
 
 <div class="reader-wrap">
 ${tocHtml}
-<main class="paath${meta.format === 'prose' ? ' prose-text' : ''}" ${layerFlags}>
+<main id="paath-main" class="paath${meta.format === 'prose' ? ' prose-text' : ''}" ${layerFlags} lang="${contentLang}">
   <div class="phead">
     <div class="mang">॥ श्री ॥</div>
     <h1 class="inlay">${esc(g.name)}</h1>
@@ -430,7 +442,7 @@ ${tocHtml}
   </div>
   ${body}
   <div class="attrib">
-    <b>पाठ-स्रोत:</b> ${esc(meta.source || '')}${meta.license ? ` · ${esc(meta.license)}` : ''}${meta.sourceUrl ? ` · <a href="${esc(meta.sourceUrl)}" target="_blank" rel="noopener">मूल e-text ↗</a>` : ''}<br>
+    <b>पाठ-स्रोत:</b> ${esc(meta.source || '')}${meta.license ? ` · ${esc(meta.license)}` : ''}${safeSrcUrl ? ` · <a href="${esc(safeSrcUrl)}" target="_blank" rel="noopener">मूल e-text ↗</a>` : ''}<br>
     यह मूल पाठ है — अर्थ/टीका सम्मिलित नहीं। अशुद्धि दिखे तो GitHub पर <code>shastra/${esc(g.slug)}.md</code> सुधारें।
   </div>
   <div class="btns">
