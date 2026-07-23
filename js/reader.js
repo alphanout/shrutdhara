@@ -649,40 +649,5 @@ if (main) {
   addEventListener('pagehide', stop);
   if (synth && synth.getVoices().length === 0) synth.addEventListener?.('voiceschanged', () => {});
 
-  /* ---------- reading-position memory: resume where you left off ---------- */
-  (function readingPosition() {
-    const POS_KEY = 'sd-pos-' + location.pathname;
-    let saveT = null;
-    const save = () => {
-      clearTimeout(saveT);
-      saveT = setTimeout(() => {
-        if (window.scrollY < 300) { localStorage.removeItem(POS_KEY); return; }
-        let topN = 0;
-        for (const g of groups) {
-          if (g.getBoundingClientRect().top > 120) break;
-          topN = +g.dataset.n || topN;
-        }
-        if (topN > 1) localStorage.setItem(POS_KEY, String(topN));
-      }, 400);
-    };
-    addEventListener('scroll', save, { passive: true });
-    if (!location.hash) {
-      const saved = +localStorage.getItem(POS_KEY);
-      if (saved > 1) {
-        const el = document.getElementById('v' + saved);
-        if (el) {
-          const chip = document.createElement('button');
-          chip.type = 'button';
-          chip.className = 'resume-chip';
-          chip.textContent = `↧ जहाँ छोड़ा था — ${devaFn(saved)}`;
-          chip.addEventListener('click', () => {
-            el.scrollIntoView({ block: 'center', behavior: prefersReduced ? 'auto' : 'smooth' });
-            chip.remove();
-          });
-          document.querySelector('.reader-bar')?.appendChild(chip);
-          setTimeout(() => chip.isConnected && chip.remove(), 12000);
-        }
-      }
-    }
-  })();
+
 }
