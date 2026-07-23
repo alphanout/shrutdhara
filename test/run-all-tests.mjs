@@ -4,6 +4,8 @@ import { join, extname } from 'path';
 
 import { testHeaderAndTheme } from './ui/header-and-theme.test.mjs';
 import { testBookmarks } from './ui/bookmarks.test.mjs';
+import { testSearchFlow } from './ui/search-flow.test.mjs';
+import { testKaalFilter } from './ui/kaal-filter.test.mjs';
 import { testI18nLanguages } from './integration/i18n-languages.test.mjs';
 import { testReaderFlow } from './integration/reader-flow.test.mjs';
 import { testResumeReading } from './integration/resume-reading.test.mjs';
@@ -44,6 +46,8 @@ server.listen(PORT, async () => {
   try {
     await testHeaderAndTheme(PORT);
     await testBookmarks(PORT);
+    await testSearchFlow(PORT);
+    await testKaalFilter(PORT);
     await testI18nLanguages(PORT);
     await testReaderFlow(PORT);
     await testResumeReading(PORT);
