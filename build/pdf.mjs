@@ -2,7 +2,7 @@
    run after build: node build/pdf.mjs  (needs devDependency: puppeteer) */
 
 import { createServer } from 'node:http';
-import { readFileSync, readdirSync, mkdirSync, existsSync, statSync } from 'node:fs';
+import { readFileSync, writeFileSync, readdirSync, mkdirSync, existsSync, statSync } from 'node:fs';
 import { join, dirname, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import puppeteer from 'puppeteer';
@@ -31,8 +31,10 @@ page.setDefaultNavigationTimeout(120000);
 page.setDefaultTimeout(120000);
 
 async function print(url, out) {
+  mkdirSync(dirname(out), { recursive: true });
   await page.goto(url, { waitUntil: 'load', timeout: 120000 });
-  await page.pdf({ path: out, format: 'A4', printBackground: true, preferCSSPageSize: true, timeout: 120000 });
+  const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true, preferCSSPageSize: true, timeout: 120000 });
+  writeFileSync(out, pdfBuffer);
 }
 
 let n = 0;

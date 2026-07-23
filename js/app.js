@@ -376,17 +376,18 @@ async function renderBhattarak() {
 
 /* ---------- global bookmarks drawer & resume reading ---------- */
 function initBookmarksDrawer() {
+  let bmBtn = document.getElementById('bmHeadBtn');
   const tools = document.querySelector('.site-head .tools');
-  if (tools && !tools.querySelector('#bmHeadBtn')) {
-    const btn = document.createElement('button');
-    btn.className = 'icon-btn';
-    btn.id = 'bmHeadBtn';
-    btn.type = 'button';
-    btn.title = 'सहेजे गए बुकमार्क / Saved Bookmarks';
-    btn.innerHTML = '🔖';
-    tools.insertBefore(btn, tools.firstChild);
-    btn.addEventListener('click', openDrawer);
+  if (!bmBtn && tools) {
+    bmBtn = document.createElement('button');
+    bmBtn.className = 'icon-btn';
+    bmBtn.id = 'bmHeadBtn';
+    bmBtn.type = 'button';
+    bmBtn.title = 'सहेजे गए बुकमार्क / Saved Bookmarks';
+    bmBtn.innerHTML = '🔖';
+    tools.insertBefore(bmBtn, tools.firstChild);
   }
+  if (bmBtn) bmBtn.addEventListener('click', openDrawer);
 
   let scrim = document.getElementById('bmScrim');
   let drawer = document.getElementById('bmDrawer');
@@ -403,7 +404,7 @@ function initBookmarksDrawer() {
     drawer.hidden = true;
     drawer.innerHTML = `
       <div class="bm-head">
-        <b>🔖 सहेजे गए बुकमार्क</b>
+        <b data-i18n="ui.bookmark_drawer_title">🔖 सहेजे गए बुकमार्क</b>
         <button class="icon-btn" id="bmClose" type="button">✕</button>
       </div>
       <div class="bm-body" id="bmList"></div>`;
@@ -429,12 +430,13 @@ function initBookmarksDrawer() {
 
   function renderList() {
     const listEl = drawer.querySelector('#bmList');
+    const _t = window.sdT || ((k) => k);
     let bookmarks = [];
     try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
     if (!bookmarks.length) {
       listEl.innerHTML = `<div class="bm-empty">
-        <p>कोई बुकमार्क सहेजा नहीं गया है।</p>
-        <small>पाठ पढ़ते समय <b>🔖 बुकमार्क</b> बटन दबाकर किसी भी श्लोक या गाथा को यहाँ सहेजें।</small>
+        <p data-i18n="ui.bookmark_empty">${esc(_t('ui.bookmark_empty'))}</p>
+        <small data-i18n="ui.bookmark_hint">${_t('ui.bookmark_hint')}</small>
       </div>`;
       return;
     }
@@ -451,7 +453,7 @@ function initBookmarksDrawer() {
     for (const [gName, items] of grouped) {
       html += `<div class="bm-group"><h3>${esc(gName)}</h3>`;
       for (const bm of items) {
-        const href = bm.url || `${root}granth/${bm.slug}/paath/#v${bm.n}`;
+        const href = `${root}granth/${bm.slug}/paath/#v${bm.n}`;
         const title = bm.n ? `गाथा/पद्य ${devaNum(bm.n)}` : 'सहेजा गया पाठ';
         html += `
           <div class="bm-card">
@@ -483,6 +485,7 @@ function initGranthResume() {
   if (page !== 'granth') return;
   const slug = location.pathname.split('/').filter(Boolean).slice(-1)[0] || '';
   if (!slug) return;
+  const _t = window.sdT || ((k) => k);
   try {
     const lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}');
     const item = lastRead[slug];
@@ -493,7 +496,8 @@ function initGranthResume() {
         rBtn.className = 'btn kum';
         rBtn.style.marginRight = '10px';
         rBtn.href = `paath/#v${item.n}`;
-        rBtn.innerHTML = `▶ जहाँ छोड़ा था वहीं से जारी रखें (${esc(item.title)})`;
+        rBtn.setAttribute('data-i18n', 'ui.read_from_where_left');
+        rBtn.innerHTML = `${_t('ui.read_from_where_left')} (${esc(item.title)})`;
         btns.insertBefore(rBtn, btns.firstChild);
       }
     }
@@ -503,19 +507,57 @@ function initGranthResume() {
 /* ---------- homepage resume card ---------- */
 function initHomeResume() {
   if (page !== 'home') return;
+  const _t = window.sdT || ((k) => k);
   try {
     const lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}');
-    const entries = Object.values(lastRead).sort((a, b) => (b.time || 0) - (a.time || 0));
+    const entries = Object.values(lastRead)
+      .filter((item) => item && item.slug && item.slug !== 'undefined' && item.n)
+      .sort((a, b) => (b.time || 0) - (a.time || 0));
     if (!entries.length) return;
     const latest = entries[0];
     const statsEl = document.getElementById('stats');
     if (statsEl && statsEl.parentNode) {
+      const href = `${root}granth/${latest.slug}/paath/#v${latest.n}`;
       const card = document.createElement('div');
       card.className = 'home-resume-strip';
       card.innerHTML = `
-        <span>📖 हाल ही में पढ़ा गया: <b>${esc(latest.granthName)}</b> — ${esc(latest.title)}</span>
-        <a class="btn kum sm" href="${root}granth/${latest.url.includes('/') ? latest.url : latest.url}">जारी रखें ▶</a>`;
+        <span>${_t('ui.last_read')}: <b>${esc(latest.granthName)}</b> — ${esc(latest.title)}</span>
+        <a class="btn kum sm" href="${esc(href)}" data-i18n="ui.resume">${_t('ui.resume')}</a>`;
       statsEl.parentNode.insertBefore(card, statsEl.nextSibling);
+    }
+  } catch {}
+}
+
+/* ---------- homepage bookmarks strip ---------- */
+function initHomeBookmarks() {
+  if (page !== 'home') return;
+  const _t = window.sdT || ((k) => k);
+  try {
+    const bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]');
+    if (!bookmarks.length) return;
+    const statsEl = document.getElementById('stats');
+    if (statsEl && statsEl.parentNode) {
+      let existing = document.getElementById('homeBookmarksStrip');
+      if (!existing) {
+        existing = document.createElement('div');
+        existing.id = 'homeBookmarksStrip';
+        existing.className = 'paath-strip';
+        statsEl.parentNode.insertBefore(existing, statsEl.nextSibling);
+      }
+      let html = `<div class="chips-l lat dv" style="display:flex; justify-content:space-between; align-items:center">
+        <span>${_t('ui.bookmark_drawer_title')} (${devaNum(bookmarks.length)})</span>
+        <button class="btn ghost sm" type="button" id="hmBmAllBtn">सब देखें ➔</button>
+      </div><div class="chips" style="margin-top:10px">`;
+      for (const bm of bookmarks.slice(0, 6)) {
+        const title = `${bm.granthName || 'ग्रन्थ'} (${devaNum(bm.n)})`;
+        const href = `${root}granth/${bm.slug}/paath/#v${bm.n}`;
+        html += `<a class="chip" href="${esc(href)}" style="box-shadow:inset 0 0 0 1px var(--gold-2); color:var(--gold)">${esc(title)}</a>`;
+      }
+      html += `</div>`;
+      existing.innerHTML = html;
+      existing.querySelector('#hmBmAllBtn')?.addEventListener('click', () => {
+        if (window.sdOpenBookmarks) window.sdOpenBookmarks();
+      });
     }
   } catch {}
 }
@@ -537,7 +579,7 @@ initSearch();
 initFlash();
 initBookmarksDrawer();
 initGranthResume();
-if (page === 'home') { renderHome(); initHomeResume(); }
+if (page === 'home') { renderHome(); initHomeResume(); initHomeBookmarks(); }
 if (page === 'kaal') renderStrata({ withGranths: true });
 if (page === 'acharya') renderStrata({ withGranths: false });
 if (page === 'granths') renderGranths();

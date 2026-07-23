@@ -22,6 +22,13 @@ const DICT = {
     'ui.century_jump': 'शताब्दी', 'ui.all': 'सभी',
     'kind.g': 'ग्रन्थ', 'kind.a': 'आचार्य', 'kind.b': 'विद्वान',
     'ui.warn': '⚠ चिह्न = मूल छायाचित्र में अस्पष्ट पंक्ति',
+    'ui.bookmark': '🔖 बुकमार्क', 'ui.bookmarked': '🔖 सहेजा गया',
+    'ui.quote': '❝ उद्धरण', 'ui.quote_copied': '✓ उद्धरण कॉपी हुआ',
+    'ui.listen': '▶ सुनें', 'ui.stop': '⏸ रोकें', 'ui.listen_verse': '▶ यह सुनें',
+    'ui.resume': 'जारी रखें ▶', 'ui.offline_audio': '⬇ ऑफ़लाइन ऑडियो', 'ui.offline_ready': '✓ ऑफ़लाइन उपलब्ध',
+    'ui.bookmark_drawer_title': '🔖 सहेजे गए बुकमार्क', 'ui.bookmark_empty': 'कोई बुकमार्क सहेजा नहीं गया है।',
+    'ui.bookmark_hint': 'पाठ पढ़ते समय <b>🔖 बुकमार्क</b> बटन दबाकर किसी भी श्लोक या गाथा को यहाँ सहेजें।',
+    'ui.last_read': '📖 हाल ही में पढ़ा गया', 'ui.read_from_where_left': '▶ जहाँ छोड़ा था वहीं से जारी रखें'
   },
   en: {
     'ui.toc': 'Contents', 'ui.listen_this': 'Listen to this', 'ui.copy_link': 'Copy link',
@@ -42,6 +49,13 @@ const DICT = {
     'ui.century_jump': 'Century', 'ui.all': 'All',
     'kind.g': 'Granth', 'kind.a': 'Acharya', 'kind.b': 'Scholar',
     'ui.warn': '⚠ marks a row unclear in the source photograph',
+    'ui.bookmark': '🔖 Bookmarks', 'ui.bookmarked': '🔖 Saved',
+    'ui.quote': '❝ Quote', 'ui.quote_copied': '✓ Quote copied',
+    'ui.listen': '▶ Listen', 'ui.stop': '⏸ Pause', 'ui.listen_verse': '▶ Listen to verse',
+    'ui.resume': 'Resume ▶', 'ui.offline_audio': '⬇ Offline Audio', 'ui.offline_ready': '✓ Available Offline',
+    'ui.bookmark_drawer_title': '🔖 Saved Bookmarks', 'ui.bookmark_empty': 'No bookmarks saved yet.',
+    'ui.bookmark_hint': 'Click the <b>🔖 Bookmarks</b> button while reading to save verses here.',
+    'ui.last_read': '📖 Recently Read', 'ui.read_from_where_left': '▶ Resume from where you left off'
   },
   sa: {
     'ui.toc': 'विषयसूची', 'ui.listen_this': 'इदं शृणुत', 'ui.copy_link': 'सङ्केतं प्रतिलिपयतु',
@@ -62,6 +76,13 @@ const DICT = {
     'ui.century_jump': 'शतकम्', 'ui.all': 'सर्वे',
     'kind.g': 'ग्रन्थः', 'kind.a': 'आचार्यः', 'kind.b': 'विद्वान्',
     'ui.warn': '⚠ चिह्नम् = मूलचित्रे अस्पष्टा पङ्क्तिः',
+    'ui.bookmark': '🔖 पुस्तकाङ्कः', 'ui.bookmarked': '🔖 रक्षितम्',
+    'ui.quote': '❝ उद्धरणम्', 'ui.quote_copied': '✓ प्रतिलिपिः कृता',
+    'ui.listen': '▶ शृणुत', 'ui.stop': '⏸ विरामयतु', 'ui.listen_verse': '▶ इदं शृणुत',
+    'ui.resume': 'अनुवर्तताम् ▶', 'ui.offline_audio': '⬇ ऑफ़लाइन श्रव्यम्', 'ui.offline_ready': '✓ ऑफ़लाइन उपलब्धम्',
+    'ui.bookmark_drawer_title': '🔖 रक्षिताः पुस्तकाङ्काः', 'ui.bookmark_empty': 'न कश्चिद् पुस्तकाङ्कः रक्षितः।',
+    'ui.bookmark_hint': 'पाठपठनकाले <b>🔖 पुस्तकाङ्कः</b> बटन् नुत्वा श्लोकाः अत्र रक्ष्यन्ताम्।',
+    'ui.last_read': '📖 अद्यतनं पठितम्', 'ui.read_from_where_left': '▶ यत्र त्यक्तं तत एव अनुवर्तताम्'
   },
   pra: {
     'ui.toc': 'विसयसूई', 'ui.listen_this': 'एदं सुणह', 'ui.copy_link': 'संकेदं पडिलिवह',
@@ -82,6 +103,14 @@ const DICT = {
     'ui.century_jump': 'सयं', 'ui.all': 'सव्वे',
     'kind.g': 'गंथो', 'kind.a': 'आयरिओ', 'kind.b': 'विउसो',
     'ui.warn': '⚠ चिण्हं = मूलचित्ते अप्फुडा पंती',
+    'ui.bookmark': '🔖 पोत्थयांकं', 'ui.bookmarked': '🔖 रखियं',
+    'ui.quote': '❝ उद्धरणं', 'ui.quote_copied': '✓ पडिलिवि कया',
+    'ui.listen': '▶ सुणह', 'ui.stop': '⏸ विरामयह', 'ui.listen_verse': '▶ एदं सुणह',
+    'ui.resume': 'अणुवत्तह ▶', 'ui.offline_audio': '⬇ ओफलाइन सद्दं', 'ui.offline_ready': '✓ ओफलाइन उवलद्धं',
+    'ui.bookmark_drawer_title': '🔖 रखिया पोत्थयांका',
+    'ui.bookmark_empty': 'ण कोवि पोत्थयांको रखियो।',
+    'ui.bookmark_hint': 'पाढपढणकाले <b>🔖 पोत्थयांकं</b> बटनं पोत्तूण गाहाइयं इध रखह।',
+    'ui.last_read': '📖 अज्जं पढियं', 'ui.read_from_where_left': '▶ जध छड्डियं तध चेव अणुवत्तह'
   },
 };
 
@@ -94,6 +123,7 @@ export const lang = (() => {
 export function t(k) {
   return (DICT[lang] && DICT[lang][k]) || DICT.hi[k] || k;
 }
+window.sdT = t;
 
 function apply() {
   const r = document.documentElement;

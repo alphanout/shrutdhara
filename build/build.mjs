@@ -267,6 +267,7 @@ function granthPage(g, i) {
       <a href="../../about.html" data-i18n="nav.about">परिचय</a>
     </nav>
     <div class="tools">
+      <button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button>
       <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
     </div>
@@ -382,9 +383,9 @@ function paathPage(g, txt) {
     </div>
     <div class="vp-body" id="vpBody"></div>
     <div class="vp-actions">
-      <button class="btn kum" id="vpListen" type="button">▶ <span data-i18n="ui.listen_this">यह सुनें</span></button>
-      <button class="btn ghost" id="vpQuote" type="button">❝ उद्धरण</button>
-      <button class="btn ghost" id="vpBookmark" type="button">🔖 बुकमार्क</button>
+      <button class="btn kum" id="vpListen" type="button" data-i18n="ui.listen_verse">▶ यह सुनें</button>
+      <button class="btn ghost" id="vpQuote" type="button" data-i18n="ui.quote">❝ उद्धरण</button>
+      <button class="btn ghost" id="vpBookmark" type="button" data-i18n="ui.bookmark">🔖 बुकमार्क</button>
       <button class="btn ghost" id="vpLink" type="button" data-i18n="ui.copy_link">कड़ी कॉपी करें</button>
     </div>
   </aside>`;
@@ -425,6 +426,7 @@ function paathPage(g, txt) {
       <a href="../../../granths.html" data-i18n="nav.granths">ग्रन्थ</a>
     </nav>
     <div class="tools">
+      <button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button>
       <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
     </div>
