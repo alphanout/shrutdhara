@@ -4,7 +4,7 @@ import { readFileSync, existsSync } from 'fs';
 import { join, extname } from 'path';
 
 const DIST = './dist';
-const PORT = 8905;
+const PORT = 8890;
 
 // simple static file server for testing
 const MIME = {

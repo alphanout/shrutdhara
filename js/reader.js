@@ -306,8 +306,34 @@ if (main) {
     }
   });
 
+  /* universal clipboard helper with fallback for HTTP / non-secure contexts */
+  async function copyToClipboard(text) {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {}
+    }
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-999999px';
+      ta.style.top = '-999999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove();
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /* Quote button: formatted multiline quote with citation */
-  document.getElementById('vpQuote')?.addEventListener('click', async () => {
+  const handleQuoteClick = async () => {
+    const _t = window.sdT || ((k) => k);
     const n = panel?.dataset.n || '';
     if (!n) return;
     const targetVg = openVg || document.getElementById('v' + n);
@@ -333,17 +359,19 @@ if (main) {
     const citeNum = devaFn(n);
     const url = location.origin + location.pathname + '#v' + n;
     const citation = `"${moolFormatted}"\n— ${gName}, ${unitLabel} ${citeNum}\n${url}`;
-    try {
-      await navigator.clipboard.writeText(citation);
-      const qBtn = document.getElementById('vpQuote');
-      if (qBtn) {
-        qBtn.textContent = '✓ उद्धरण कॉपी हुआ';
-        setTimeout(() => { qBtn.textContent = '❝ उद्धरण'; }, 1200);
-      }
-    } catch {}
-  });
+
+    const ok = await copyToClipboard(citation);
+    const qBtn = document.getElementById('vpQuote');
+    if (qBtn) {
+      qBtn.textContent = ok ? _t('ui.quote_copied') : '✓ कॉपी हुई';
+      setTimeout(() => { qBtn.textContent = _t('ui.quote'); }, 1400);
+    }
+  };
+
+  document.getElementById('vpQuote')?.addEventListener('click', handleQuoteClick);
 
   document.getElementById('vpBookmark')?.addEventListener('click', () => {
+    const _t = window.sdT || ((k) => k);
     const n = panel?.dataset.n || '';
     if (!n) return;
     const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
@@ -356,12 +384,12 @@ if (main) {
     const targetVg = document.getElementById('v' + n);
     if (idx >= 0) {
       bookmarks.splice(idx, 1);
-      if (bmBtn) { bmBtn.classList.remove('on'); bmBtn.textContent = '🔖 बुकमार्क'; }
+      if (bmBtn) { bmBtn.classList.remove('on'); bmBtn.textContent = _t('ui.bookmark'); }
       if (targetVg) targetVg.classList.remove('is-bookmarked');
     } else {
       const url = `${location.pathname}#v${n}`;
       bookmarks.push({ id: bookmarkId, slug, n, granthName: gName, text: curMoolText, url, createdAt: Date.now() });
-      if (bmBtn) { bmBtn.classList.add('on'); bmBtn.textContent = '🔖 सहेजा गया'; }
+      if (bmBtn) { bmBtn.classList.add('on'); bmBtn.textContent = _t('ui.bookmarked'); }
       if (targetVg) targetVg.classList.add('is-bookmarked');
     }
     localStorage.setItem('sd-bookmarks', JSON.stringify(bookmarks));
@@ -369,7 +397,12 @@ if (main) {
 
   document.getElementById('vpLink')?.addEventListener('click', async () => {
     const url = location.origin + location.pathname + '#v' + (panel.dataset.n || '');
-    try { await navigator.clipboard.writeText(url); document.getElementById('vpLink').textContent = '✓ कॉपी हुई'; } catch {}
+    const ok = await copyToClipboard(url);
+    const lBtn = document.getElementById('vpLink');
+    if (lBtn) {
+      lBtn.textContent = ok ? '✓ कॉपी हुई' : 'कड़ी कॉपी हुई';
+      setTimeout(() => { lBtn.textContent = 'कड़ी कॉपी करें'; }, 1400);
+    }
   });
 
   /* ---------- Resume reading banner on paath page ---------- */
