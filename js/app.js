@@ -377,6 +377,14 @@ async function renderBhattarak() {
 /* ---------- boot ---------- */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
   navigator.serviceWorker.register(root + 'sw.js', { scope: root || './' }).catch(() => {});
+  // when a new worker takes control (after a deploy), reload once so the page
+  // isn't left "one deploy behind". Guard prevents reload loops.
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (reloaded) return;
+    reloaded = true;
+    location.reload();
+  });
 }
 initTheme();
 initSearch();

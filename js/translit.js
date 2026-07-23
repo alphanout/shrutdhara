@@ -66,7 +66,9 @@ export function nameKey(name) {
   const clean = String(name || '')
     .replace(/\([^)]*\)/g, ' ')
     .replace(/आचार्या?|ाचार्य/g, '')
-    .replace(/श्रीमान|श्री|सूरि|स्वामी|महाराज|ब्र\.|पं\.|आ\.|जी\b/g, ' ')
+    // श्री only as standalone honorific (followed by space) — NOT inside compound
+    // names like श्रीधर / श्रीचन्द / श्रीपाल
+    .replace(/श्रीमान(?=\s|$)|श्री(?=\s)|सूरि|स्वामी|महाराज|ब्र\.|पं\.|आ\.|जी\b/g, ' ')
     .replace(/[0-9०-९–\-.]/g, ' ');
   return romanKey(clean);
 }
