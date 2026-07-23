@@ -383,9 +383,9 @@ function paathPage(g, txt) {
     </div>
     <div class="vp-body" id="vpBody"></div>
     <div class="vp-actions">
-      <button class="btn kum" id="vpListen" type="button">▶ <span data-i18n="ui.listen_this">यह सुनें</span></button>
-      <button class="btn ghost" id="vpQuote" type="button">❝ उद्धरण</button>
-      <button class="btn ghost" id="vpBookmark" type="button">🔖 बुकमार्क</button>
+      <button class="btn kum" id="vpListen" type="button" data-i18n="ui.listen_verse">▶ यह सुनें</button>
+      <button class="btn ghost" id="vpQuote" type="button" data-i18n="ui.quote">❝ उद्धरण</button>
+      <button class="btn ghost" id="vpBookmark" type="button" data-i18n="ui.bookmark">🔖 बुकमार्क</button>
       <button class="btn ghost" id="vpLink" type="button" data-i18n="ui.copy_link">कड़ी कॉपी करें</button>
     </div>
   </aside>`;

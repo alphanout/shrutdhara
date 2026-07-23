@@ -404,7 +404,7 @@ function initBookmarksDrawer() {
     drawer.hidden = true;
     drawer.innerHTML = `
       <div class="bm-head">
-        <b>🔖 सहेजे गए बुकमार्क</b>
+        <b data-i18n="ui.bookmark_drawer_title">🔖 सहेजे गए बुकमार्क</b>
         <button class="icon-btn" id="bmClose" type="button">✕</button>
       </div>
       <div class="bm-body" id="bmList"></div>`;
@@ -430,12 +430,13 @@ function initBookmarksDrawer() {
 
   function renderList() {
     const listEl = drawer.querySelector('#bmList');
+    const _t = window.sdT || ((k) => k);
     let bookmarks = [];
     try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
     if (!bookmarks.length) {
       listEl.innerHTML = `<div class="bm-empty">
-        <p>कोई बुकमार्क सहेजा नहीं गया है।</p>
-        <small>पाठ पढ़ते समय <b>🔖 बुकमार्क</b> बटन दबाकर किसी भी श्लोक या गाथा को यहाँ सहेजें।</small>
+        <p data-i18n="ui.bookmark_empty">${esc(_t('ui.bookmark_empty'))}</p>
+        <small data-i18n="ui.bookmark_hint">${_t('ui.bookmark_hint')}</small>
       </div>`;
       return;
     }
@@ -484,6 +485,7 @@ function initGranthResume() {
   if (page !== 'granth') return;
   const slug = location.pathname.split('/').filter(Boolean).slice(-1)[0] || '';
   if (!slug) return;
+  const _t = window.sdT || ((k) => k);
   try {
     const lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}');
     const item = lastRead[slug];
@@ -494,7 +496,8 @@ function initGranthResume() {
         rBtn.className = 'btn kum';
         rBtn.style.marginRight = '10px';
         rBtn.href = `paath/#v${item.n}`;
-        rBtn.innerHTML = `▶ जहाँ छोड़ा था वहीं से जारी रखें (${esc(item.title)})`;
+        rBtn.setAttribute('data-i18n', 'ui.read_from_where_left');
+        rBtn.innerHTML = `${_t('ui.read_from_where_left')} (${esc(item.title)})`;
         btns.insertBefore(rBtn, btns.firstChild);
       }
     }
@@ -504,6 +507,7 @@ function initGranthResume() {
 /* ---------- homepage resume card ---------- */
 function initHomeResume() {
   if (page !== 'home') return;
+  const _t = window.sdT || ((k) => k);
   try {
     const lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}');
     const entries = Object.values(lastRead)
@@ -517,15 +521,17 @@ function initHomeResume() {
       const card = document.createElement('div');
       card.className = 'home-resume-strip';
       card.innerHTML = `
-        <span>📖 हाल ही में पढ़ा गया: <b>${esc(latest.granthName)}</b> — ${esc(latest.title)}</span>
-        <a class="btn kum sm" href="${esc(href)}">जारी रखें ▶</a>`;
+        <span>${_t('ui.last_read')}: <b>${esc(latest.granthName)}</b> — ${esc(latest.title)}</span>
+        <a class="btn kum sm" href="${esc(href)}" data-i18n="ui.resume">${_t('ui.resume')}</a>`;
       statsEl.parentNode.insertBefore(card, statsEl.nextSibling);
     }
   } catch {}
 }
+
 /* ---------- homepage bookmarks strip ---------- */
 function initHomeBookmarks() {
   if (page !== 'home') return;
+  const _t = window.sdT || ((k) => k);
   try {
     const bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]');
     if (!bookmarks.length) return;
@@ -539,7 +545,7 @@ function initHomeBookmarks() {
         statsEl.parentNode.insertBefore(existing, statsEl.nextSibling);
       }
       let html = `<div class="chips-l lat dv" style="display:flex; justify-content:space-between; align-items:center">
-        <span>🔖 सहेजे गए पद व बुकमार्क (${devaNum(bookmarks.length)})</span>
+        <span>${_t('ui.bookmark_drawer_title')} (${devaNum(bookmarks.length)})</span>
         <button class="btn ghost sm" type="button" id="hmBmAllBtn">सब देखें ➔</button>
       </div><div class="chips" style="margin-top:10px">`;
       for (const bm of bookmarks.slice(0, 6)) {
