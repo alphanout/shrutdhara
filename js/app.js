@@ -376,17 +376,18 @@ async function renderBhattarak() {
 
 /* ---------- global bookmarks drawer & resume reading ---------- */
 function initBookmarksDrawer() {
+  let bmBtn = document.getElementById('bmHeadBtn');
   const tools = document.querySelector('.site-head .tools');
-  if (tools && !tools.querySelector('#bmHeadBtn')) {
-    const btn = document.createElement('button');
-    btn.className = 'icon-btn';
-    btn.id = 'bmHeadBtn';
-    btn.type = 'button';
-    btn.title = 'सहेजे गए बुकमार्क / Saved Bookmarks';
-    btn.innerHTML = '🔖';
-    tools.insertBefore(btn, tools.firstChild);
-    btn.addEventListener('click', openDrawer);
+  if (!bmBtn && tools) {
+    bmBtn = document.createElement('button');
+    bmBtn.className = 'icon-btn';
+    bmBtn.id = 'bmHeadBtn';
+    bmBtn.type = 'button';
+    bmBtn.title = 'सहेजे गए बुकमार्क / Saved Bookmarks';
+    bmBtn.innerHTML = '🔖';
+    tools.insertBefore(bmBtn, tools.firstChild);
   }
+  if (bmBtn) bmBtn.addEventListener('click', openDrawer);
 
   let scrim = document.getElementById('bmScrim');
   let drawer = document.getElementById('bmDrawer');
@@ -520,6 +521,38 @@ function initHomeResume() {
     }
   } catch {}
 }
+/* ---------- homepage bookmarks strip ---------- */
+function initHomeBookmarks() {
+  if (page !== 'home') return;
+  try {
+    const bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]');
+    if (!bookmarks.length) return;
+    const statsEl = document.getElementById('stats');
+    if (statsEl && statsEl.parentNode) {
+      let existing = document.getElementById('homeBookmarksStrip');
+      if (!existing) {
+        existing = document.createElement('div');
+        existing.id = 'homeBookmarksStrip';
+        existing.className = 'paath-strip';
+        statsEl.parentNode.insertBefore(existing, statsEl.nextSibling);
+      }
+      let html = `<div class="chips-l lat dv" style="display:flex; justify-content:space-between; align-items:center">
+        <span>🔖 सहेजे गए पद व बुकमार्क (${devaNum(bookmarks.length)})</span>
+        <button class="btn ghost sm" type="button" id="hmBmAllBtn">सब देखें ➔</button>
+      </div><div class="chips" style="margin-top:10px">`;
+      for (const bm of bookmarks.slice(0, 6)) {
+        const title = `${bm.granthName || 'ग्रन्थ'} (${devaNum(bm.n)})`;
+        const href = `${root}granth/${bm.slug}/paath/#v${bm.n}`;
+        html += `<a class="chip" href="${esc(href)}" style="box-shadow:inset 0 0 0 1px var(--gold-2); color:var(--gold)">${esc(title)}</a>`;
+      }
+      html += `</div>`;
+      existing.innerHTML = html;
+      existing.querySelector('#hmBmAllBtn')?.addEventListener('click', () => {
+        if (window.sdOpenBookmarks) window.sdOpenBookmarks();
+      });
+    }
+  } catch {}
+}
 
 /* ---------- boot ---------- */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
@@ -538,7 +571,7 @@ initSearch();
 initFlash();
 initBookmarksDrawer();
 initGranthResume();
-if (page === 'home') { renderHome(); initHomeResume(); }
+if (page === 'home') { renderHome(); initHomeResume(); initHomeBookmarks(); }
 if (page === 'kaal') renderStrata({ withGranths: true });
 if (page === 'acharya') renderStrata({ withGranths: false });
 if (page === 'granths') renderGranths();
