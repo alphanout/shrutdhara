@@ -125,6 +125,13 @@ export function t(k) {
 }
 window.sdT = t;
 
+import { translit } from './translit.js';
+
+export function tName(str) {
+  return lang === 'en' ? translit(str) : str;
+}
+window.sdName = tName;
+
 function apply() {
   const r = document.documentElement;
   r.setAttribute('data-lang', lang);
@@ -134,6 +141,10 @@ function apply() {
   });
   document.querySelectorAll('[data-i18n-ph]').forEach((el) => {
     el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
+  });
+  document.querySelectorAll('[data-dv]').forEach((el) => {
+    const dv = el.getAttribute('data-dv');
+    el.innerHTML = tName(dv);
   });
   const sel = document.getElementById('langSel');
   if (sel) {
