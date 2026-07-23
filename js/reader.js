@@ -112,36 +112,12 @@ if (main) {
 
   /* ---------- scroll hash-sync observer ---------- */
   if ('IntersectionObserver' in window && groups.length) {
-    const verseObserver = new IntersectionObserver((entries) => {
-      const visible = entries.filter((e) => e.isIntersecting);
-      if (visible.length) {
-        const target = visible[0].target;
-        const n = target.dataset.n;
-        if (n && location.hash !== '#v' + n) {
-          history.replaceState(null, '', '#v' + n);
-          saveLastReadPosition(n);
-        }
-      }
-    }, { rootMargin: '-20% 0px -60% 0px' });
+    const verseObserver = new IntersectionObserver(syncHash, { rootMargin: '-20% 0px -60% 0px' });
     groups.forEach((vg) => verseObserver.observe(vg));
   }
 
   /* save last read position */
-  function saveLastReadPosition(n) {
-    if (!n) return;
-    const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
-    if (!slug) return;
-    const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
-    const isProse = main.getAttribute('data-prose') === 'true';
-    const lang = main.getAttribute('data-lang') || '';
-    const isGatha = lang.includes('प्राकृत') || /गाथा/i.test(lang) || /समयसार|नियमसार|प्रवचनसार|पंचास्तिकाय|अष्टपाहुड/i.test(gName);
-    const unitLabel = isProse ? 'खण्ड' : (isGatha ? 'गाथा' : 'पद्य');
-    const title = `${unitLabel} ${devaFn(n)}`;
-    let lastRead = {};
-    try { lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}'); } catch {}
-    lastRead[slug] = { slug, n, title, granthName: gName, time: Date.now() };
-    localStorage.setItem('sd-last-read', JSON.stringify(lastRead));
-  }
+  // Moved to exports
 
   /* helper: find currently visible verse index in viewport */
   function findVisibleVerseIndex() {
@@ -370,30 +346,7 @@ if (main) {
 
   document.getElementById('vpQuote')?.addEventListener('click', handleQuoteClick);
 
-  document.getElementById('vpBookmark')?.addEventListener('click', () => {
-    const _t = window.sdT || ((k) => k);
-    const n = panel?.dataset.n || '';
-    if (!n) return;
-    const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
-    const bookmarkId = `${slug}#v${n}`;
-    const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
-    let bookmarks = [];
-    try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
-    const idx = bookmarks.findIndex((b) => (typeof b === 'string' ? b === bookmarkId : b.id === bookmarkId));
-    const bmBtn = document.getElementById('vpBookmark');
-    const targetVg = document.getElementById('v' + n);
-    if (idx >= 0) {
-      bookmarks.splice(idx, 1);
-      if (bmBtn) { bmBtn.classList.remove('on'); bmBtn.textContent = _t('ui.bookmark'); }
-      if (targetVg) targetVg.classList.remove('is-bookmarked');
-    } else {
-      const url = `${location.pathname}#v${n}`;
-      bookmarks.push({ id: bookmarkId, slug, n, granthName: gName, text: curMoolText, url, createdAt: Date.now() });
-      if (bmBtn) { bmBtn.classList.add('on'); bmBtn.textContent = _t('ui.bookmarked'); }
-      if (targetVg) targetVg.classList.add('is-bookmarked');
-    }
-    localStorage.setItem('sd-bookmarks', JSON.stringify(bookmarks));
-  });
+  document.getElementById('vpBookmark')?.addEventListener('click', toggleBookmark);
 
   document.getElementById('vpLink')?.addEventListener('click', async () => {
     const url = location.origin + location.pathname + '#v' + (panel.dataset.n || '');
@@ -498,58 +451,9 @@ if (main) {
     voiceSel.parentNode.insertBefore(dlBtn, voiceSel.nextSibling);
 
     const totalAudioFiles = verses.length;
-    async function getCache() {
-      if (!('caches' in window)) return null;
-      const keys = await caches.keys();
-      const active = keys.find((k) => k.startsWith('shrutdhara-'));
-      return caches.open(active || 'shrutdhara-audio');
-    }
+    checkAudioCache(totalAudioFiles, audioBase, dlBtn);
 
-    async function checkAudioCache() {
-      const cache = await getCache();
-      if (!cache || !totalAudioFiles) return;
-      try {
-        let cachedCount = 0;
-        for (let i = 1; i <= totalAudioFiles; i++) {
-          const url = new URL(audioBase + i + '.mp3', location.href).href;
-          const match = await cache.match(url);
-          if (match) cachedCount++;
-        }
-        if (cachedCount === totalAudioFiles) {
-          dlBtn.textContent = '✓ ऑफ़लाइन उपलब्ध';
-          dlBtn.disabled = true;
-        }
-      } catch {}
-    }
-    checkAudioCache();
-
-    dlBtn.addEventListener('click', async () => {
-      const cache = await getCache();
-      if (!cache) {
-        dlBtn.textContent = 'ब्राउज़र समर्थित नहीं';
-        return;
-      }
-      dlBtn.disabled = true;
-      try {
-        for (let i = 1; i <= totalAudioFiles; i++) {
-          const fileUrl = audioBase + i + '.mp3';
-          const reqUrl = new URL(fileUrl, location.href).href;
-          try {
-            const res = await fetch(fileUrl);
-            if (res.ok) {
-              await cache.put(reqUrl, res.clone());
-              await cache.put(fileUrl, res);
-            }
-          } catch {}
-          const pct = Math.round((i / totalAudioFiles) * 100);
-          dlBtn.textContent = `सहेजा जा रहा है... ${pct}%`;
-        }
-        dlBtn.textContent = '✓ ऑफ़लाइन उपलब्ध';
-      } catch (err) {
-        dlBtn.textContent = 'त्रुटि हुई';
-        dlBtn.disabled = false;
-      }
-    });
+    dlBtn.addEventListener('click', () => downloadOfflineAudio(totalAudioFiles, audioBase, dlBtn));
   }
 
   let player = null;
@@ -685,4 +589,115 @@ if (main) {
       }
     }
   })();
+}
+
+export function syncHash(entries) {
+  const visible = entries.filter((e) => e.isIntersecting);
+  if (visible.length) {
+    const target = visible[0].target;
+    const n = target.dataset.n;
+    if (n && location.hash !== '#v' + n) {
+      history.replaceState(null, '', '#v' + n);
+      saveLastReadPosition(n);
+    }
+  }
+}
+
+export function saveLastReadPosition(n) {
+  if (!n) return;
+  const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
+  if (!slug) return;
+  const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
+  const main = document.querySelector('.paath');
+  const isProse = main?.getAttribute('data-prose') === 'true';
+  const lang = main?.getAttribute('data-lang') || '';
+  const isGatha = lang.includes('प्राकृत') || /गाथा/i.test(lang) || /समयसार|नियमसार|प्रवचनसार|पंचास्तिकाय|अष्टपाहुड/i.test(gName);
+  const unitLabel = isProse ? 'खण्ड' : (isGatha ? 'गाथा' : 'पद्य');
+  const title = `${unitLabel} ${String(n).replace(/[0-9]/g, (d) => '०१२३४५६७८९'[+d])}`;
+  let lastRead = {};
+  try { lastRead = JSON.parse(localStorage.getItem('sd-last-read') || '{}'); } catch {}
+  lastRead[slug] = { slug, n, title, granthName: gName, time: Date.now() };
+  localStorage.setItem('sd-last-read', JSON.stringify(lastRead));
+}
+
+export function toggleBookmark() {
+  const panel = document.getElementById('vpanel');
+  const _t = window.sdT || ((k) => k);
+  const n = panel?.dataset.n || '';
+  if (!n) return;
+  const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
+  const bookmarkId = `${slug}#v${n}`;
+  const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
+  let bookmarks = [];
+  try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
+  const idx = bookmarks.findIndex((b) => (typeof b === 'string' ? b === bookmarkId : b.id === bookmarkId));
+  const bmBtn = document.getElementById('vpBookmark');
+  const targetVg = document.getElementById('v' + n);
+  if (idx >= 0) {
+    bookmarks.splice(idx, 1);
+    if (bmBtn) { bmBtn.classList.remove('on'); bmBtn.textContent = _t('ui.bookmark'); }
+    if (targetVg) targetVg.classList.remove('is-bookmarked');
+  } else {
+    const url = `${location.pathname}#v${n}`;
+    const verseEl = targetVg?.querySelector('.verse');
+    const curMoolText = verseEl ? verseEl.textContent.replace(/\s+/g, ' ').trim() : '';
+    bookmarks.push({ id: bookmarkId, slug, n, granthName: gName, text: curMoolText, url, createdAt: Date.now() });
+    if (bmBtn) { bmBtn.classList.add('on'); bmBtn.textContent = _t('ui.bookmarked'); }
+    if (targetVg) targetVg.classList.add('is-bookmarked');
+  }
+  localStorage.setItem('sd-bookmarks', JSON.stringify(bookmarks));
+}
+
+export async function getCache() {
+  if (!('caches' in window)) return null;
+  const keys = await caches.keys();
+  const active = keys.find((k) => k.startsWith('shrutdhara-'));
+  return caches.open(active || 'shrutdhara-audio');
+}
+
+export async function checkAudioCache(totalAudioFiles, audioBase, dlBtn) {
+  const cache = await getCache();
+  if (!cache || !totalAudioFiles) return;
+  try {
+    let cachedCount = 0;
+    for (let i = 1; i <= totalAudioFiles; i++) {
+      const url = new URL(audioBase + i + '.mp3', location.href).href;
+      const match = await cache.match(url);
+      if (match) cachedCount++;
+    }
+    if (cachedCount === totalAudioFiles && dlBtn) {
+      dlBtn.textContent = '✓ ऑफ़लाइन उपलब्ध';
+      dlBtn.disabled = true;
+    }
+  } catch {}
+}
+
+export async function downloadOfflineAudio(totalAudioFiles, audioBase, dlBtn) {
+  const cache = await getCache();
+  if (!cache) {
+    if (dlBtn) dlBtn.textContent = 'ब्राउज़र समर्थित नहीं';
+    return;
+  }
+  if (dlBtn) dlBtn.disabled = true;
+  try {
+    for (let i = 1; i <= totalAudioFiles; i++) {
+      const fileUrl = audioBase + i + '.mp3';
+      const reqUrl = new URL(fileUrl, location.href).href;
+      try {
+        const res = await fetch(fileUrl);
+        if (res.ok) {
+          await cache.put(reqUrl, res.clone());
+          await cache.put(fileUrl, res);
+        }
+      } catch {}
+      const pct = Math.round((i / totalAudioFiles) * 100);
+      if (dlBtn) dlBtn.textContent = `सहेजा जा रहा है... ${pct}%`;
+    }
+    if (dlBtn) dlBtn.textContent = '✓ ऑफ़लाइन उपलब्ध';
+  } catch (err) {
+    if (dlBtn) {
+      dlBtn.textContent = 'त्रुटि हुई';
+      dlBtn.disabled = false;
+    }
+  }
 }

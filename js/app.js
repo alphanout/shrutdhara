@@ -585,3 +585,6 @@ if (page === 'kaal') renderStrata({ withGranths: true });
 if (page === 'acharya') renderStrata({ withGranths: false });
 if (page === 'granths') renderGranths();
 if (page === 'bhattarak') renderBhattarak();
+
+export { initTheme, initSearch, renderStrata, initFlash, loadData, renderHome, initBookmarksDrawer, initGranthResume, initHomeResume, initHomeBookmarks };
+
