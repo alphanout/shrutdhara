@@ -3,6 +3,8 @@ name: build-and-deploy
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
   workflow_run:
     workflows: [gen-audio]
@@ -13,29 +15,35 @@ permissions:
   pages: write
   id-token: write
 
+# per-ref group: a PR validation build must NOT cancel an in-flight main deploy
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # no `ref:` — PR runs must build the PR's own code, not main
       - uses: actions/checkout@v4
-        with:
-          ref: main
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
       - run: npm ci
       - run: npm run build
+      # PDFs/OG cards are only needed for the real deploy (~200 Puppeteer
+      # renders); skip on PR validation builds to keep feedback fast
       - run: npm run pdf
+        if: github.event_name != 'pull_request'
       - uses: actions/upload-pages-artifact@v3
+        if: github.event_name != 'pull_request'
         with:
           path: dist
   deploy:
     needs: build
+    # PRs build (to catch breakage) but never publish; only main deploys
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
