@@ -1,0 +1,578 @@
+{
+  "shatkhandaagama": {
+    "id": 1,
+    "name": "षट्खण्डागम",
+    "nameEn": "Shatkhandagama",
+    "fileName": "01_shatkhandaagama_shat_khandagam_aur_kasay_pahud_212479_std.pdf",
+    "size": "724.5 KB",
+    "category": "2. Karnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/01_shatkhandaagama_shat_khandagam_aur_kasay_pahud_212479_std.pdf"
+  },
+  "kasaayapaahuda": {
+    "id": 2,
+    "name": "कसायपाहुड",
+    "nameEn": "Kasayapahuda",
+    "fileName": "02_kasaayapaahuda_kasay_pahud_sutta_Gundharacharya.pdf",
+    "size": "87.5 MB",
+    "category": "2. Karnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/02_kasaayapaahuda_kasay_pahud_sutta_Gundharacharya.pdf"
+  },
+  "samayasaara": {
+    "id": 3,
+    "name": "समयसार",
+    "nameEn": "Samayasara",
+    "fileName": "03_samayasaara_NATAK_SAMAYSAR.pdf",
+    "size": "13.5 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/03_samayasaara_NATAK_SAMAYSAR.pdf"
+  },
+  "pravachanasaara": {
+    "id": 4,
+    "name": "प्रवचनसार",
+    "nameEn": "Pravachansara",
+    "fileName": "04_pravachanasaara_PRAVACHANSAR-01.pdf",
+    "size": "9.8 MB",
+    "category": "3. Charnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/04_pravachanasaara_PRAVACHANSAR-01.pdf"
+  },
+  "panchaastikaaya": {
+    "id": 5,
+    "name": "पंचास्तिकाय",
+    "nameEn": "Panchastikayasara",
+    "fileName": "05_panchaastikaaya_PANCHASTIKAY-DEEPIKA.pdf",
+    "size": "11.8 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/05_panchaastikaaya_PANCHASTIKAY-DEEPIKA.pdf"
+  },
+  "niyamasaara": {
+    "id": 6,
+    "name": "नियमसार",
+    "nameEn": "Niyamsara",
+    "fileName": "06_niyamasaara_NIYAMSAR_PRABHRIT.pdf",
+    "size": "19.6 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/06_niyamasaara_NIYAMSAR_PRABHRIT.pdf"
+  },
+  "ashtapaahuda": {
+    "id": 7,
+    "name": "अष्टपाहुड",
+    "nameEn": "Ashtapahuda",
+    "fileName": "07_ashtapaahuda_ashtapahud-bhasha-vachanika-hin-947.pdf",
+    "size": "14.9 MB",
+    "category": "3. Charnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/07_ashtapaahuda_ashtapahud-bhasha-vachanika-hin-947.pdf"
+  },
+  "baarasa-anuvekkhaa": {
+    "id": 8,
+    "name": "बारस अणुवेक्खा",
+    "nameEn": "Barasa Anuvekkha",
+    "fileName": "08_baarasa-anuvekkhaa_Baras_Anuvekkha_Sarvodaya_Tika_Part_1.pdf",
+    "size": "27.4 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/08_baarasa-anuvekkhaa_Baras_Anuvekkha_Sarvodaya_Tika_Part_1.pdf"
+  },
+  "mulaachaara": {
+    "id": 9,
+    "name": "मूलाचार",
+    "nameEn": "Mulachara",
+    "fileName": "09_mulaachaara_Digambar_Granth_Mulachar_me_Pratipadit_Shramanachar_229980_std.pdf",
+    "size": "1.2 MB",
+    "category": "3. Charnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/09_mulaachaara_Digambar_Granth_Mulachar_me_Pratipadit_Shramanachar_229980_std.pdf"
+  },
+  "tiloyapannatti": {
+    "id": 10,
+    "name": "तिलोयपण्णत्ति",
+    "nameEn": "Tiloyapannatti",
+    "fileName": "10_tiloyapannatti_TILOYPANNATI_02.pdf",
+    "size": "16.2 MB",
+    "category": "2. Karnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/10_tiloyapannatti_TILOYPANNATI_02.pdf"
+  },
+  "bhagavati-aaraadhanaa": {
+    "id": 11,
+    "name": "भगवती आराधना",
+    "nameEn": "Bhagavati Aradhana",
+    "fileName": "11_bhagavati-aaraadhanaa_AARADHANA__KATHAKOSH.pdf",
+    "size": "3.5 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/11_bhagavati-aaraadhanaa_AARADHANA__KATHAKOSH.pdf"
+  },
+  "tattvaarthasutra": {
+    "id": 12,
+    "name": "तत्त्वार्थसूत्र",
+    "nameEn": "Tattvarthasutra",
+    "fileName": "12_tattvaarthasutra_PRABHACHANDRA_KA_TATTVARTHSUTRA.pdf",
+    "size": "3.3 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/12_tattvaarthasutra_PRABHACHANDRA_KA_TATTVARTHSUTRA.pdf"
+  },
+  "ratnakaranda-shraavakaachaara": {
+    "id": 13,
+    "name": "रत्नकरण्ड श्रावकाचार",
+    "nameEn": "Ratnakaranda Shravakachara",
+    "fileName": "13_ratnakaranda-shraavakaachaara_RATNAKARAND_SHR_SATIK.pdf",
+    "size": "10.1 MB",
+    "category": "3. Charnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/13_ratnakaranda-shraavakaachaara_RATNAKARAND_SHR_SATIK.pdf"
+  },
+  "aaptamimaansaa": {
+    "id": 14,
+    "name": "आप्तमीमांसा (देवागम)",
+    "nameEn": "Aptamimansa",
+    "fileName": "14_aaptamimaansaa_194978626-Devagam-Stroe-Aptmimansa.pdf",
+    "size": "604.3 KB",
+    "category": "5. Nyay",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/14_aaptamimaansaa_194978626-Devagam-Stroe-Aptmimansa.pdf"
+  },
+  "yuktyanushaasana": {
+    "id": 15,
+    "name": "युक्त्यनुशासन",
+    "nameEn": "Yuktyanushasana",
+    "fileName": "15_yuktyanushaasana_YUAKTYANUSHASANM-TEEKA.pdf",
+    "size": "8.6 MB",
+    "category": "5. Nyay",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/15_yuktyanushaasana_YUAKTYANUSHASANM-TEEKA.pdf"
+  },
+  "svayambhustotra": {
+    "id": 16,
+    "name": "स्वयम्भू स्तोत्र",
+    "nameEn": "Svayambhu Stotra",
+    "fileName": "16_svayambhustotra_BRAHAT_SWAYAMBHOOSTOTRAM.pdf",
+    "size": "5.7 MB",
+    "category": "9. Stotra",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/16_svayambhustotra_BRAHAT_SWAYAMBHOOSTOTRAM.pdf"
+  },
+  "devaagamastotra": {
+    "id": 17,
+    "name": "देवागम स्तोत्र",
+    "nameEn": "Devagama Stotra",
+    "fileName": "17_devaagamastotra_194978626-Devagam-Stroe-Aptmimansa.pdf",
+    "size": "604.3 KB",
+    "category": "5. Nyay",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/17_devaagamastotra_194978626-Devagam-Stroe-Aptmimansa.pdf"
+  },
+  "jinashataka": {
+    "id": 18,
+    "name": "जिनशतक",
+    "nameEn": "Jinashataka",
+    "fileName": "18_jinashataka_niti_shatak_satikam_600455_hr6.pdf",
+    "size": "7.4 MB",
+    "category": "6. Manuscript",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/18_jinashataka_niti_shatak_satikam_600455_hr6.pdf"
+  },
+  "tattvaarthavritti": {
+    "id": 20,
+    "name": "तत्त्वार्थवृत्ति",
+    "nameEn": "Tattvarthavritti",
+    "fileName": "20_tattvaarthavritti_TATTVARTHAVRUTTI_SHRUTSAGAR_JI.pdf",
+    "size": "70.1 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/20_tattvaarthavritti_TATTVARTHAVRUTTI_SHRUTSAGAR_JI.pdf"
+  },
+  "sarvaarthasiddhi": {
+    "id": 21,
+    "name": "सर्वार्थसिद्धि",
+    "nameEn": "Sarvarthasiddhi",
+    "fileName": "21_sarvaarthasiddhi_SARVARTH_SIDDHI.pdf",
+    "size": "20.6 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/21_sarvaarthasiddhi_SARVARTH_SIDDHI.pdf"
+  },
+  "samaadhitantra": {
+    "id": 22,
+    "name": "समाधितन्त्र",
+    "nameEn": "Samadhitantra",
+    "fileName": "22_samaadhitantra_SAMADHI_TANTRA_AUR_ISTOPADESH.pdf",
+    "size": "20.4 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/22_samaadhitantra_SAMADHI_TANTRA_AUR_ISTOPADESH.pdf"
+  },
+  "ishtopadesha": {
+    "id": 23,
+    "name": "इष्टोपदेश",
+    "nameEn": "Ishtopadesha",
+    "fileName": "23_ishtopadesha_Ishto_padesh_Hindi_Agas.pdf",
+    "size": "3.3 MB",
+    "category": "3. Charnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/23_ishtopadesha_Ishto_padesh_Hindi_Agas.pdf"
+  },
+  "jainendravyaakarana": {
+    "id": 24,
+    "name": "जैनेन्द्र व्याकरण",
+    "nameEn": "Jainendra Vyakaran",
+    "fileName": "24_jainendravyaakarana_JAINENDRA_LAGHUVRITTI.pdf",
+    "size": "5.3 MB",
+    "category": "8. Vyakaran",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/24_jainendravyaakarana_JAINENDRA_LAGHUVRITTI.pdf"
+  },
+  "laghiyastraya": {
+    "id": 27,
+    "name": "लघीयस्त्रय",
+    "nameEn": "Laghiyastraya",
+    "fileName": "27_laghiyastraya_LAGHIYASTRAY.pdf",
+    "size": "2.4 MB",
+    "category": "5. Nyay",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/27_laghiyastraya_LAGHIYASTRAY.pdf"
+  },
+  "tattvaartharaajavaartika": {
+    "id": 28,
+    "name": "तत्त्वार्थराजवार्तिक",
+    "nameEn": "Tattvartha Rajavartika",
+    "fileName": "28_tattvaartharaajavaartika_TATTVARTHRAJVARTIKAM.pdf",
+    "size": "38.7 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/28_tattvaartharaajavaartika_TATTVARTHRAJVARTIKAM.pdf"
+  },
+  "harivanshapuraana": {
+    "id": 32,
+    "name": "हरिवंशपुराण",
+    "nameEn": "Harivansha Purana",
+    "fileName": "32_harivanshapuraana_HARIVANSH_PURAN.pdf",
+    "size": "28.8 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/32_harivanshapuraana_HARIVANSH_PURAN.pdf"
+  },
+  "aadipuraana": {
+    "id": 33,
+    "name": "आदिपुराण",
+    "nameEn": "Adipurana",
+    "fileName": "33_aadipuraana_AADIPURAN-01.pdf",
+    "size": "54.6 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/33_aadipuraana_AADIPURAN-01.pdf"
+  },
+  "mahaapuraana-uttarapuraana": {
+    "id": 34,
+    "name": "महापुराण उत्तरपुराण",
+    "nameEn": "Mahapurana Uttarapurana",
+    "fileName": "34_mahaapuraana-uttarapuraana_aadi-puran-mahapuranam--1-hin-921.pdf",
+    "size": "95.0 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/34_mahaapuraana-uttarapuraana_aadi-puran-mahapuranam--1-hin-921.pdf"
+  },
+  "dhavalaa": {
+    "id": 35,
+    "name": "धवला",
+    "nameEn": "Dhavala",
+    "fileName": "35_dhavalaa_DHAVALA-01.pdf",
+    "size": "23.6 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/35_dhavalaa_DHAVALA-01.pdf"
+  },
+  "jayadhavalaa": {
+    "id": 36,
+    "name": "जयधवला",
+    "nameEn": "Jayadhavala",
+    "fileName": "36_jayadhavalaa_JAIDHAVALA-01.pdf",
+    "size": "47.3 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/36_jayadhavalaa_JAIDHAVALA-01.pdf"
+  },
+  "mahaadhavalaa": {
+    "id": 37,
+    "name": "महाधवला (महाबन्ध)",
+    "nameEn": "Mahadhavala",
+    "fileName": "37_mahaadhavalaa_MAHABANDHO___07.pdf",
+    "size": "12.5 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/37_mahaadhavalaa_MAHABANDHO___07.pdf"
+  },
+  "aadipuraana-sanskrita-purti": {
+    "id": 38,
+    "name": "आदिपुराण संस्कृत पूर्ति",
+    "nameEn": "Adipurana Sanskrit Purti",
+    "fileName": "38_aadipuraana-sanskrita-purti_AADIPURAN-01.pdf",
+    "size": "54.6 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/38_aadipuraana-sanskrita-purti_AADIPURAN-01.pdf"
+  },
+  "vardhamaanacharitra": {
+    "id": 39,
+    "name": "वर्धमानचरित्र",
+    "nameEn": "Vardhamanacharitra",
+    "fileName": "39_vardhamaanacharitra_VARDHAMAN_PURAN.pdf",
+    "size": "22.6 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/39_vardhamaanacharitra_VARDHAMAN_PURAN.pdf"
+  },
+  "shaantinaathapuraana": {
+    "id": 40,
+    "name": "शान्तिनाथपुराण",
+    "nameEn": "Shantinatha Purana",
+    "fileName": "40_shaantinaathapuraana_SHANTINATH_PURAN.pdf",
+    "size": "18.7 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/40_shaantinaathapuraana_SHANTINATH_PURAN.pdf"
+  },
+  "pradyumnacharita": {
+    "id": 42,
+    "name": "प्रद्युम्नचरित",
+    "nameEn": "Pradyumna Charita",
+    "fileName": "42_pradyumnacharita_PRADYUMNA_CHARITRA.SHRI_SOMKIRTI_SURI_.1.pdf",
+    "size": "14.2 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/42_pradyumnacharita_PRADYUMNA_CHARITRA.SHRI_SOMKIRTI_SURI_.1.pdf"
+  },
+  "gadyachintaamani": {
+    "id": 43,
+    "name": "गद्यचिन्तामणि",
+    "nameEn": "Gadyachintamani",
+    "fileName": "43_gadyachintaamani_GADYACHINTAMANI.pdf",
+    "size": "38.8 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/43_gadyachintaamani_GADYACHINTAMANI.pdf"
+  },
+  "kshatrachudaamani": {
+    "id": 44,
+    "name": "क्षत्रचूड़ामणि",
+    "nameEn": "Kshatrachudamani",
+    "fileName": "44_kshatrachudaamani_Kshatra_Chudamani.pdf",
+    "size": "43.1 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/44_kshatrachudaamani_Kshatra_Chudamani.pdf"
+  },
+  "yashastilakachampu": {
+    "id": 45,
+    "name": "यशस्तिलकचम्पू",
+    "nameEn": "Yashastilaka Champu",
+    "fileName": "45_yashastilakachampu_YASHASTILAK_CHAMPOO-01.pdf",
+    "size": "23.8 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/45_yashastilakachampu_YASHASTILAK_CHAMPOO-01.pdf"
+  },
+  "gommatasaara-jivakaanda": {
+    "id": 47,
+    "name": "गोम्मटसार जीवकाण्ड",
+    "nameEn": "Gommatasara Jivakanda",
+    "fileName": "47_gommatasaara-jivakaanda_GOMMATSAR-JIVKAND-01.pdf",
+    "size": "20.6 MB",
+    "category": "2. Karnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/47_gommatasaara-jivakaanda_GOMMATSAR-JIVKAND-01.pdf"
+  },
+  "gommatasaara-karmakaanda": {
+    "id": 48,
+    "name": "गोम्मटसार कर्मकाण्ड",
+    "nameEn": "Gommatasara Karmakanda",
+    "fileName": "48_gommatasaara-karmakaanda_GOMMATSAR-KARMKAND-01.pdf",
+    "size": "17.8 MB",
+    "category": "2. Karnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/48_gommatasaara-karmakaanda_GOMMATSAR-KARMKAND-01.pdf"
+  },
+  "dravyasangraha": {
+    "id": 49,
+    "name": "द्रव्यसंग्रह",
+    "nameEn": "Dravyasangraha",
+    "fileName": "49_dravyasangraha_BRHAD_DRAVYASANGRAH.pdf",
+    "size": "24.5 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/49_dravyasangraha_BRHAD_DRAVYASANGRAH.pdf"
+  },
+  "labdhisaara": {
+    "id": 50,
+    "name": "लब्धिसार",
+    "nameEn": "Labdhisara",
+    "fileName": "50_labdhisaara_LABDHISAR_KSHAPANASARGARBHIT.pdf",
+    "size": "21.9 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/50_labdhisaara_LABDHISAR_KSHAPANASARGARBHIT.pdf"
+  },
+  "kshapanaasaara": {
+    "id": 51,
+    "name": "क्षपणासार",
+    "nameEn": "Kshapanasara",
+    "fileName": "51_kshapanaasaara_LABDHISAR_KSHAPANASARGARBHIT.pdf",
+    "size": "21.9 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/51_kshapanaasaara_LABDHISAR_KSHAPANASARGARBHIT.pdf"
+  },
+  "trilokasaara": {
+    "id": 52,
+    "name": "त्रिलोकसार",
+    "nameEn": "Trilokasara",
+    "fileName": "52_trilokasaara_TRILOK_BHASKAR.pdf",
+    "size": "11.2 MB",
+    "category": "2. Karnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/52_trilokasaara_TRILOK_BHASKAR.pdf"
+  },
+  "jivatattvapradipikaa": {
+    "id": 53,
+    "name": "जीवतत्त्वप्रदीपिका",
+    "nameEn": "Jivatattvapradipika",
+    "fileName": "53_jivatattvapradipikaa_GOMMATSAR-JIVKAND-01.pdf",
+    "size": "20.6 MB",
+    "category": "2. Karnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/53_jivatattvapradipikaa_GOMMATSAR-JIVKAND-01.pdf"
+  },
+  "dharmaparikshaa": {
+    "id": 54,
+    "name": "धर्मपरीक्षा",
+    "nameEn": "Dharmapariksha",
+    "fileName": "54_dharmaparikshaa_DHARMPARIKSHA.pdf",
+    "size": "24.5 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/54_dharmaparikshaa_DHARMPARIKSHA.pdf"
+  },
+  "shraavakaachaara": {
+    "id": 55,
+    "name": "श्रावकाचार (अमितगति)",
+    "nameEn": "Shravakachara Amitagati",
+    "fileName": "55_shraavakaachaara_DHARMASANGRAH_SHRAVAKACHAR.pdf",
+    "size": "19.3 MB",
+    "category": "3. Charnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/55_shraavakaachaara_DHARMASANGRAH_SHRAVAKACHAR.pdf"
+  },
+  "vardhamaanacharita": {
+    "id": 57,
+    "name": "वर्धमानचरित",
+    "nameEn": "Vardhamanacharita",
+    "fileName": "57_vardhamaanacharita_VARDHAMAN_PURAN.pdf",
+    "size": "22.6 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/57_vardhamaanacharita_VARDHAMAN_PURAN.pdf"
+  },
+  "nyaayakumudachandra": {
+    "id": 59,
+    "name": "न्यायकुमुदचन्द्र",
+    "nameEn": "Nyayakumudachandra",
+    "fileName": "59_nyaayakumudachandra_NYAY_KUMUD_CHANDRA-01.pdf",
+    "size": "20.9 MB",
+    "category": "5. Nyay",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/59_nyaayakumudachandra_NYAY_KUMUD_CHANDRA-01.pdf"
+  },
+  "parikshaamukhavritti": {
+    "id": 62,
+    "name": "परीक्षामुखवृत्ति",
+    "nameEn": "Parikshamukhavritti",
+    "fileName": "62_parikshaamukhavritti_Pariksha_Mukh_Sutra_Pravachan_Part_12_-_Kshullak_Manohar_Ji_Varni.pdf",
+    "size": "3.0 MB",
+    "category": "Other Jain Books",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/62_parikshaamukhavritti_Pariksha_Mukh_Sutra_Pravachan_Part_12_-_Kshullak_Manohar_Ji_Varni.pdf"
+  },
+  "shraavakaachaara-65": {
+    "id": 65,
+    "name": "श्रावकाचार (आशाधर)",
+    "nameEn": "Shravakachara Ashadhara",
+    "fileName": "65_shraavakaachaara-65_DHARMASANGRAH_SHRAVAKACHAR.pdf",
+    "size": "19.3 MB",
+    "category": "3. Charnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/65_shraavakaachaara-65_DHARMASANGRAH_SHRAVAKACHAR.pdf"
+  },
+  "padmapuraana": {
+    "id": 69,
+    "name": "पद्मपुराण",
+    "nameEn": "Padmapurana",
+    "fileName": "69_padmapuraana_PAUMA_CHARIU-01.pdf",
+    "size": "12.2 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/69_padmapuraana_PAUMA_CHARIU-01.pdf"
+  },
+  "jivandharacharita": {
+    "id": 73,
+    "name": "जीवन्धरचरित",
+    "nameEn": "Jivandharacharita",
+    "fileName": "73_jivandharacharita_JEEVANDHAR_CHAMPU.pdf",
+    "size": "31.5 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/73_jivandharacharita_JEEVANDHAR_CHAMPU.pdf"
+  },
+  "mallinaathapuraana": {
+    "id": 74,
+    "name": "मल्लिनाथपुराण",
+    "nameEn": "Mallinatha Purana",
+    "fileName": "74_mallinaathapuraana_MALLINATH_PURAN.pdf",
+    "size": "10.8 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/74_mallinaathapuraana_MALLINATH_PURAN.pdf"
+  },
+  "neminaathapuraana": {
+    "id": 77,
+    "name": "नेमिनाथपुराण",
+    "nameEn": "Neminatha Purana",
+    "fileName": "77_neminaathapuraana_NEMINATH_PURAN.pdf",
+    "size": "17.2 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/77_neminaathapuraana_NEMINATH_PURAN.pdf"
+  },
+  "bhujabalicharita": {
+    "id": 80,
+    "name": "भुजबलीचरित",
+    "nameEn": "Bhujabalicharita",
+    "fileName": "80_bhujabalicharita_bharateshwar_bahubali_vrutti_part_1_600111_hr.pdf",
+    "size": "17.1 MB",
+    "category": "6. Manuscript",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/80_bhujabalicharita_bharateshwar_bahubali_vrutti_part_1_600111_hr.pdf"
+  },
+  "bhadrabaahucharita": {
+    "id": 81,
+    "name": "भद्रबाहुचरित",
+    "nameEn": "Bhadrabahucharita",
+    "fileName": "81_bhadrabaahucharita_BHADRABAHU_CHARITRA.pdf",
+    "size": "9.8 MB",
+    "category": "1.Prathamanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/81_bhadrabaahucharita_BHADRABAHU_CHARITRA.pdf"
+  },
+  "shrutaavataara": {
+    "id": 82,
+    "name": "श्रुतावतार",
+    "nameEn": "Shrutavatara",
+    "fileName": "82_shrutaavataara_SHRUTAVATAR.pdf",
+    "size": "3.4 MB",
+    "category": "Jain History",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/82_shrutaavataara_SHRUTAVATAR.pdf"
+  },
+  "nitisaara": {
+    "id": 83,
+    "name": "नीतिसार",
+    "nameEn": "Nitisara",
+    "fileName": "83_nitisaara_niti_shatak_satikam_600455_hr6.pdf",
+    "size": "7.4 MB",
+    "category": "6. Manuscript",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/83_nitisaara_niti_shatak_satikam_600455_hr6.pdf"
+  },
+  "bhakti-sangraha": {
+    "id": 84,
+    "name": "भक्ति संग्रह",
+    "nameEn": "Bhakti Sangraha",
+    "fileName": "84_bhakti-sangraha_ChatyBhakti-Final-Book.pdf",
+    "size": "484.4 KB",
+    "category": "9. Stotra",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/84_bhakti-sangraha_ChatyBhakti-Final-Book.pdf"
+  },
+  "tattvadipikaa": {
+    "id": 86,
+    "name": "तत्त्वदीपिका",
+    "nameEn": "Tattvadipika",
+    "fileName": "86_tattvadipikaa_AAPTMIMANSA_TATTVADEEPIKA.pdf",
+    "size": "23.7 MB",
+    "category": "5. Nyay",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/86_tattvadipikaa_AAPTMIMANSA_TATTVADEEPIKA.pdf"
+  },
+  "mokshamaargaprakaashaka": {
+    "id": 87,
+    "name": "मोक्षमार्ग प्रकाशक",
+    "nameEn": "Mokshamarga Prakashaka",
+    "fileName": "87_mokshamaargaprakaashaka_mokshmarg-prakashak-hin-1135.pdf",
+    "size": "95.1 MB",
+    "category": "Manuscript",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/87_mokshamaargaprakaashaka_mokshmarg-prakashak-hin-1135.pdf"
+  },
+  "gommatasaara-pujaa-tikaa": {
+    "id": 89,
+    "name": "गोम्मटसार पूजा टीका",
+    "nameEn": "Gommatasara Puja Tika",
+    "fileName": "89_gommatasaara-pujaa-tikaa_GOMMATSAR-JIVKAND-01.pdf",
+    "size": "20.6 MB",
+    "category": "2. Karnanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/89_gommatasaara-pujaa-tikaa_GOMMATSAR-JIVKAND-01.pdf"
+  },
+  "samayasaara-kalasha": {
+    "id": 90,
+    "name": "समयसार कलश",
+    "nameEn": "Samayasara Kalasha",
+    "fileName": "90_samayasaara-kalasha_samaysaar_kalash_hin_txt_008397_std.pdf",
+    "size": "3.2 MB",
+    "category": "4. Dravyanuyog",
+    "url": "https://github.com/alphanout/shrutdhara/releases/download/v1.0-shastras/90_samayasaara-kalasha_samaysaar_kalash_hin_txt_008397_std.pdf"
+  }
+}

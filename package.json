@@ -13,5 +13,8 @@
   },
   "devDependencies": {
     "puppeteer": "^23.11.1"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^6.3.289"
   }
 }
