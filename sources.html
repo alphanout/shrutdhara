@@ -48,11 +48,23 @@
     <div class="block-head"><h2>भावत्रयफलप्रदर्शी — <span class="r">पृष्ठ ६–२९</span></h2><span class="ln"></span></div>
     <div class="shots" id="pages"></div>
   </section>
+
+  <section class="block" style="padding-top:0" id="shastra-pdfs">
+    <div class="block-head"><h2>६४ मूल ग्रन्थ — <span class="r">हस्तलिखित व मुद्रित PDF संग्रह</span></h2><span class="ln"></span></div>
+    <p class="lede" style="margin-bottom:16px;">
+      ९० canonical ग्रन्थों में से ६४ प्राचीन ग्रन्थों के पूर्ण मूल PDF संस्करण (हस्तलिखित प्रतियाँ एवं मुद्रित ग्रन्थ) स्वाध्याय हेतु उपलब्ध हैं। इन्हें इन-ब्राउज़र वाचक में खोज व टेक्स्ट हाइलाइट के साथ पढ़ा जा सकता है अथवा डाउनलोड किया जा सकता है।
+    </p>
+    <div style="display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; align-items:center;">
+      <input type="search" id="pdfSearchInput" placeholder="६४ शास्त्रों में खोजें (नाम, अनुयोग)..." style="flex:1; min-width:240px; background:var(--stone-2); border:1px solid var(--hairline); color:var(--etch); padding:8px 14px; font-family:inherit; font-size:0.9rem; border-radius:4px;">
+      <span class="num lat" id="pdfCount" style="color:var(--gold-2); font-weight:600;">६४ शास्त्र उपलब्ध</span>
+    </div>
+    <div class="cards" id="pdfCardsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(310px, 1fr)); gap:14px;"></div>
+  </section>
 </main>
 
 <footer class="site-foot">
   <div class="k">॥ ❖ ॥</div>
-  <p>छायाचित्र मूल पुस्तक एवं पोस्टर के प्रमाण-स्वरूप, शैक्षणिक/स्वाध्याय हेतु।</p>
+  <p>छायाचित्र मूल पुस्तक, पोस्टर एवं शास्त्र PDF प्रमाण-स्वरूप, शैक्षणिक/स्वाध्याय हेतु।</p>
 </footer>
 
 <script type="module" src="js/app.js"></script>
@@ -66,6 +78,67 @@
     html += `<a href="${f}" target="_blank" rel="noopener"><img src="${f}" loading="lazy" alt="भावत्रयफलप्रदर्शी पृष्ठ ${p}"><span class="cap">पृष्ठ ${deva(p)}</span></a>`;
   }
   grid.innerHTML = html;
+
+  // Render 64 Shastra PDFs
+  async function loadShastraPdfs() {
+    try {
+      const res = await fetch('data/shastra-pdfs.json');
+      if (!res.ok) return;
+      const pdfs = await res.json();
+      const entries = Object.entries(pdfs);
+      const container = document.getElementById('pdfCardsGrid');
+      const countEl = document.getElementById('pdfCount');
+      const searchInput = document.getElementById('pdfSearchInput');
+
+      function render(items) {
+        if (!container) return;
+        if (items.length === 0) {
+          container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:32px; color:var(--etch-dim);">कोई शास्त्र नहीं मिला।</div>';
+          if (countEl) countEl.textContent = '० शास्त्र';
+          return;
+        }
+        if (countEl) countEl.textContent = `${deva(items.length)} शास्त्र उपलब्ध`;
+        container.innerHTML = items.map(([slug, item]) => `
+          <div class="card" style="background:var(--stone-1); border:1px solid var(--hairline); padding:16px; border-radius:4px; display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                <h3 class="khand" style="margin:0; font-size:1.25rem;">
+                  <a href="granth/${slug}/" style="color:var(--etch); text-decoration:none;">${deva(item.id)}. ${item.name}</a>
+                </h3>
+                <span class="num lat" style="font-size:0.75rem; background:var(--stone-2); padding:2px 6px; border-radius:3px; border:1px solid var(--hairline); color:var(--gold-1);">${item.size}</span>
+              </div>
+              <div style="font-size:0.85rem; color:var(--etch-dim); margin-top:2px;">${item.nameEn || ''}</div>
+              <div style="font-size:0.78rem; color:var(--patina); margin-top:6px;">${item.category || ''}</div>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:4px;">
+              <a class="btn kum" href="viewer.html?slug=${slug}" target="_blank" style="flex:1; text-align:center; padding:6px 10px; font-size:0.82rem;">📖 पढ़ें (Viewer)</a>
+              <a class="btn ghost" href="${item.url}" download style="flex:none; padding:6px 10px; font-size:0.82rem;" title="सीधे PDF डाउनलोड करें">⬇</a>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      render(entries);
+
+      if (searchInput) {
+        searchInput.addEventListener('input', () => {
+          const q = searchInput.value.toLowerCase().trim();
+          if (!q) { render(entries); return; }
+          const filtered = entries.filter(([s, it]) =>
+            (it.name && it.name.includes(q)) ||
+            (it.nameEn && it.nameEn.toLowerCase().includes(q)) ||
+            (it.category && it.category.toLowerCase().includes(q)) ||
+            String(it.id) === q ||
+            s.includes(q)
+          );
+          render(filtered);
+        });
+      }
+    } catch (e) {
+      console.warn('Could not load shastra-pdfs.json:', e);
+    }
+  }
+  loadShastraPdfs();
 </script>
 </body>
 </html>

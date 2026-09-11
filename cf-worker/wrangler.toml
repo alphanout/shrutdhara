@@ -1,0 +1,8 @@
+name = "shrutdhara-pdf-proxy"
+main = "index.js"
+compatibility_date = "2024-09-01"
+
+# Route on shrutdhara.com (optional when deployed to Cloudflare domain)
+# routes = [
+#   { pattern = "shrutdhara.com/pdf-proxy/*", zone_name = "shrutdhara.com" }
+# ]

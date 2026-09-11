@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="hi" data-root="./">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>मूल ग्रन्थ PDF वाचक — श्रुतधारा</title>
+<meta name="description" content="दिगम्बर जैन प्राचीन मूल ग्रन्थ हस्तलिखित एवं मुद्रित PDF वाचक, खोज एवं पाठ-चिन्हांकन।">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="fonts/fonts.css">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="assets/vendor/pdfjs/pdf_viewer.css">
+<style>
+/* ---------- In-Browser PDF Reader Styles ---------- */
+:root {
+  --viewer-bg: var(--stone-0);
+  --page-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+}
+body[data-page="pdf-viewer"] {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--stone-0);
+}
+.viewer-bar {
+  flex: none;
+  background: color-mix(in srgb, var(--stone-1) 94%, transparent);
+  border-bottom: 1px solid var(--hairline);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+.viewer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.viewer-back {
+  font-size: 0.85rem;
+  color: var(--patina);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.viewer-back:hover { text-decoration: underline; }
+.viewer-title {
+  font-family: 'Khand', sans-serif;
+  font-weight: 600;
+  font-size: 1.15rem;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+.viewer-badge {
+  font-size: 0.72rem;
+  background: var(--stone-2);
+  border: 1px solid var(--hairline);
+  color: var(--etch-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+/* Controls */
+.viewer-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ctrl-group {
+  display: flex;
+  align-items: center;
+  background: var(--stone-2);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ctrl-btn {
+  background: transparent;
+  border: none;
+  color: var(--etch);
+  font-size: 0.85rem;
+  padding: 4px 9px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ctrl-btn:hover:not(:disabled) {
+  background: var(--stone-3);
+  color: var(--gold-1);
+}
+.ctrl-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.page-input {
+  width: 44px;
+  background: var(--stone-1);
+  border: none;
+  border-left: 1px solid var(--hairline);
+  border-right: 1px solid var(--hairline);
+  color: var(--etch);
+  text-align: center;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 4px 2px;
+}
+.page-total {
+  font-size: 0.85rem;
+  color: var(--etch-dim);
+  padding: 0 8px;
+  white-space: nowrap;
+}
+
+/* Search bar in toolbar */
+.viewer-search {
+  display: flex;
+  align-items: center;
+  background: var(--stone-2);
+  border: 1px solid var(--hairline);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.search-input {
+  background: transparent;
+  border: none;
+  color: var(--etch);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  width: 170px;
+  outline: none;
+}
+.search-input::placeholder { color: var(--etch-dim); }
+.search-count {
+  font-size: 0.75rem;
+  color: var(--gold-2);
+  padding: 0 6px;
+  white-space: nowrap;
+}
+
+/* Layout */
+.viewer-body {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+.viewer-sidebar {
+  width: 290px;
+  flex: none;
+  background: var(--stone-1);
+  border-right: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, width 0.2s ease;
+  z-index: 5;
+}
+.viewer-sidebar.collapsed {
+  display: none;
+}
+.sidebar-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--hairline);
+  background: var(--stone-2);
+}
+.sidebar-tab {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--etch-dim);
+  padding: 8px 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+.sidebar-tab.active {
+  color: var(--gold-1);
+  border-bottom-color: var(--gold-2);
+  background: var(--stone-1);
+}
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+.search-hit-item {
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid var(--hairline);
+  background: var(--stone-2);
+  margin-bottom: 6px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  transition: background 0.15s;
+}
+.search-hit-item:hover {
+  background: var(--stone-3);
+  border-color: var(--gold-2);
+}
+.search-hit-page {
+  font-weight: 600;
+  color: var(--gold-1);
+  margin-bottom: 2px;
+}
+.search-hit-snippet {
+  color: var(--etch);
+  line-height: 1.4;
+}
+
+/* Main PDF container */
+.pdf-viewport {
+  flex: 1;
+  overflow: auto;
+  position: relative;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: radial-gradient(circle at center 20%, rgba(217,174,86,0.03), transparent 70%), var(--stone-0);
+}
+.pdf-page-card {
+  position: relative;
+  margin-bottom: 24px;
+  box-shadow: var(--page-shadow);
+  border: 1px solid var(--hairline);
+  background: #ffffff;
+  border-radius: 2px;
+}
+.pdf-page-card canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.pdf-page-num {
+  position: absolute;
+  top: -20px;
+  right: 4px;
+  font-size: 0.75rem;
+  color: var(--etch-dim);
+}
+
+/* Highlighting styles inside TextLayer */
+.pdf-highlight {
+  background: rgba(255, 230, 0, 0.45) !important;
+  color: transparent !important;
+  border-bottom: 2px solid var(--gold-2);
+  border-radius: 2px;
+}
+.pdf-highlight-active {
+  background: rgba(212, 85, 47, 0.5) !important;
+  outline: 2px solid var(--kumkum) !important;
+}
+
+/* Loading & Fallback state */
+.viewer-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--stone-0);
+  z-index: 20;
+  padding: 24px;
+  text-align: center;
+}
+.viewer-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid var(--hairline);
+  border-top-color: var(--gold-2);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.fallback-box {
+  max-width: 520px;
+  background: var(--stone-1);
+  border: 1px solid var(--hairline);
+  padding: 32px 28px;
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+.fallback-box h2 {
+  font-family: 'Khand', sans-serif;
+  margin: 0 0 12px;
+  color: var(--gold-1);
+  font-size: 1.6rem;
+}
+.fallback-box p {
+  font-size: 0.95rem;
+  color: var(--etch);
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.fallback-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+.file-drop-area {
+  border: 2px dashed var(--hairline);
+  padding: 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--stone-2);
+  transition: border-color 0.2s;
+}
+.file-drop-area:hover {
+  border-color: var(--patina);
+}
+</style>
+</head>
+<body data-page="pdf-viewer">
+
+<!-- Viewer Navigation Toolbar -->
+<header class="viewer-bar">
+  <div class="viewer-title-group">
+    <a class="viewer-back" id="backLink" href="granths.html">← ग्रन्थ सूची</a>
+    <h1 class="viewer-title khand inlay" id="granthTitle">मूल ग्रन्थ PDF वाचक</h1>
+    <span class="viewer-badge" id="granthBadge">६४ शास्त्र संग्रह</span>
+  </div>
+
+  <div class="viewer-controls">
+    <!-- Sidebar toggle -->
+    <button class="icon-btn" id="toggleSidebarBtn" title="खोज परिणाम व पृष्ठ सूची">📑 सूची</button>
+
+    <!-- Page navigation -->
+    <div class="ctrl-group">
+      <button class="ctrl-btn" id="prevPageBtn" title="पिछला पृष्ठ (Left Arrow)">◀</button>
+      <input class="page-input num" id="pageInput" type="number" min="1" value="1" aria-label="पृष्ठ संख्या">
+      <span class="page-total num" id="pageTotal">/ 1</span>
+      <button class="ctrl-btn" id="nextPageBtn" title="अगला पृष्ठ (Right Arrow)">▶</button>
+    </div>
+
+    <!-- Zoom controls -->
+    <div class="ctrl-group">
+      <button class="ctrl-btn" id="zoomOutBtn" title="छोटा करें (-)">−</button>
+      <button class="ctrl-btn" id="zoomFitBtn" title="चौड़ाई अनुसार">अनुकूल</button>
+      <button class="ctrl-btn" id="zoomInBtn" title="बड़ा करें (+)">+</button>
+    </div>
+
+    <!-- Search in PDF -->
+    <div class="viewer-search">
+      <input class="search-input" id="findInput" type="search" placeholder="ग्रन्थ में खोजें... (Ctrl+F)" aria-label="ग्रन्थ में खोजें">
+      <span class="search-count num" id="findCount"></span>
+      <button class="ctrl-btn" id="findPrevBtn" title="पिछला परिणाम">▲</button>
+      <button class="ctrl-btn" id="findNextBtn" title="अगला परिणाम">▼</button>
+    </div>
+
+    <!-- Tools -->
+    <a class="icon-btn" id="downloadBtn" href="#" download title="PDF डाउनलोड करें">⬇ डाउनलोड</a>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
+    <button class="icon-btn" id="fullscreenBtn" type="button" title="पूर्ण पर्दा">⛶</button>
+  </div>
+</header>
+
+<!-- Viewer Body -->
+<div class="viewer-body">
+  <!-- Collapsible Sidebar -->
+  <aside class="viewer-sidebar collapsed" id="viewerSidebar">
+    <div class="sidebar-tabs">
+      <button class="sidebar-tab active" id="tabHitsBtn">🔍 खोज परिणाम</button>
+      <button class="sidebar-tab" id="tabCatalogBtn">📚 ६४ शास्त्र</button>
+    </div>
+    <div class="sidebar-content" id="sidebarHits">
+      <div style="color:var(--etch-dim); font-size:0.85rem; text-align:center; padding:20px 8px;">
+        खोजने के लिए ऊपर इनपुट में शब्द लिखें (उदा. समयसार, जीव, मोक्ष)
+      </div>
+    </div>
+    <div class="sidebar-content" id="sidebarCatalog" style="display:none;"></div>
+  </aside>
+
+  <!-- PDF Viewport -->
+  <main class="pdf-viewport" id="pdfViewport">
+    <!-- Pages rendered here dynamically by js/pdf-viewer.js -->
+  </main>
+</div>
+
+<!-- Loading / Fallback Overlay -->
+<div class="viewer-overlay" id="viewerOverlay">
+  <div class="viewer-spinner" id="viewerSpinner"></div>
+  <div class="khand" style="font-size:1.2rem; color:var(--gold-1); margin-bottom:8px;" id="overlayStatus">
+    ॥ नमो जिणाणं ॥
+  </div>
+  <p style="color:var(--etch-dim); font-size:0.9rem;" id="overlaySub">ग्रन्थ लोड हो रहा है...</p>
+
+  <!-- Fallback card displayed on CORS or network error -->
+  <div class="fallback-box" id="fallbackBox" style="display:none;">
+    <div class="mang">॥ श्री ॥</div>
+    <h2 id="fallbackTitle">मूल ग्रन्थ PDF</h2>
+    <p id="fallbackDesc">
+      यह प्राचीन ग्रन्थ GitHub Releases पर सुरक्षित संग्रहित है। ब्राउज़र सुरक्षा (CORS) नियमों के कारण, आप इसे सीधे नीचे दिए गए बटन से डाउनलोड कर सकते हैं अथवा पहले से डाउनलोड की गई PDF यहाँ खोल सकते हैं:
+    </p>
+    <div class="fallback-actions">
+      <a class="btn kum" id="fallbackDownloadBtn" href="#" download target="_blank">
+        ⬇ मूल ग्रन्थ PDF डाउनलोड करें
+      </a>
+      <label class="file-drop-area" for="pdfFileInput">
+        <span>📂 <b>डाउनलोड की गई PDF फ़ाइल यहाँ चुनें</b></span>
+        <div style="font-size:0.75rem; color:var(--etch-dim); margin-top:4px;">
+          (चुनते ही इन-ब्राउज़र वाचक, खोज व हाइलाइट तुरंत सक्रिय हो जाएगा)
+        </div>
+      </label>
+      <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;">
+      <a class="btn ghost" id="fallbackPaathBtn" href="#" style="display:none;">
+        📖 डिजिटाइज़्ड मूल पाठ पढ़ें
+      </a>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/pdf-viewer.js"></script>
+</body>
+</html>

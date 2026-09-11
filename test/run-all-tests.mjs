@@ -9,6 +9,8 @@ import { testKaalFilter } from './ui/kaal-filter.test.mjs';
 import { testI18nLanguages } from './integration/i18n-languages.test.mjs';
 import { testReaderFlow } from './integration/reader-flow.test.mjs';
 import { testResumeReading } from './integration/resume-reading.test.mjs';
+import { testPdfViewerAndSearch } from './integration/pdf-viewer.test.mjs';
+
 
 const DIST = './dist';
 const PORT = 8870;
@@ -16,13 +18,18 @@ const PORT = 8870;
 const MIME = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript',
+  '.mjs': 'application/javascript',
   '.css': 'text/css',
   '.json': 'application/json',
+  '.pdf': 'application/pdf',
+  '.wasm': 'application/wasm',
   '.woff2': 'font/woff2',
+
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml'
 };
+
 
 const server = createServer((req, res) => {
   let url = req.url.split('?')[0].split('#')[0];
@@ -51,6 +58,8 @@ server.listen(PORT, async () => {
     await testI18nLanguages(PORT);
     await testReaderFlow(PORT);
     await testResumeReading(PORT);
+    await testPdfViewerAndSearch(PORT);
+
 
     console.log(`=======================================================`);
     console.log(`🎉 ALL UI & INTEGRATION TESTS PASSED 100% PERFECTLY!`);

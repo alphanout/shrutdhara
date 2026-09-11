@@ -19,6 +19,8 @@ const readJson = (f) => {
 const granths = readJson('granths-90.json');
 const acharyas = readJson('acharyas-420.json');
 const bhattarak = readJson('bhattarak-172.json');
+const shastraPdfs = readJson('shastra-pdfs.json');
+
 
 /* curated editorial intros (optional, keyed by id; name-checked before use) */
 const intros = new Map();
@@ -73,16 +75,21 @@ rmSync(DIST, { recursive: true, force: true });
 mkdirSync(join(DIST, 'data'), { recursive: true });
 for (const d of ['css', 'js', 'fonts']) cpSync(join(ROOT, d), join(DIST, d), { recursive: true });
 if (existsSync(join(ROOT, 'assets/photos'))) cpSync(join(ROOT, 'assets/photos'), join(DIST, 'assets/photos'), { recursive: true });
+if (existsSync(join(ROOT, 'assets/vendor'))) cpSync(join(ROOT, 'assets/vendor'), join(DIST, 'assets/vendor'), { recursive: true });
 if (existsSync(join(ROOT, 'audio'))) cpSync(join(ROOT, 'audio'), join(DIST, 'audio'), { recursive: true });
+if (existsSync(join(ROOT, 'pdf'))) cpSync(join(ROOT, 'pdf'), join(DIST, 'pdf'), { recursive: true });
 for (const f of ['assets/favicon.svg', 'assets/favicon-180.png', 'assets/favicon-32.png', 'assets/favicon-192.png']) {
   if (existsSync(join(ROOT, f))) cpSync(join(ROOT, f), join(DIST, f));
 }
-for (const f of ['index.html', 'kaal.html', 'granths.html', 'acharya.html', 'bhattarak.html', 'sources.html', 'about.html', '404.html']) {
+for (const f of ['index.html', 'kaal.html', 'granths.html', 'acharya.html', 'bhattarak.html', 'sources.html', 'about.html', '404.html', 'viewer.html']) {
   if (existsSync(join(ROOT, f))) cpSync(join(ROOT, f), join(DIST, f));
 }
 writeFileSync(join(DIST, 'data/granths-90.json'), JSON.stringify(granths, null, 1));
 writeFileSync(join(DIST, 'data/acharyas-420.json'), JSON.stringify(acharyas, null, 1));
 writeFileSync(join(DIST, 'data/bhattarak-172.json'), JSON.stringify(bhattarak, null, 1));
+if (existsSync(join(ROOT, 'data/shastra-pdfs.json'))) cpSync(join(ROOT, 'data/shastra-pdfs.json'), join(DIST, 'data/shastra-pdfs.json'));
+if (existsSync(join(ROOT, 'data/pdf-search-index.json'))) cpSync(join(ROOT, 'data/pdf-search-index.json'), join(DIST, 'data/pdf-search-index.json'));
+
 
 /* ---------- granth pages ---------- */
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -218,6 +225,7 @@ function granthPage(g, i) {
   <section class="fulltext">
     <div class="chips-l lat dv" data-i18n="ui.fulltext">सम्पूर्ण ग्रन्थ पढ़ें</div>
     <div class="chips">
+      ${shastraPdfs[g.slug] ? `<a class="chip" href="../../viewer.html?slug=${g.slug}" target="_blank" style="border-color:var(--gold-2); color:var(--gold-1); font-weight:500;">📖 मूल ग्रन्थ PDF (${shastraPdfs[g.slug].size}) ↗</a>` : ''}
       <a class="chip ext" target="_blank" rel="noopener" href="https://www.jaingranthlibrary.com/search?q=${encodeURIComponent(g.name)}">जैन ग्रन्थ लाइब्रेरी ↗</a>
       <a class="chip ext" target="_blank" rel="noopener" href="https://jainkosh.org/wiki/Special:Search?search=${encodeURIComponent(g.name)}">जैनकोश ↗</a>
       <a class="chip ext" target="_blank" rel="noopener" href="https://archive.org/search?query=${encodeURIComponent(g.name)}">Archive.org ↗</a>
@@ -226,9 +234,11 @@ function granthPage(g, i) {
   </section>
   <div class="btns">
     ${texts.has(g.slug) ? `<a class="btn kum" href="paath/" data-i18n="ui.paath">मूल पाठ पढ़ें</a>` : ''}
-    <a class="btn ${texts.has(g.slug) ? 'ghost' : 'kum'}" href="../../pdf/${g.slug}.pdf" download data-i18n="ui.pdf">पीडीएफ़ डाउनलोड</a>
+    ${shastraPdfs[g.slug] ? `<a class="btn kum" href="../../viewer.html?slug=${g.slug}" target="_blank">📖 मूल ग्रन्थ PDF पढ़ें</a>` : ''}
+    <a class="btn ${texts.has(g.slug) || shastraPdfs[g.slug] ? 'ghost' : 'kum'}" href="../../pdf/${g.slug}.pdf" download data-i18n="ui.pdf">विवरण PDF</a>
     <button class="btn ghost" id="shareBtn" type="button" data-i18n="ui.share">साझा करें</button>
   </div>
+
   <p class="src"><span data-i18n="ui.proof">प्रमाण</span>: ९०-ग्रन्थ सूची-पोस्टर, पंक्ति ${deva(g.id)} — <a href="../../sources.html">मूल छायाचित्र</a></p>
   <nav class="nextprev num" aria-label="क्रम">
     <span>${prev ? `<a href="../${prev.slug}/">← ${esc(prev.name)}</a>` : ''}</span>

@@ -94,6 +94,25 @@ function initSearch() {
     verseIdxLoading = false;
     return verseIdx;
   }
+  let pdfIdx = null, pdfIdxLoading = false;
+  async function loadPdfIndex() {
+    if (pdfIdx) return pdfIdx;
+    if (pdfIdxLoading) {
+      while (pdfIdxLoading) await new Promise((r) => setTimeout(r, 50));
+      return pdfIdx || [];
+    }
+    pdfIdxLoading = true;
+    try {
+      const r = await fetch(root + 'data/pdf-search-index.json');
+      pdfIdx = r.ok ? await r.json() : [];
+      for (const p of pdfIdx) {
+        p.rk = romanKey(p.t || '');
+        p.sk = skeleton(p.t || '');
+      }
+    } catch { pdfIdx = []; }
+    pdfIdxLoading = false;
+    return pdfIdx;
+  }
   input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 90); });
   async function run() {
     const q = input.value.trim();
@@ -140,6 +159,33 @@ function initSearch() {
         }
       }
     }
+    /* शास्त्र PDF खोज: match inside original shastra PDFs (lazy index) */
+    if (q.length >= 3) {
+      const pi = await loadPdfIndex();
+      if (input.value.trim() !== q) return;   // stale
+      if (pi && pi.length) {
+        const qDeva3 = /[ऀ-ॿ]/.test(q);
+        const qrk3 = romanKey(q), qsk3 = skeleton(q);
+        const pHits = [];
+        for (const p of pi) {
+          const match = qDeva3
+            ? (p.t && p.t.includes(q))
+            : (qrk3 && p.rk && p.rk.includes(qrk3)) || (qsk3.length > 3 && p.sk && p.sk.includes(qsk3));
+          if (match) {
+            pHits.push(p);
+            if (pHits.length >= 6) break;
+          }
+        }
+        if (pHits.length) {
+          html += pHits.map((p) => `
+      <a class="hit pdf-hit" href="${root}viewer.html?slug=${p.s}&page=${p.p}&q=${encodeURIComponent(q)}">
+        <span class="t" style="background:var(--gold-2); color:var(--stone-0); font-weight:600;">PDF पृ. ${esc(deva(p.p))}</span>
+        <b>${sdName(esc(p.n))}</b> — ${esc(trim(p.sn || p.t, 64))}
+      </a>`).join('');
+        }
+      }
+    }
+
     out.innerHTML = html || `<div class="hit"><span class="t b">∅</span> ${t('ui.no_results')}</div>`;
   }
 }
