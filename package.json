@@ -7,8 +7,8 @@
     "dev": "node build/build.mjs && python3 -m http.server 8788 -d dist",
     "start": "python3 -m http.server 8788 -d dist",
     "pdf": "node build/pdf.mjs",
-    "test": "node test/run-all-tests.mjs",
-    "test:unit": "node --test test/unit/*.mjs",
+    "test": "node --test test/unit/*.test.mjs && node test/run-all-tests.mjs",
+    "test:unit": "node --test test/unit/*.test.mjs",
     "test:shots": "node test/capture-all-screenshots.mjs"
   },
   "devDependencies": {
