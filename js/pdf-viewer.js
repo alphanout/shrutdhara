@@ -128,7 +128,9 @@ async function init() {
   }
 
   currentSlug = slug;
-  currentName = name || (catalog[slug] ? catalog[slug].name : 'शास्त्र वाचक');
+  const isEn = lang === 'en';
+  const item = catalog[slug];
+  currentName = name || (item ? (isEn && item.nameEn ? item.nameEn : item.name) : t('viewer.reader_title'));
   currentQuery = query;
   currentPage = Math.max(1, page);
 
@@ -138,26 +140,33 @@ async function init() {
   if (fileUrl) {
     await loadPdf(fileUrl, currentPage, query);
   } else {
-    showFallback('कोई ग्रन्थ निर्दिष्ट नहीं है', 'कृपया बाईं सूची से किसी ग्रन्थ का चयन करें।');
+    showFallback(t('viewer.no_granth_specified'), t('viewer.select_from_sidebar'));
   }
 }
 
 // Header & Navigation updates
 function updateHeader(title, slug) {
-  granthTitle.textContent = title;
-  document.title = `${title} (मूल ग्रन्थ PDF) — श्रुतधारा`;
-
   const item = catalog[slug];
+  const isEn = lang === 'en';
+
   if (item) {
+    const dispName = (isEn && item.nameEn) ? item.nameEn : (item.name || title);
+    granthTitle.textContent = (isEn && item.nameEn && item.name && item.nameEn !== item.name)
+      ? `${item.nameEn} (${item.name})`
+      : dispName;
+    document.title = `${dispName} (${t('viewer.reader_title')}) — ${isEn ? 'Shrutdhara' : 'श्रुतधारा'}`;
+
     granthBadge.textContent = `${item.category || ''} · ${item.size || ''}`;
     downloadBtn.href = item.url;
     downloadBtn.setAttribute('download', item.fileName || `${slug}.pdf`);
     fallbackDownloadBtn.href = item.url;
     fallbackDownloadBtn.setAttribute('download', item.fileName || `${slug}.pdf`);
-    fallbackTitle.textContent = `${item.name} (${item.nameEn || ''})`;
+    fallbackTitle.textContent = isEn
+      ? `${item.nameEn || item.name} (${item.name})`
+      : `${item.name} (${item.nameEn || ''})`;
 
     backLink.href = `granth/${slug}/`;
-    backLink.textContent = `← ${title}`;
+    backLink.textContent = `← ${dispName}`;
 
     if (DIGITIZED_SLUGS.has(slug)) {
       if (viewPaathBtn) {
@@ -171,9 +180,11 @@ function updateHeader(title, slug) {
       fallbackPaathBtn.style.display = 'none';
     }
   } else {
-    granthBadge.textContent = t('viewer.reader_title');
+    granthBadge.textContent = t('viewer.tab_catalog');
     backLink.href = 'granths.html';
     backLink.textContent = `← ${t('viewer.back_to_catalog')}`;
+    granthTitle.textContent = t('viewer.reader_title');
+    document.title = `${t('viewer.reader_title')} — ${isEn ? 'Shrutdhara' : 'श्रुतधारा'}`;
     if (viewPaathBtn) viewPaathBtn.style.display = 'none';
   }
 }
@@ -248,7 +259,7 @@ async function loadPdf(source, initialPage = 1, autoSearch = '') {
 
 // Load ArrayBuffer from local File Input
 function loadFromBuffer(arrayBuffer, fileName = '') {
-  showOverlay('॥ नमो जिणाणं ॥', 'स्थानीय PDF लोड हो रही है...');
+  showOverlay(t('viewer.loading_status'), t('viewer.loading_local'));
   pdfjsLib
     .getDocument({
       data: arrayBuffer,
@@ -270,7 +281,7 @@ function loadFromBuffer(arrayBuffer, fileName = '') {
       goToPage(1);
     })
     .catch((err) => {
-      alert('फ़ाइल लोड करने में त्रुटि: ' + err.message);
+      alert(`${t('viewer.file_error')}: ${err.message}`);
       hideOverlay();
     });
 }
@@ -288,7 +299,7 @@ function renderAllPagesPlaceholder() {
 
     const numBadge = document.createElement('div');
     numBadge.className = 'pdf-page-num num';
-    numBadge.textContent = `पृष्ठ ${i}`;
+    numBadge.textContent = `${t('viewer.page')} ${i}`;
     card.appendChild(numBadge);
 
     const canvas = document.createElement('canvas');
@@ -404,12 +415,12 @@ async function executeSearch(query) {
     clearHighlights();
     sidebarHits.innerHTML = `
       <div style="color:var(--etch-dim); font-size:0.85rem; text-align:center; padding:20px 8px;">
-        खोजने के लिए ऊपर इनपुट में शब्द लिखें (उदा. समयसार, जीव, मोक्ष)
+        ${t('viewer.search_hint')}
       </div>`;
     return;
   }
 
-  findCount.textContent = 'खोज रहे हैं...';
+  findCount.textContent = t('viewer.searching');
   clearHighlights();
 
   // 1. Search in pre-built PDF search index for current granth (instant!)
@@ -455,7 +466,7 @@ async function executeSearch(query) {
       .map(
         (m, idx) => `
       <div class="search-hit-item" data-idx="${idx}" data-page="${m.page}">
-        <div class="search-hit-page">पृष्ठ ${m.page}</div>
+        <div class="search-hit-page">${t('viewer.page')} ${m.page}</div>
         <div class="search-hit-snippet">${escapeHtml(m.snippet)}</div>
       </div>`
       )
@@ -476,11 +487,10 @@ async function executeSearch(query) {
 
     goToMatch(0);
   } else {
-
-    findCount.textContent = '० परिणाम';
+    findCount.textContent = t('viewer.no_results');
     sidebarHits.innerHTML = `
       <div style="color:var(--etch-dim); font-size:0.85rem; text-align:center; padding:20px 8px;">
-        "${escapeHtml(currentQuery)}" का कोई परिणाम नहीं मिला।
+        "${escapeHtml(currentQuery)}" — ${t('viewer.no_results_found')}
       </div>`;
   }
 }
@@ -562,9 +572,10 @@ function fitToWidth() {
 // Sidebar 64 Shastras Catalog
 function populateCatalogSidebar() {
   const items = Object.entries(catalog);
+  const isEn = lang === 'en';
   sidebarCatalog.innerHTML = `
     <div style="padding:4px 0 8px;">
-      <input type="text" id="catalogFilter" placeholder="६४ शास्त्रों में खोजें..."
+      <input type="text" id="catalogFilter" placeholder="${t('viewer.filter_catalog_ph')}"
         style="width:100%; background:var(--stone-2); border:1px solid var(--hairline); color:var(--etch); padding:6px 8px; font-family:inherit; font-size:0.82rem; border-radius:4px;">
     </div>
     <div id="catalogList">
@@ -572,8 +583,8 @@ function populateCatalogSidebar() {
         .map(
           ([s, it]) => `
         <div class="search-hit-item ${s === currentSlug ? 'active' : ''}" data-slug="${s}" style="${s === currentSlug ? 'border-color:var(--gold-2); background:var(--stone-3);' : ''}">
-          <div class="search-hit-page khand" style="font-size:0.95rem;">${it.id}. ${it.name}</div>
-          <div style="font-size:0.75rem; color:var(--etch-dim);">${it.nameEn || ''} · ${it.size}</div>
+          <div class="search-hit-page khand" style="font-size:0.95rem;">${it.id}. ${isEn && it.nameEn ? it.nameEn : it.name}</div>
+          <div style="font-size:0.75rem; color:var(--etch-dim);">${isEn ? it.name : (it.nameEn || '')} · ${it.size}</div>
         </div>`
         )
         .join('')}

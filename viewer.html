@@ -351,44 +351,44 @@ body[data-page="pdf-viewer"] {
 <!-- Viewer Navigation Toolbar -->
 <header class="viewer-bar">
   <div class="viewer-title-group">
-    <a class="viewer-back" id="backLink" href="granths.html" data-i18n="viewer.back_to_catalog">← ग्रन्थ सूची</a>
-    <h1 class="viewer-title khand inlay" id="granthTitle" data-i18n="viewer.reader_title">मूल ग्रन्थ PDF वाचक</h1>
-    <span class="viewer-badge" id="granthBadge">६४ शास्त्र संग्रह</span>
+    <a class="viewer-back" id="backLink" href="granths.html" data-i18n="viewer.back_to_catalog">← Granth Catalog</a>
+    <h1 class="viewer-title khand inlay" id="granthTitle" data-i18n="viewer.reader_title">Original Shastra PDF Reader</h1>
+    <span class="viewer-badge" id="granthBadge" data-i18n="viewer.tab_catalog">64 Shastras</span>
   </div>
 
   <div class="viewer-controls">
     <!-- Sidebar toggle -->
-    <button class="icon-btn" id="toggleSidebarBtn" title="खोज परिणाम व पृष्ठ सूची">📑 सूची</button>
+    <button class="icon-btn" id="toggleSidebarBtn" title="Search results & catalog index" data-i18n-title="viewer.toggle_sidebar_title" data-i18n="viewer.toggle_sidebar">📑 Index</button>
 
     <!-- Page navigation -->
     <div class="ctrl-group">
-      <button class="ctrl-btn" id="prevPageBtn" title="पिछला पृष्ठ (Left Arrow)" data-i18n-title="viewer.prev_page">◀</button>
-      <input class="page-input num" id="pageInput" type="number" min="1" value="1" aria-label="पृष्ठ संख्या">
+      <button class="ctrl-btn" id="prevPageBtn" title="Previous Page (Left Arrow)" data-i18n-title="viewer.prev_page">◀</button>
+      <input class="page-input num" id="pageInput" type="number" min="1" value="1" aria-label="Page number" data-i18n-aria="viewer.page_number">
       <span class="page-total num" id="pageTotal">/ 1</span>
-      <button class="ctrl-btn" id="nextPageBtn" title="अगला पृष्ठ (Right Arrow)" data-i18n-title="viewer.next_page">▶</button>
+      <button class="ctrl-btn" id="nextPageBtn" title="Next Page (Right Arrow)" data-i18n-title="viewer.next_page">▶</button>
     </div>
 
     <!-- Zoom controls -->
     <div class="ctrl-group">
-      <button class="ctrl-btn" id="zoomOutBtn" title="छोटा करें (-)" data-i18n-title="viewer.zoom_out">−</button>
-      <button class="ctrl-btn" id="zoomFitBtn" title="चौड़ाई अनुसार" data-i18n-title="viewer.zoom_reset">अनुकूल</button>
-      <button class="ctrl-btn" id="zoomInBtn" title="बड़ा करें (+)" data-i18n-title="viewer.zoom_in">+</button>
+      <button class="ctrl-btn" id="zoomOutBtn" title="Zoom Out (-)" data-i18n-title="viewer.zoom_out">−</button>
+      <button class="ctrl-btn" id="zoomFitBtn" title="Reset Zoom" data-i18n-title="viewer.zoom_reset" data-i18n="viewer.zoom_fit">Zoom</button>
+      <button class="ctrl-btn" id="zoomInBtn" title="Zoom In (+)" data-i18n-title="viewer.zoom_in">+</button>
     </div>
 
     <!-- Search in PDF -->
     <div class="viewer-search">
-      <input class="search-input" id="findInput" type="search" placeholder="ग्रन्थ में खोजें... (Ctrl+F)" data-i18n-ph="viewer.search_btn" aria-label="ग्रन्थ में खोजें">
+      <input class="search-input" id="findInput" type="search" placeholder="Search in scripture PDF... (Ctrl+F)" data-i18n-ph="viewer.search_input_ph" aria-label="Search in scripture PDF" data-i18n-aria="viewer.search_aria">
       <span class="search-count num" id="findCount"></span>
-      <button class="ctrl-btn" id="findPrevBtn" title="पिछला परिणाम" data-i18n-title="viewer.prev_hit">▲</button>
-      <button class="ctrl-btn" id="findNextBtn" title="अगला परिणाम" data-i18n-title="viewer.next_hit">▼</button>
+      <button class="ctrl-btn" id="findPrevBtn" title="Previous match" data-i18n-title="viewer.prev_hit">▲</button>
+      <button class="ctrl-btn" id="findNextBtn" title="Next match" data-i18n-title="viewer.next_hit">▼</button>
     </div>
 
     <!-- Tools -->
-    <a class="icon-btn" id="viewPaathBtn" href="#" style="display:none; color:var(--gold-1); border-color:var(--gold-2); font-weight:600;" data-i18n="ui.paath">📖 मूल पाठ पढ़ें</a>
-    <a class="icon-btn" id="downloadBtn" href="#" download title="PDF डाउनलोड करें" data-i18n-title="viewer.download_title" data-i18n="viewer.download_btn">⬇ डाउनलोड</a>
+    <a class="icon-btn" id="viewPaathBtn" href="#" style="display:none; color:var(--gold-1); border-color:var(--gold-2); font-weight:600;" data-i18n="ui.paath">📖 Read Paath</a>
+    <a class="icon-btn" id="downloadBtn" href="#" download title="Download PDF" data-i18n-title="viewer.download_title" data-i18n="viewer.download_btn">⬇ Download</a>
     <select class="icon-btn" id="langSel" aria-label="Language / भाषा"><option value="en" selected>EN</option><option value="hi">हिं</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
-    <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
-    <button class="icon-btn" id="fullscreenBtn" type="button" title="पूर्ण पर्दा" data-i18n-title="viewer.fullscreen">⛶</button>
+    <button class="icon-btn" id="themeBtn" type="button" aria-label="Toggle theme / थीम बदलें">☀/☾</button>
+    <button class="icon-btn" id="fullscreenBtn" type="button" title="Fullscreen" data-i18n-title="viewer.fullscreen">⛶</button>
   </div>
 </header>
 
@@ -397,12 +397,12 @@ body[data-page="pdf-viewer"] {
   <!-- Collapsible Sidebar -->
   <aside class="viewer-sidebar collapsed" id="viewerSidebar">
     <div class="sidebar-tabs">
-      <button class="sidebar-tab active" id="tabHitsBtn" data-i18n="viewer.tab_hits">🔍 खोज परिणाम</button>
-      <button class="sidebar-tab" id="tabCatalogBtn" data-i18n="viewer.tab_catalog">📚 ६४ शास्त्र</button>
+      <button class="sidebar-tab active" id="tabHitsBtn" data-i18n="viewer.tab_hits">🔍 Search Results</button>
+      <button class="sidebar-tab" id="tabCatalogBtn" data-i18n="viewer.tab_catalog">📚 64 Shastras</button>
     </div>
     <div class="sidebar-content" id="sidebarHits">
       <div style="color:var(--etch-dim); font-size:0.85rem; text-align:center; padding:20px 8px;" data-i18n="viewer.search_hint">
-        खोजने के लिए ऊपर इनपुट में शब्द लिखें (उदा. समयसार, जीव, मोक्ष)
+        Type a word in the search box above to search (e.g. samaysar, jiva, moksha)
       </div>
     </div>
     <div class="sidebar-content" id="sidebarCatalog" style="display:none;"></div>
@@ -418,30 +418,30 @@ body[data-page="pdf-viewer"] {
 <div class="viewer-overlay" id="viewerOverlay">
   <div class="viewer-spinner" id="viewerSpinner"></div>
   <div class="khand" style="font-size:1.2rem; color:var(--gold-1); margin-bottom:8px;" id="overlayStatus" data-i18n="viewer.loading_status">
-    ॥ नमो जिणाणं ॥
+    ॥ Namo Jināṇaṁ ॥
   </div>
-  <p style="color:var(--etch-dim); font-size:0.9rem;" id="overlaySub" data-i18n="viewer.loading_sub">ग्रन्थ लोड हो रहा है...</p>
+  <p style="color:var(--etch-dim); font-size:0.9rem;" id="overlaySub" data-i18n="viewer.loading_sub">Loading granth PDF...</p>
 
   <!-- Fallback card displayed on CORS or network error -->
   <div class="fallback-box" id="fallbackBox" style="display:none;">
     <div class="mang">॥ श्री ॥</div>
-    <h2 id="fallbackTitle">मूल ग्रन्थ PDF</h2>
+    <h2 id="fallbackTitle" data-i18n="viewer.reader_title">Original Shastra PDF Reader</h2>
     <p id="fallbackDesc" data-i18n="viewer.fallback_desc">
-      यह प्राचीन ग्रन्थ GitHub Releases पर सुरक्षित संग्रहित है। ब्राउज़र सुरक्षा (CORS) नियमों के कारण, आप इसे सीधे नीचे दिए गए बटन से डाउनलोड कर सकते हैं अथवा पहले से डाउनलोड की गई PDF यहाँ खोल सकते हैं:
+      This historical granth is stored on GitHub Releases. Due to browser security (CORS) rules, you can download it via the button below or open your downloaded PDF file here:
     </p>
     <div class="fallback-actions">
       <a class="btn kum" id="fallbackDownloadBtn" href="#" download target="_blank" data-i18n="viewer.download_remote">
-        ⬇ मूल ग्रन्थ PDF डाउनलोड करें
+        ⬇ Download Source PDF
       </a>
       <label class="file-drop-area" for="pdfFileInput">
-        <span data-i18n="viewer.choose_local">📂 <b>डाउनलोड की गई PDF फ़ाइल यहाँ चुनें</b></span>
+        <span data-i18n="viewer.choose_local">📂 <b>Choose downloaded PDF file here</b></span>
         <div style="font-size:0.75rem; color:var(--etch-dim); margin-top:4px;" data-i18n="viewer.choose_local_sub">
-          (चुनते ही इन-ब्राउज़र वाचक, खोज व हाइलाइट तुरंत सक्रिय हो जाएगा)
+          (Instant reader, search & text highlighting will activate upon selection)
         </div>
       </label>
       <input type="file" id="pdfFileInput" accept="application/pdf" style="display:none;">
       <a class="btn ghost" id="fallbackPaathBtn" href="#" style="display:none;" data-i18n="viewer.read_paath_btn">
-        📖 डिजिटाइज़्ड मूल पाठ पढ़ें
+        📖 Read Digitized Scripture
       </a>
     </div>
   </div>
