@@ -14,26 +14,34 @@ export async function testKaalFilter(basePort) {
     const initialSlabs = await page.$$eval('.slab', els => els.length);
     console.log(`    ✓ Initial granth slabs visible: ${initialSlabs}`);
     
-    // Check if centFilters exists
-    const filterExists = await page.$eval('#centFilters', el => el !== null).catch(() => false);
-    if (filterExists) {
-      // Find a century filter button that is NOT the "All" button
-      const buttons = await page.$$eval('#centFilters .chip', els => els.map(el => el.textContent));
-      if (buttons.length > 1) {
-        // Click the second filter (the first specific century)
-        await page.click('#centFilters .chip:nth-child(2)');
-        await new Promise(r => setTimeout(r, 300));
-        
-        // Count slabs again
-        const filteredSlabs = await page.$$eval('.slab', els => els.length);
-        console.log(`    ✓ Slabs visible after filtering by century: ${filteredSlabs}`);
-        
-        if (filteredSlabs === initialSlabs) {
-          console.warn('    ⚠ Warning: Filter did not reduce the number of slabs. Is this expected for this century?');
-        }
+    // Test dedicated 64 PDF filter chip
+    await page.waitForSelector('button[data-c="pdf"]');
+    await page.click('button[data-c="pdf"]');
+    await new Promise(r => setTimeout(r, 300));
+    const pdfSlabs = await page.$$eval('#slabs .slab', els => els.length);
+    console.log(`    ✓ Slabs visible after clicking 64 PDF filter: ${pdfSlabs}`);
+    if (pdfSlabs !== 64) {
+      throw new Error(`Expected exactly 64 slabs for PDF filter, got ${pdfSlabs}`);
+    }
+
+    // Reset to All
+    await page.click('button[data-c=""]');
+    await new Promise(r => setTimeout(r, 200));
+    const resetSlabs = await page.$$eval('#slabs .slab', els => els.length);
+    if (resetSlabs !== 90) {
+      throw new Error(`Expected 90 slabs after resetting to All, got ${resetSlabs}`);
+    }
+
+    // Test a specific century filter (e.g. 2nd century)
+    const centBtn = await page.$('button[data-c="2"]');
+    if (centBtn) {
+      await centBtn.click();
+      await new Promise(r => setTimeout(r, 200));
+      const centSlabs = await page.$$eval('#slabs .slab', els => els.length);
+      console.log(`    ✓ Slabs visible after filtering by 2nd century: ${centSlabs}`);
+      if (centSlabs === 0 || centSlabs >= 90) {
+        throw new Error(`Unexpected slab count for 2nd century: ${centSlabs}`);
       }
-    } else {
-      console.log('    ✓ No century filters found on this page, skipping filter test.');
     }
 
     console.log('  ✓ UI Test Passed: Granths Century Filters\n');
