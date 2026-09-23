@@ -81,6 +81,11 @@ export const DICT = {
     'viewer.search_btn': '🔍 खोजें',
     'viewer.back_to_granth': 'ग्रन्थ पृष्ठ',
     'viewer.back_to_catalog': 'ग्रन्थ सूची',
+    'viewer.download_btn': '⬇ डाउनलोड',
+    'viewer.download_title': 'PDF डाउनलोड करें',
+    'viewer.fullscreen': 'पूर्ण पर्दा',
+    'viewer.prev_hit': 'पिछला परिणाम',
+    'viewer.next_hit': 'अगला परिणाम',
 
     /* Detail / Reader Pages */
     'ui.toc': 'विषय-सूची',
@@ -213,6 +218,11 @@ export const DICT = {
     'viewer.search_btn': '🔍 Search',
     'viewer.back_to_granth': 'Granth Page',
     'viewer.back_to_catalog': 'Granth Catalog',
+    'viewer.download_btn': '⬇ Download',
+    'viewer.download_title': 'Download PDF',
+    'viewer.fullscreen': 'Fullscreen',
+    'viewer.prev_hit': 'Previous match',
+    'viewer.next_hit': 'Next match',
 
     /* Detail / Reader Pages */
     'ui.toc': 'Contents',
@@ -345,6 +355,11 @@ export const DICT = {
     'viewer.search_btn': '🔍 अन्विष्यताम्',
     'viewer.back_to_granth': 'ग्रन्थपृष्ठम्',
     'viewer.back_to_catalog': 'ग्रन्थसूची',
+    'viewer.download_btn': '⬇ डाउनलोडं करोतु',
+    'viewer.download_title': 'पीडीएफ़ डाउनलोडं करोतु',
+    'viewer.fullscreen': 'सम्पूर्णपट्टम्',
+    'viewer.prev_hit': 'पूर्वपरिणामः',
+    'viewer.next_hit': 'अग्रिमपरिणामः',
 
     /* Detail / Reader Pages */
     'ui.toc': 'विषयसूची',
@@ -477,6 +492,11 @@ export const DICT = {
     'viewer.search_btn': '🔍 गवेसह',
     'viewer.back_to_granth': 'गंथ-पत्तं',
     'viewer.back_to_catalog': 'गंथ-सूई',
+    'viewer.download_btn': '⬇ डाउनलोडं करह',
+    'viewer.download_title': 'पीडीएफ़ डाउनलोडं करह',
+    'viewer.fullscreen': 'पुण्णपट्टं',
+    'viewer.prev_hit': 'पुव्वपरिणामो',
+    'viewer.next_hit': 'अग्गिमपरिणामो',
 
     /* Detail / Reader Pages */
     'ui.toc': 'विसयसूई',
