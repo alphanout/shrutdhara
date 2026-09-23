@@ -558,15 +558,15 @@ const KEY = 'sd-lang';
 export const lang = (() => {
   try {
     const l = typeof localStorage !== 'undefined' ? localStorage.getItem(KEY) : null;
-    return (l && DICT[l]) ? l : 'hi';
+    return (l && DICT[l]) ? l : 'en';
   } catch {
-    return 'hi';
+    return 'en';
   }
 })();
 
 export function t(k, fallback) {
   if (!k) return '';
-  return (DICT[lang] && DICT[lang][k]) || (DICT.hi && DICT.hi[k]) || fallback || k;
+  return (DICT[lang] && DICT[lang][k]) || (DICT.en && DICT.en[k]) || (DICT.hi && DICT.hi[k]) || fallback || k;
 }
 if (typeof window !== 'undefined') window.sdT = t;
 
@@ -580,7 +580,7 @@ export function apply(scope = (typeof document !== 'undefined' ? document : null
   if (typeof document !== 'undefined' && (scope === document || scope === document.documentElement)) {
     const r = document.documentElement;
     r.setAttribute('data-lang', lang);
-    r.setAttribute('lang', { hi: 'hi', en: 'en', sa: 'sa', pra: 'pra' }[lang] || 'hi');
+    r.setAttribute('lang', { hi: 'hi', en: 'en', sa: 'sa', pra: 'pra' }[lang] || 'en');
   }
 
   scope.querySelectorAll('[data-i18n]').forEach((el) => {

@@ -1,9 +1,22 @@
 <!DOCTYPE html>
-<html lang="hi" data-root="">
+<html lang="en" data-lang="en" data-root="">
 <head>
 <meta charset="utf-8">
+<script>
+  (function() {
+    const t = localStorage.getItem('sd-theme') || localStorage.getItem('theme');
+    if (t === 'dark' || t === 'light') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+    const l = localStorage.getItem('sd-lang') || 'en';
+    document.documentElement.setAttribute('data-lang', l);
+    document.documentElement.setAttribute('lang', l);
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>काल-स्तर — श्रुतधारा</title>
+<title>Chronological Strata — Shrutdhara</title>
 <meta name="description" content="५२७ ई.पू. से १९९१ ई. — आचार्य, ग्रन्थ और विद्वान एक अखण्ड काल-यात्रा में।">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
@@ -27,7 +40,7 @@
       <a href="sources.html" data-i18n="nav.sources">मूल स्रोत</a>
       <a href="about.html" data-i18n="nav.about">परिचय</a>
     </nav>
-    <div class="tools"><button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button><select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select><button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button></div>
+    <div class="tools"><button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button><select class="icon-btn" id="langSel" aria-label="Language / भाषा"><option value="en" selected>EN</option><option value="hi">हिं</option><option value="sa">सं</option><option value="pra">प्रा</option></select><button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button></div>
   </div>
 </header>
 

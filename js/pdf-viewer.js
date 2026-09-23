@@ -714,15 +714,24 @@ function showFallback(title, desc) {
   if (desc) fallbackDesc.textContent = desc;
 }
 
+const THEME_KEY = 'sd-theme';
 function initTheme() {
-  const saved = localStorage.getItem('theme');
-  if (saved) document.documentElement.setAttribute('data-theme', saved);
-  themeBtn.addEventListener('click', () => {
-    const cur = document.documentElement.getAttribute('data-theme');
-    const nxt = cur === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', nxt);
-    localStorage.setItem('theme', nxt);
-  });
+  const saved = localStorage.getItem(THEME_KEY) || localStorage.getItem('theme');
+  if (saved === 'dark' || saved === 'light') {
+    document.documentElement.setAttribute('data-theme', saved);
+  } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+  if (themeBtn) {
+    themeBtn.addEventListener('click', () => {
+      const sysDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const cur = document.documentElement.getAttribute('data-theme') || (sysDark ? 'dark' : 'light');
+      const nxt = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nxt);
+      localStorage.setItem(THEME_KEY, nxt);
+      localStorage.setItem('theme', nxt);
+    });
+  }
 }
 
 function escapeHtml(s) {

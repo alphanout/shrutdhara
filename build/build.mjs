@@ -165,9 +165,22 @@ function granthPage(g, i) {
   </section>`;
 
   return `<!DOCTYPE html>
-<html lang="hi" data-root="../../">
+<html lang="en" data-lang="en" data-root="../../">
 <head>
 <meta charset="utf-8">
+<script>
+  (function() {
+    const t = localStorage.getItem('sd-theme') || localStorage.getItem('theme');
+    if (t === 'dark' || t === 'light') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+    const l = localStorage.getItem('sd-lang') || 'en';
+    document.documentElement.setAttribute('data-lang', l);
+    document.documentElement.setAttribute('lang', l);
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(g.name)} — श्रुतधारा</title>
 <meta name="description" content="${esc(g.name)} — ${esc(g.author)} · ${esc(g.century || '')} · दिगम्बर जैन ९० प्रमुख प्राचीन ग्रन्थों में क्रम ${g.id}।">
@@ -206,7 +219,7 @@ function granthPage(g, i) {
     </nav>
     <div class="tools">
       <button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button>
-      <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
+      <select class="icon-btn" id="langSel" aria-label="Language / भाषा"><option value="en" selected>EN</option><option value="hi">हिं</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
     </div>
   </div>
@@ -338,9 +351,22 @@ function paathPage(g, txt) {
     : 'hi';
   const safeSrcUrl = /^https?:\/\//.test(meta.sourceUrl || '') ? meta.sourceUrl : '';
   return `<!DOCTYPE html>
-<html lang="sa" data-root="../../../">
+<html lang="en" data-lang="en" data-root="../../../">
 <head>
 <meta charset="utf-8">
+<script>
+  (function() {
+    const t = localStorage.getItem('sd-theme') || localStorage.getItem('theme');
+    if (t === 'dark' || t === 'light') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+    const l = localStorage.getItem('sd-lang') || 'en';
+    document.documentElement.setAttribute('data-lang', l);
+    document.documentElement.setAttribute('lang', l);
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(g.name)} — मूल पाठ · श्रुतधारा</title>
 <meta name="description" content="${esc(g.name)} का सम्पूर्ण मूल पाठ — ${esc(meta.verses || '')} पद्य। ${esc(g.author)}।">
@@ -369,7 +395,7 @@ function paathPage(g, txt) {
     </nav>
     <div class="tools">
       <button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button>
-      <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
+      <select class="icon-btn" id="langSel" aria-label="Language / भाषा"><option value="en" selected>EN</option><option value="hi">हिं</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
     </div>
   </div>
