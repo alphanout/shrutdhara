@@ -302,15 +302,17 @@ async function renderGranths() {
   }
   function draw() {
     const list = data.granths.filter((g) => {
+      const slug = g.slug || slugify(g.name);
       if (currentFilter === 'pdf') {
-        return !!pdfCatalog[g.slug];
+        return !!pdfCatalog[slug];
       }
       return !currentFilter || centuryOf(g) === currentFilter;
     });
     mount.innerHTML = list.map((g) => {
-      const hasPdf = !!pdfCatalog[g.slug];
+      const slug = g.slug || slugify(g.name);
+      const hasPdf = !!pdfCatalog[slug];
       return `
-      <a class="slab" href="${root}granth/${g.slug || slugify(g.name)}/">
+      <a class="slab" href="${root}granth/${slug}/">
         <span class="vein"></span>
         <span class="serial inlay num">अभिलेख ${deva(g.id)} / ${deva(data.granths.length)}${g.hasText ? ` <span class="tag">${t('ui.has_text')}</span>` : ''}${hasPdf ? ` <span class="tag pdf-tag" style="background:var(--gold-2); color:var(--stone-0); font-weight:600; padding:1px 6px; border-radius:3px; margin-left:4px;">${t('ui.pdf_tag')}</span>` : ''}</span>
         <span class="gname carve">${sdName(esc(g.name))}</span>
