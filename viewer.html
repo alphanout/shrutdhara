@@ -1,9 +1,22 @@
 <!DOCTYPE html>
-<html lang="hi" data-root="./">
+<html lang="en" data-lang="en" data-root="./">
 <head>
 <meta charset="utf-8">
+<script>
+  (function() {
+    const t = localStorage.getItem('sd-theme') || localStorage.getItem('theme');
+    if (t === 'dark' || t === 'light') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+    const l = localStorage.getItem('sd-lang') || 'en';
+    document.documentElement.setAttribute('data-lang', l);
+    document.documentElement.setAttribute('lang', l);
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>मूल ग्रन्थ PDF वाचक — श्रुतधारा</title>
+<title>Shastra PDF Viewer — Shrutdhara</title>
 <meta name="description" content="दिगम्बर जैन प्राचीन मूल ग्रन्थ हस्तलिखित एवं मुद्रित PDF वाचक, खोज एवं पाठ-चिन्हांकन।">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192.png">
@@ -373,7 +386,7 @@ body[data-page="pdf-viewer"] {
     <!-- Tools -->
     <a class="icon-btn" id="viewPaathBtn" href="#" style="display:none; color:var(--gold-1); border-color:var(--gold-2); font-weight:600;" data-i18n="ui.paath">📖 मूल पाठ पढ़ें</a>
     <a class="icon-btn" id="downloadBtn" href="#" download title="PDF डाउनलोड करें" data-i18n-title="viewer.download_title" data-i18n="viewer.download_btn">⬇ डाउनलोड</a>
-    <select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
+    <select class="icon-btn" id="langSel" aria-label="Language / भाषा"><option value="en" selected>EN</option><option value="hi">हिं</option><option value="sa">सं</option><option value="pra">प्रा</option></select>
     <button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button>
     <button class="icon-btn" id="fullscreenBtn" type="button" title="पूर्ण पर्दा" data-i18n-title="viewer.fullscreen">⛶</button>
   </div>

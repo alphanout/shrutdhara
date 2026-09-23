@@ -1,9 +1,22 @@
 <!DOCTYPE html>
-<html lang="hi" data-root="">
+<html lang="en" data-lang="en" data-root="">
 <head>
 <meta charset="utf-8">
+<script>
+  (function() {
+    const t = localStorage.getItem('sd-theme') || localStorage.getItem('theme');
+    if (t === 'dark' || t === 'light') {
+      document.documentElement.setAttribute('data-theme', t);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+    const l = localStorage.getItem('sd-lang') || 'en';
+    document.documentElement.setAttribute('data-lang', l);
+    document.documentElement.setAttribute('lang', l);
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>श्रुतधारा — दिगम्बर जैन श्रुत-परम्परा का डिजिटल स्मारक</title>
+<title>Shrutdhara — Digital Monument of Digambar Jain Shrut Tradition</title>
 <meta name="description" content="५२७ ई.पू. से आज तक — ९० प्रमुख प्राचीन ग्रन्थ, ४२० आचार्य, १७२ भट्टारक एवं विद्वान। खुला, निःशुल्क, बिना लॉगिन।">
 <meta property="og:title" content="श्रुतधारा — Shrutdhara">
 <meta property="og:description" content="ढाई हज़ार वर्षों की अविच्छिन्न दिगम्बर जैन श्रुत-परम्परा — एक डिजिटल स्मारक">
@@ -34,7 +47,7 @@
       <a href="sources.html" data-i18n="nav.sources">मूल स्रोत</a>
       <a href="about.html" data-i18n="nav.about">परिचय</a>
     </nav>
-    <div class="tools"><button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button><select class="icon-btn" id="langSel" aria-label="भाषा / Language"><option value="hi">हिं</option><option value="en">EN</option><option value="sa">सं</option><option value="pra">प्रा</option></select><button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button></div>
+    <div class="tools"><button class="icon-btn" id="bmHeadBtn" type="button" title="सहेजे गए बुकमार्क / Saved Bookmarks" aria-label="सहेजे गए बुकमार्क">🔖</button><select class="icon-btn" id="langSel" aria-label="Language / भाषा"><option value="en" selected>EN</option><option value="hi">हिं</option><option value="sa">सं</option><option value="pra">प्रा</option></select><button class="icon-btn" id="themeBtn" type="button" aria-label="थीम बदलें">☀/☾</button></div>
   </div>
 </header>
 

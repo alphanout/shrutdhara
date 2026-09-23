@@ -11,7 +11,7 @@ const sdName = (s) => (window.sdName ? window.sdName(s) : s);
 /* ---------- theme ---------- */
 const THEME_KEY = 'sd-theme';
 function initTheme() {
-  const saved = localStorage.getItem(THEME_KEY);
+  const saved = localStorage.getItem(THEME_KEY) || localStorage.getItem('theme');
   if (saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
   const btn = document.getElementById('themeBtn');
   if (!btn) return;
@@ -22,6 +22,7 @@ function initTheme() {
     const next = cur === 'dark' ? 'light' : 'dark';
     r.setAttribute('data-theme', next);
     localStorage.setItem(THEME_KEY, next);
+    localStorage.setItem('theme', next);
   });
 }
 

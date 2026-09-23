@@ -1,8 +1,8 @@
 import { test, describe, it, before } from 'node:test';
 import assert from 'node:assert';
 
-// Mock localStorage
-let storage = { 'sd-lang': 'hi' };
+// Mock localStorage - empty to test default 'en'
+let storage = {};
 globalThis.localStorage = {
   getItem: (k) => storage[k] || null,
   setItem: (k, v) => storage[k] = v,
@@ -62,36 +62,36 @@ describe('i18n', () => {
     i18n = await import('../../js/i18n.js');
   });
 
-  it('exports lang correctly', () => {
-    assert.strictEqual(i18n.lang, 'hi'); // default/localStorage
+  it('exports lang correctly (default is en)', () => {
+    assert.strictEqual(i18n.lang, 'en'); // default when localStorage is empty
   });
 
-  it('t() translates correctly', () => {
-    assert.strictEqual(i18n.t('ui.toc'), 'विषय-सूची');
+  it('t() translates correctly in en', () => {
+    assert.strictEqual(i18n.t('ui.toc'), 'Contents');
     assert.strictEqual(i18n.t('unknown.key'), 'unknown.key');
   });
 
   it('tName() uses translit for en, else returns original', () => {
-    // lang is hi currently
-    assert.strictEqual(i18n.tName('समयसार'), 'समयसार');
+    // lang is en currently
+    assert.strictEqual(i18n.tName('समयसार'), 'samayasaara');
   });
 
-  it('apply() works correctly on DOM', () => {
+  it('apply() works correctly on DOM with default en', () => {
     // apply() runs on import
-    assert.strictEqual(htmlElement.attrs['data-lang'], 'hi');
-    assert.strictEqual(htmlElement.attrs['lang'], 'hi');
+    assert.strictEqual(htmlElement.attrs['data-lang'], 'en');
+    assert.strictEqual(htmlElement.attrs['lang'], 'en');
     
     const i18nEl = elements.find(e => 'data-i18n' in e.attrs);
-    assert.strictEqual(i18nEl.innerHTML, 'विषय-सूची');
+    assert.strictEqual(i18nEl.innerHTML, 'Contents');
 
     const phEl = elements.find(e => 'data-i18n-ph' in e.attrs);
-    assert.strictEqual(phEl.attrs['placeholder'], 'खोजें — समयसार, कुन्दकुन्द, टोडरमल… या रोमन में ‘samaysar’');
+    assert.strictEqual(phEl.attrs['placeholder'], 'Search — samaysar, kundkund, todarmal… (Roman or देवनागरी)');
 
     const dvEl = elements.find(e => 'data-dv' in e.attrs);
-    assert.strictEqual(dvEl.innerHTML, 'समयसार');
+    assert.strictEqual(dvEl.innerHTML, 'samayasaara');
 
     const selEl = elements.find(e => e.attrs.id === 'langSel');
-    assert.strictEqual(selEl.value, 'hi');
+    assert.strictEqual(selEl.value, 'en');
   });
   
   it('handles window assignments', () => {

@@ -351,7 +351,8 @@ if (main) {
     }
     if (!moolFormatted) moolFormatted = curMoolText;
 
-    const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
+    const h1 = document.querySelector('.phead h1');
+    const gName = h1?.getAttribute('data-dv') || h1?.textContent?.trim() || '';
     const lang = main.getAttribute('data-lang') || '';
     const isProse = main.getAttribute('data-prose') === 'true';
     const isGatha = lang.includes('प्राकृत') || /गाथा/i.test(lang) || /समयसार|नियमसार|प्रवचनसार|पंचास्तिकाय|अष्टपाहुड/i.test(gName);
@@ -376,7 +377,8 @@ if (main) {
     if (!n) return;
     const slug = location.pathname.split('/').filter(Boolean).slice(-2, -1)[0] || '';
     const bookmarkId = `${slug}#v${n}`;
-    const gName = document.querySelector('.phead h1')?.textContent?.trim() || '';
+    const h1El = document.querySelector('.phead h1');
+    const gName = h1El?.getAttribute('data-dv') || h1El?.textContent?.trim() || '';
     let bookmarks = [];
     try { bookmarks = JSON.parse(localStorage.getItem('sd-bookmarks') || '[]'); } catch {}
     const idx = bookmarks.findIndex((b) => (typeof b === 'string' ? b === bookmarkId : b.id === bookmarkId));

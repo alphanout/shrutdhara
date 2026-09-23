@@ -39,8 +39,14 @@ export async function testI18nLanguages(basePort) {
     for (const l of langs) {
       // 1. Test Granth detail page
       await page.goto(`http://127.0.0.1:${basePort}/granth/mokshamaargaprakaashaka/`, { waitUntil: 'load' });
-      await page.select('#langSel', l.code);
-      await new Promise(r => setTimeout(r, 400));
+      const currentVal = await page.$eval('#langSel', el => el.value);
+      if (currentVal !== l.code) {
+        await Promise.all([
+          page.waitForNavigation({ waitUntil: 'load' }),
+          page.select('#langSel', l.code)
+        ]);
+      }
+      await new Promise(r => setTimeout(r, 200));
 
       const navText = await page.$eval('.site-nav a[data-i18n="nav.home"]', el => el.textContent.trim());
       const ftText = await page.$eval('.fulltext [data-i18n="ui.fulltext"]', el => el.textContent.trim());
@@ -68,10 +74,16 @@ export async function testI18nLanguages(basePort) {
       console.log(`    ✓ [${l.code.toUpperCase()}] Verified Granth ("${navText}"), Home ("${pdfStatText}"), Viewer ("${catalogTabText}")`);
     }
 
-    // Reset language back to Hindi
+    // Reset language back to default English
     await page.goto(`http://127.0.0.1:${basePort}/`, { waitUntil: 'load' });
-    await page.select('#langSel', 'hi');
-    await new Promise(r => setTimeout(r, 300));
+    const finalVal = await page.$eval('#langSel', el => el.value);
+    if (finalVal !== 'en') {
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'load' }),
+        page.select('#langSel', 'en')
+      ]);
+    }
+    await new Promise(r => setTimeout(r, 200));
 
     console.log('  ✓ Integration Test Passed: All 4 Languages (hi, en, sa, pra) verified across pages!\n');
   } finally {
