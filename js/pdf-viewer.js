@@ -210,6 +210,8 @@ async function loadPdf(source, initialPage = 1, autoSearch = '') {
         cMapUrl: 'assets/vendor/pdfjs/cmaps/',
         cMapPacked: true,
         wasmUrl: 'assets/vendor/pdfjs/wasm/',
+        disableAutoFetch: true,
+        rangeChunkSize: 65536,
       });
 
       loadingTask.onProgress = (p) => {
