@@ -4,6 +4,7 @@
 
 import * as pdfjsLib from '../assets/vendor/pdfjs/pdf.min.mjs';
 import { t, lang, apply } from './i18n.js';
+import { unicodeToLegacyVariants, legacyToUnicode } from './font-converter.js';
 
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdfjs/pdf.worker.min.mjs';
@@ -76,12 +77,16 @@ async function init() {
 
   // Load catalog & search index in parallel
   try {
-    const [catRes, idxRes] = await Promise.all([
+    const [catRes, idxRes, slugsRes] = await Promise.all([
       fetch('data/shastra-pdfs.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
       fetch('data/pdf-search-index.json').then((r) => (r.ok ? r.json() : [])).catch(() => []),
+      fetch('data/digitized-slugs.json').then((r) => (r.ok ? r.json() : [])).catch(() => []),
     ]);
     catalog = catRes;
     searchIndex = idxRes;
+    if (Array.isArray(slugsRes) && slugsRes.length > 0) {
+      for (const s of slugsRes) DIGITIZED_SLUGS.add(s);
+    }
   } catch (err) {
     console.warn('Could not load data catalogs:', err);
   }
@@ -387,18 +392,29 @@ function highlightMatchesOnPage(pageNum, query) {
   const textLayerDiv = document.getElementById(`textLayer-${pageNum}`);
   if (!textLayerDiv || !query) return;
 
-  const qLower = query.toLowerCase();
+  const variants = unicodeToLegacyVariants(query);
   const spans = textLayerDiv.querySelectorAll('span');
   for (const s of spans) {
     if (s.querySelector('.pdf-highlight')) continue;
     const text = s.textContent;
     const lower = text.toLowerCase();
-    const idx = lower.indexOf(qLower);
-    if (idx >= 0) {
-      const before = text.substring(0, idx);
-      const match = text.substring(idx, idx + query.length);
-      const after = text.substring(idx + query.length);
-      s.innerHTML = `${escapeHtml(before)}<mark class="pdf-highlight" data-page-num="${pageNum}">${escapeHtml(match)}</mark>${escapeHtml(after)}`;
+
+    let bestMatch = null;
+    let bestIdx = -1;
+    let matchLen = 0;
+    for (const v of variants) {
+      const idx = lower.indexOf(v.toLowerCase());
+      if (idx >= 0 && (bestIdx === -1 || idx < bestIdx)) {
+        bestIdx = idx;
+        bestMatch = text.substring(idx, idx + v.length);
+        matchLen = v.length;
+      }
+    }
+
+    if (bestMatch && bestIdx >= 0) {
+      const before = text.substring(0, bestIdx);
+      const after = text.substring(bestIdx + matchLen);
+      s.innerHTML = `${escapeHtml(before)}<mark class="pdf-highlight" data-page-num="${pageNum}">${escapeHtml(bestMatch)}</mark>${escapeHtml(after)}`;
     }
   }
 }
@@ -423,35 +439,47 @@ async function executeSearch(query) {
   findCount.textContent = t('viewer.searching');
   clearHighlights();
 
+  const searchVariants = unicodeToLegacyVariants(currentQuery);
+
   // 1. Search in pre-built PDF search index for current granth (instant!)
-  const qLower = currentQuery.toLowerCase();
   const granthEntries = searchIndex.filter((it) => it.s === currentSlug);
 
   if (granthEntries.length > 0) {
     for (const it of granthEntries) {
-      if (it.t && it.t.toLowerCase().includes(qLower)) {
+      if (!it.t) continue;
+      const tLower = it.t.toLowerCase();
+      const matchedVariant = searchVariants.find((v) => tLower.includes(v.toLowerCase()));
+      if (matchedVariant) {
+        let snippet = it.sn || it.t.substring(0, 100);
+        snippet = legacyToUnicode(snippet);
         activeMatches.push({
           page: it.p,
-          snippet: it.sn || it.t.substring(0, 100),
+          snippet: snippet,
         });
       }
     }
   }
 
-  // 2. Also search live in PDF document if loaded and activeMatches is empty
-  if (activeMatches.length === 0 && pdfDoc) {
+  // 2. Also search live in PDF document if loaded and activeMatches is empty or incomplete
+  if (pdfDoc && (activeMatches.length === 0 || activeMatches.length < 5)) {
+    const existingPages = new Set(activeMatches.map((m) => m.page));
     for (let p = 1; p <= Math.min(totalPages, 200); p++) {
+      if (existingPages.has(p)) continue;
       try {
         const page = await pdfDoc.getPage(p);
         const tc = await page.getTextContent();
         const str = tc.items.map((i) => i.str).join(' ');
-        if (str.toLowerCase().includes(qLower)) {
-          const idx = str.toLowerCase().indexOf(qLower);
-          const snippet = str.substring(Math.max(0, idx - 40), Math.min(str.length, idx + 80));
-          activeMatches.push({ page: p, snippet: '…' + snippet + '…' });
+        const strLower = str.toLowerCase();
+        const matchedVariant = searchVariants.find((v) => strLower.includes(v.toLowerCase()));
+        if (matchedVariant) {
+          const idx = strLower.indexOf(matchedVariant.toLowerCase());
+          const rawSnippet = str.substring(Math.max(0, idx - 40), Math.min(str.length, idx + 80));
+          const cleanSnippet = legacyToUnicode(rawSnippet);
+          activeMatches.push({ page: p, snippet: '…' + cleanSnippet + '…' });
         }
       } catch {}
     }
+    activeMatches.sort((a, b) => a.page - b.page);
   }
 
   // Update sidebar hits UI

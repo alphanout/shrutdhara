@@ -3,6 +3,7 @@
 
 import { romanKey, skeleton, slugify, devaNum, nameKey } from './translit.js';
 import { t, lang } from './i18n.js';
+import { unicodeToLegacyVariants, legacyToUnicode } from './font-converter.js';
 
 const root = document.documentElement.getAttribute('data-root') || '';
 const page = document.body.getAttribute('data-page') || '';
@@ -176,11 +177,15 @@ function initSearch() {
       if (pi && pi.length) {
         const qDeva3 = /[ऀ-ॿ]/.test(q);
         const qrk3 = romanKey(q), qsk3 = skeleton(q);
+        const qVariants = qDeva3 ? unicodeToLegacyVariants(q) : [];
         const pHits = [];
         for (const p of pi) {
-          const match = qDeva3
-            ? (p.t && p.t.includes(q))
-            : (qrk3 && p.rk && p.rk.includes(qrk3)) || (qsk3.length > 3 && p.sk && p.sk.includes(qsk3));
+          let match = false;
+          if (qDeva3) {
+            match = p.t && (p.t.includes(q) || qVariants.some((v) => p.t.includes(v) || p.t.toLowerCase().includes(v.toLowerCase())));
+          } else {
+            match = (qrk3 && p.rk && p.rk.includes(qrk3)) || (qsk3.length > 3 && p.sk && p.sk.includes(qsk3));
+          }
           if (match) {
             pHits.push(p);
             if (pHits.length >= 6) break;
@@ -190,7 +195,7 @@ function initSearch() {
           html += pHits.map((p) => `
       <a class="hit pdf-hit" href="${root}viewer.html?slug=${p.s}&page=${p.p}&q=${encodeURIComponent(q)}">
         <span class="t" style="background:var(--gold-2); color:var(--stone-0); font-weight:600;">PDF पृ. ${esc(deva(p.p))}</span>
-        <b>${sdName(esc(p.n))}</b> — ${esc(trim(p.sn || p.t, 64))}
+        <b>${sdName(esc(p.n))}</b> — ${esc(trim(legacyToUnicode(p.sn || p.t), 64))}
       </a>`).join('');
         }
       }

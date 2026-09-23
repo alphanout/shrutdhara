@@ -48,6 +48,34 @@ export async function testPdfViewerAndSearch(basePort) {
       throw new Error('No .pdf-highlight elements found in text layer!');
     }
 
+    // 2b. Test Dual-Query Search in Legacy-Encoded PDF (Aptamimansa with "राग")
+    await page.goto(`http://127.0.0.1:${basePort}/viewer.html?slug=aaptamimaansaa`, { waitUntil: 'networkidle0' });
+    await page.waitForFunction(() => {
+      const el = document.getElementById('pageTotal');
+      return el && el.textContent.includes('68');
+    }, { timeout: 15000 });
+    console.log('    ✓ Loaded Aptamimansa PDF (68 pages)');
+
+    await page.click('#findInput', { clickCount: 3 });
+    await page.type('#findInput', 'राग');
+    await new Promise(r => setTimeout(r, 1500));
+
+    const legacyFindStatus = await page.$eval('#findCount', el => el.textContent.trim());
+    console.log(`    ✓ Dual-Query Search matches for "राग": "${legacyFindStatus}"`);
+    if (!legacyFindStatus.includes('of')) {
+      throw new Error(`Expected search matches for "राग" in Aptamimansa, got "${legacyFindStatus}"`);
+    }
+
+    const legacyHighlightCount = await page.$$eval('.pdf-highlight', els => els.length);
+    console.log(`    ✓ Rendered highlighted marks for "राग" in legacy text layer: ${legacyHighlightCount}`);
+    if (legacyHighlightCount === 0) {
+      throw new Error('Expected highlights for "राग" (jeie) in Aptamimansa!');
+    }
+
+    // Verify sidebar hits display decoded Devanagari Hindi snippet
+    const hitSnippet = await page.$eval('.search-hit-snippet', el => el.textContent.trim());
+    console.log(`    ✓ Decoded sidebar hit snippet preview: "${hitSnippet.slice(0, 50)}..."`);
+
     // 3. Test Granth detail page has PDF link
     await page.goto(`http://127.0.0.1:${basePort}/granth/shatkhandaagama/`, { waitUntil: 'load' });
     const pdfBtnHref = await page.$eval('a[href*="viewer.html"]', el => el.getAttribute('href'));

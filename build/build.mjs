@@ -89,6 +89,9 @@ writeFileSync(join(DIST, 'data/acharyas-420.json'), JSON.stringify(acharyas, nul
 writeFileSync(join(DIST, 'data/bhattarak-172.json'), JSON.stringify(bhattarak, null, 1));
 if (existsSync(join(ROOT, 'data/shastra-pdfs.json'))) cpSync(join(ROOT, 'data/shastra-pdfs.json'), join(DIST, 'data/shastra-pdfs.json'));
 if (existsSync(join(ROOT, 'data/pdf-search-index.json'))) cpSync(join(ROOT, 'data/pdf-search-index.json'), join(DIST, 'data/pdf-search-index.json'));
+const digitizedSlugs = Array.from(texts.keys());
+writeFileSync(join(DIST, 'data/digitized-slugs.json'), JSON.stringify(digitizedSlugs), 'utf8');
+writeFileSync(join(ROOT, 'data/digitized-slugs.json'), JSON.stringify(digitizedSlugs), 'utf8');
 
 
 /* ---------- granth pages ---------- */

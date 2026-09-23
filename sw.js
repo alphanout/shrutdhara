@@ -14,7 +14,7 @@ const PRECACHE = [
   './', 'index.html', 'kaal.html', 'granths.html', 'acharya.html', 'bhattarak.html',
   'sources.html', 'about.html',
   'css/style.css', 'css/print.css', 'fonts/fonts.css',
-  'js/app.js', 'js/i18n.js', 'js/translit.js', 'js/reader.js',
+  'js/app.js', 'js/i18n.js', 'js/translit.js', 'js/reader.js', 'js/font-converter.js',
   'data/granths-90.json', 'data/acharyas-420.json', 'data/bhattarak-172.json',
   'assets/favicon.svg', 'assets/favicon-180.png',
 ];
