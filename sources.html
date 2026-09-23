@@ -33,29 +33,29 @@
 
 <main class="wrap">
   <div class="page-head">
-    <h1>मूल स्रोत <span class="r">· हर पंक्ति का प्रमाण</span></h1>
-    <p class="lede">साइट का समस्त डेटा इन्हीं २५ छायाचित्रों से अक्षरशः लिया गया है — ९०-ग्रन्थ सूची का पोस्टर एवं <em>भावत्रयफलप्रदर्शी</em> के पृष्ठ ६–२९। किसी चित्र पर स्पर्श करें: पूर्ण आकार खुलेगा।</p>
+    <h1 data-i18n="sources.h">मूल स्रोत <span class="r">· हर पंक्ति का प्रमाण</span></h1>
+    <p class="lede" data-i18n="sources.lede">साइट का समस्त डेटा इन्हीं २५ छायाचित्रों से अक्षरशः लिया गया है — ९०-ग्रन्थ सूची का पोस्टर एवं <em>भावत्रयफलप्रदर्शी</em> के पृष्ठ ६–२९। किसी चित्र पर स्पर्श करें: पूर्ण आकार खुलेगा।</p>
   </div>
 
   <section class="block" style="padding-top:0">
-    <div class="block-head"><h2>९० ग्रन्थ — <span class="r">पोस्टर</span></h2><span class="ln"></span></div>
+    <div class="block-head"><h2 data-i18n="sources.poster_h">९० ग्रन्थ — <span class="r">पोस्टर</span></h2><span class="ln"></span></div>
     <div class="shots" style="grid-template-columns:minmax(210px,340px)">
       <a href="assets/photos/poster.jpg" target="_blank" rel="noopener"><img src="assets/photos/poster.jpg" loading="lazy" alt="९० प्रमुख प्राचीन ग्रन्थों की कालानुक्रमिक सूची — पोस्टर"><span class="cap">पोस्टर · ९० ग्रन्थ (मुमुक्षु)</span></a>
     </div>
   </section>
 
   <section class="block" style="padding-top:0">
-    <div class="block-head"><h2>भावत्रयफलप्रदर्शी — <span class="r">पृष्ठ ६–२९</span></h2><span class="ln"></span></div>
+    <div class="block-head"><h2 data-i18n="sources.bhavatraya_h">भावत्रयफलप्रदर्शी — <span class="r">पृष्ठ ६–२९</span></h2><span class="ln"></span></div>
     <div class="shots" id="pages"></div>
   </section>
 
   <section class="block" style="padding-top:0" id="shastra-pdfs">
-    <div class="block-head"><h2>६४ मूल ग्रन्थ — <span class="r">हस्तलिखित व मुद्रित PDF संग्रह</span></h2><span class="ln"></span></div>
-    <p class="lede" style="margin-bottom:16px;">
+    <div class="block-head"><h2 data-i18n="sources.shastras_h">६४ मूल ग्रन्थ — <span class="r">हस्तलिखित व मुद्रित PDF संग्रह</span></h2><span class="ln"></span></div>
+    <p class="lede" style="margin-bottom:16px;" data-i18n="sources.shastras_lede">
       ९० canonical ग्रन्थों में से ६४ प्राचीन ग्रन्थों के पूर्ण मूल PDF संस्करण (हस्तलिखित प्रतियाँ एवं मुद्रित ग्रन्थ) स्वाध्याय हेतु उपलब्ध हैं। इन्हें इन-ब्राउज़र वाचक में खोज व टेक्स्ट हाइलाइट के साथ पढ़ा जा सकता है अथवा डाउनलोड किया जा सकता है।
     </p>
     <div style="display:flex; gap:12px; margin-bottom:18px; flex-wrap:wrap; align-items:center;">
-      <input type="search" id="pdfSearchInput" placeholder="६४ शास्त्रों में खोजें (नाम, अनुयोग)..." style="flex:1; min-width:240px; background:var(--stone-2); border:1px solid var(--hairline); color:var(--etch); padding:8px 14px; font-family:inherit; font-size:0.9rem; border-radius:4px;">
+      <input type="search" id="pdfSearchInput" data-i18n-ph="sources.search_shastras_ph" placeholder="६४ शास्त्रों में खोजें (नाम, अनुयोग)..." style="flex:1; min-width:240px; background:var(--stone-2); border:1px solid var(--hairline); color:var(--etch); padding:8px 14px; font-family:inherit; font-size:0.9rem; border-radius:4px;">
       <span class="num lat" id="pdfCount" style="color:var(--gold-2); font-weight:600;">६४ शास्त्र उपलब्ध</span>
     </div>
     <div class="cards" id="pdfCardsGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(310px, 1fr)); gap:14px;"></div>
@@ -111,7 +111,7 @@
               <div style="font-size:0.78rem; color:var(--patina); margin-top:6px;">${item.category || ''}</div>
             </div>
             <div style="display:flex; gap:8px; margin-top:4px;">
-              <a class="btn kum" href="viewer.html?slug=${slug}" target="_blank" style="flex:1; text-align:center; padding:6px 10px; font-size:0.82rem;">📖 पढ़ें (Viewer)</a>
+              <a class="btn kum" href="viewer.html?slug=${slug}" target="_blank" style="flex:1; text-align:center; padding:6px 10px; font-size:0.82rem;" data-i18n="sources.read_viewer">${window.sdT ? window.sdT('sources.read_viewer') : '📖 पढ़ें (Viewer)'}</a>
               <a class="btn ghost" href="${item.url}" download style="flex:none; padding:6px 10px; font-size:0.82rem;" title="सीधे PDF डाउनलोड करें">⬇</a>
             </div>
           </div>

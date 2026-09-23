@@ -225,7 +225,7 @@ function granthPage(g, i) {
   <section class="fulltext">
     <div class="chips-l lat dv" data-i18n="ui.fulltext">सम्पूर्ण ग्रन्थ पढ़ें</div>
     <div class="chips">
-      ${shastraPdfs[g.slug] ? `<a class="chip" href="../../viewer.html?slug=${g.slug}" target="_blank" style="border-color:var(--gold-2); color:var(--gold-1); font-weight:500;">📖 मूल ग्रन्थ PDF (${shastraPdfs[g.slug].size}) ↗</a>` : ''}
+      ${shastraPdfs[g.slug] ? `<a class="chip" href="../../viewer.html?slug=${g.slug}" target="_blank" style="border-color:var(--gold-2); color:var(--gold-1); font-weight:500;"><span data-i18n="ui.read_pdf_chip">📖 मूल ग्रन्थ PDF</span> (${shastraPdfs[g.slug].size}) ↗</a>` : ''}
       <a class="chip ext" target="_blank" rel="noopener" href="https://www.jaingranthlibrary.com/search?q=${encodeURIComponent(g.name)}">जैन ग्रन्थ लाइब्रेरी ↗</a>
       <a class="chip ext" target="_blank" rel="noopener" href="https://jainkosh.org/wiki/Special:Search?search=${encodeURIComponent(g.name)}">जैनकोश ↗</a>
       <a class="chip ext" target="_blank" rel="noopener" href="https://archive.org/search?query=${encodeURIComponent(g.name)}">Archive.org ↗</a>
@@ -234,12 +234,12 @@ function granthPage(g, i) {
   </section>
   <div class="btns">
     ${texts.has(g.slug) ? `<a class="btn kum" href="paath/" data-i18n="ui.paath">मूल पाठ पढ़ें</a>` : ''}
-    ${shastraPdfs[g.slug] ? `<a class="btn kum" href="../../viewer.html?slug=${g.slug}" target="_blank">📖 मूल ग्रन्थ PDF पढ़ें</a>` : ''}
+    ${shastraPdfs[g.slug] ? `<a class="btn kum" href="../../viewer.html?slug=${g.slug}" target="_blank" data-i18n="ui.read_pdf_btn">📖 मूल ग्रन्थ PDF पढ़ें</a>` : ''}
     <a class="btn ${texts.has(g.slug) || shastraPdfs[g.slug] ? 'ghost' : 'kum'}" href="../../pdf/${g.slug}.pdf" download data-i18n="ui.pdf">विवरण PDF</a>
     <button class="btn ghost" id="shareBtn" type="button" data-i18n="ui.share">साझा करें</button>
   </div>
 
-  <p class="src"><span data-i18n="ui.proof">प्रमाण</span>: ९०-ग्रन्थ सूची-पोस्टर, पंक्ति ${deva(g.id)} — <a href="../../sources.html">मूल छायाचित्र</a></p>
+  <p class="src"><span data-i18n="ui.proof">प्रमाण</span>: ९०-ग्रन्थ सूची-पोस्टर, पंक्ति ${deva(g.id)} — <a href="../../sources.html" data-i18n="footer.sources_link">मूल छायाचित्र</a></p>
   <nav class="nextprev num" aria-label="क्रम">
     <span>${prev ? `<a href="../${prev.slug}/">← ${esc(prev.name)}</a>` : ''}</span>
     <span>${next ? `<a href="../${next.slug}/">${esc(next.name)} →</a>` : ''}</span>
@@ -249,7 +249,7 @@ function granthPage(g, i) {
 
 <footer class="site-foot">
   <div class="k">॥ ❖ ॥</div>
-  <p>“इनका अध्ययन और स्वाध्याय ही आत्मकल्याण का मार्ग है।”</p>
+  <p data-i18n="footer.tagline">“इनका अध्ययन और स्वाध्याय ही आत्मकल्याण का मार्ग है।”</p>
 </footer>
 
 <script type="module" src="../../js/app.js"></script>
@@ -257,7 +257,7 @@ function granthPage(g, i) {
 document.getElementById('shareBtn').addEventListener('click', async () => {
   const data = { title: document.title, url: location.href };
   try { if (navigator.share) { await navigator.share(data); return; } } catch {}
-  try { await navigator.clipboard.writeText(location.href); alert('कड़ी कॉपी हो गई'); } catch {}
+  try { await navigator.clipboard.writeText(location.href); alert(window.sdT ? window.sdT('ui.share_copied') : '✓ कड़ी कॉपी हो गई'); } catch {}
 });
 </script>
 </body>
@@ -320,7 +320,7 @@ function paathPage(g, txt) {
   <aside class="vpanel" id="vpanel" role="dialog" aria-modal="true" aria-labelledby="vpTitle" hidden>
     <div class="vp-head">
       <b id="vpTitle" class="num"></b>
-      <button class="icon-btn" id="vpClose" type="button" aria-label="बंद करें">✕</button>
+      <button class="icon-btn" id="vpClose" type="button" aria-label="बंद करें" data-i18n-aria="ui.close">✕</button>
     </div>
     <div class="vp-body" id="vpBody"></div>
     <div class="vp-actions">
@@ -399,7 +399,7 @@ ${panelHtml}
 
 <footer class="site-foot">
   <div class="k">॥ ❖ ॥</div>
-  <p>“इनका अध्ययन और स्वाध्याय ही आत्मकल्याण का मार्ग है।”</p>
+  <p data-i18n="footer.tagline">“इनका अध्ययन और स्वाध्याय ही आत्मकल्याण का मार्ग है।”</p>
 </footer>
 
 <script type="module" src="../../../js/app.js"></script>

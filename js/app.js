@@ -36,10 +36,12 @@ async function loadData() {
       return await r.json();
     } catch { return []; }
   };
-  const [granths, acharyas, bhattarak] = await Promise.all([
-    get('granths-90.json'), get('acharyas-420.json'), get('bhattarak-172.json'),
+  const [granths, acharyas, bhattarak, shastraPdfs] = await Promise.all([
+    get('granths-90.json'), get('acharyas-420.json'), get('bhattarak-172.json'), get('shastra-pdfs.json'),
   ]);
-  DATA = { granths, acharyas, bhattarak };
+  const pdfCatalog = (shastraPdfs && typeof shastraPdfs === 'object') ? shastraPdfs : {};
+  const pdfList = Object.keys(pdfCatalog);
+  DATA = { granths, acharyas, bhattarak, shastraPdfs: pdfList, pdfCatalog };
   // search corpus
   DATA.corpus = [];
   for (const g of granths) DATA.corpus.push({
@@ -270,7 +272,8 @@ async function renderHome() {
   if (stats && data.granths.length) {
     stats.querySelectorAll('[data-stat]').forEach((el) => {
       const k = el.getAttribute('data-stat');
-      el.textContent = deva(data[k]?.length ?? '—');
+      const count = k === 'shastraPdfs' ? (data.shastraPdfs?.length || 64) : (data[k]?.length ?? '—');
+      el.textContent = deva(count);
     });
   }
 }
@@ -281,29 +284,39 @@ async function renderGranths() {
   if (!mount) return;
   const data = await loadData();
   const filters = document.getElementById('centFilters');
-  let cent = '';
+  const pdfCatalog = data.pdfCatalog || {};
+  let currentFilter = '';
   const cents = [...new Set(data.granths.map((g) => centuryOf(g)))]
     .sort((a, b) => (a === '?') - (b === '?') || (+a) - (+b));
   if (filters) {
     filters.innerHTML = `<button class="chip on" data-c="">${t('ui.all')}</button>` +
+      `<button class="chip" data-c="pdf" style="border-color:var(--gold-2); color:var(--gold-1); font-weight:600;">${t('ui.only_pdf')}</button>` +
       cents.map((c) => `<button class="chip" data-c="${esc(c)}">${esc(deva(c))}</button>`).join('');
     filters.addEventListener('click', (e) => {
       const b = e.target.closest('button[data-c]');
       if (!b) return;
-      cent = b.getAttribute('data-c');
+      currentFilter = b.getAttribute('data-c');
       filters.querySelectorAll('.chip').forEach((x) => x.classList.toggle('on', x === b));
       draw();
     });
   }
   function draw() {
-    const list = data.granths.filter((g) => !cent || centuryOf(g) === cent);
-    mount.innerHTML = list.map((g) => `
+    const list = data.granths.filter((g) => {
+      if (currentFilter === 'pdf') {
+        return !!pdfCatalog[g.slug];
+      }
+      return !currentFilter || centuryOf(g) === currentFilter;
+    });
+    mount.innerHTML = list.map((g) => {
+      const hasPdf = !!pdfCatalog[g.slug];
+      return `
       <a class="slab" href="${root}granth/${g.slug || slugify(g.name)}/">
         <span class="vein"></span>
-        <span class="serial inlay num">अभिलेख ${deva(g.id)} / ${deva(data.granths.length)}${g.hasText ? ' <span class="tag">पाठ ✓</span>' : ''}</span>
+        <span class="serial inlay num">अभिलेख ${deva(g.id)} / ${deva(data.granths.length)}${g.hasText ? ` <span class="tag">${t('ui.has_text')}</span>` : ''}${hasPdf ? ` <span class="tag pdf-tag" style="background:var(--gold-2); color:var(--stone-0); font-weight:600; padding:1px 6px; border-radius:3px; margin-left:4px;">${t('ui.pdf_tag')}</span>` : ''}</span>
         <span class="gname carve">${sdName(esc(g.name))}</span>
         <span class="foot"><span class="kum-mark"></span><span class="a">${sdName(esc(g.author))}</span><span class="e num">${esc(deva(g.century || ''))}</span></span>
-      </a>`).join('') || `<p class="loading">डेटा उपलब्ध नहीं — data/granths-90.json अनुपस्थित।</p>`;
+      </a>`;
+    }).join('') || `<p class="loading">${t('ui.no_results')}</p>`;
   }
   draw();
 }

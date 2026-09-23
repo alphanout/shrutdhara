@@ -3,6 +3,7 @@
    ============================================================ */
 
 import * as pdfjsLib from '../assets/vendor/pdfjs/pdf.min.mjs';
+import { t, lang, apply } from './i18n.js';
 
 // Configure PDF.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'assets/vendor/pdfjs/pdf.worker.min.mjs';
@@ -55,11 +56,13 @@ const pdfFileInput = document.getElementById('pdfFileInput');
 const fallbackDownloadBtn = document.getElementById('fallbackDownloadBtn');
 const fallbackPaathBtn = document.getElementById('fallbackPaathBtn');
 const fallbackTitle = document.getElementById('fallbackTitle');
+const fallbackDesc = document.getElementById('fallbackDesc');
 
 // Initial Setup
 async function init() {
   initTheme();
   setupEvents();
+  if (typeof apply === 'function') apply(document);
 
   // Load catalog & search index in parallel
   try {
@@ -149,66 +152,76 @@ function updateHeader(title, slug) {
     fallbackPaathBtn.href = `granth/${slug}/paath/`;
     fallbackPaathBtn.style.display = 'inline-block';
   } else {
-    granthBadge.textContent = 'PDF वाचक';
+    granthBadge.textContent = t('viewer.reader_title');
     backLink.href = 'granths.html';
-    backLink.textContent = '← ग्रन्थ सूची';
+    backLink.textContent = `← ${t('viewer.back_to_catalog')}`;
   }
 }
 
 // Load and Render PDF Document
 async function loadPdf(source, initialPage = 1, autoSearch = '') {
-  showOverlay('॥ नमो जिणाणं ॥', `${currentName} लोड हो रहा है...`);
+  showOverlay(t('viewer.loading_status'), `${currentName} ${t('viewer.loading_sub')}`);
   fallbackBox.style.display = 'none';
   spinner.style.display = 'block';
 
-  // Check if local file exists on the same origin (e.g. in pdf/ folder)
-  let loadSrc = source;
+  // Build candidate URL list
+  const candidates = [];
   if (currentSlug && catalog[currentSlug]) {
     const fn = catalog[currentSlug].fileName;
-    // Try same-origin relative path first if hosted locally
-    try {
-      const checkLocal = await fetch(`pdf/${fn}`, { method: 'HEAD' });
-      if (checkLocal.ok) loadSrc = `pdf/${fn}`;
-    } catch {}
-  }
-
-  try {
-    const loadingTask = pdfjsLib.getDocument({
-      url: loadSrc,
-      cMapUrl: 'assets/vendor/pdfjs/cmaps/',
-      cMapPacked: true,
-      wasmUrl: 'assets/vendor/pdfjs/wasm/',
-    });
-
-
-    loadingTask.onProgress = (p) => {
-      if (p.total > 0) {
-        const pct = Math.round((p.loaded / p.total) * 100);
-        overlaySub.textContent = `डाउनलोड हो रहा है... ${pct}%`;
-      }
-    };
-
-    pdfDoc = await loadingTask.promise;
-    totalPages = pdfDoc.numPages;
-    pageTotal.textContent = `/ ${totalPages}`;
-    pageInput.max = totalPages;
-
-    hideOverlay();
-    renderAllPagesPlaceholder();
-
-    goToPage(initialPage);
-
-    if (autoSearch) {
-      findInput.value = autoSearch;
-      executeSearch(autoSearch);
+    // 1. Same-origin relative path if hosted locally
+    candidates.push(`pdf/${fn}`);
+    // 2. Cloudflare Worker proxy if running on shrutdhara.com
+    if (typeof window !== 'undefined' && window.location.hostname.includes('shrutdhara.com')) {
+      candidates.push(`/pdf-proxy/${encodeURIComponent(fn)}`);
     }
-  } catch (err) {
-    console.error('Failed to load PDF directly:', err);
-    showFallback(
-      currentName,
-      `ब्राउज़र सुरक्षा (CORS) नियमों के कारण यह रिमोट PDF सीधे लोड नहीं हो सकी। आप इसे नीचे दिए बटन से डाउनलोड कर सकते हैं अथवा पहले से डाउनलोड की गई PDF यहाँ खोल सकते हैं:`
-    );
   }
+  // 3. Direct remote URL
+  candidates.push(source);
+  // 4. Public CORS Proxy fallback for github releases
+  if (source.startsWith('https://github.com/')) {
+    candidates.push(`https://corsproxy.io/?url=${encodeURIComponent(source)}`);
+  }
+
+  let lastErr = null;
+  for (const url of candidates) {
+    try {
+      const loadingTask = pdfjsLib.getDocument({
+        url,
+        cMapUrl: 'assets/vendor/pdfjs/cmaps/',
+        cMapPacked: true,
+        wasmUrl: 'assets/vendor/pdfjs/wasm/',
+      });
+
+      loadingTask.onProgress = (p) => {
+        if (p.total > 0) {
+          const pct = Math.round((p.loaded / p.total) * 100);
+          overlaySub.textContent = `${t('viewer.loading_sub')} ${pct}%`;
+        }
+      };
+
+      pdfDoc = await loadingTask.promise;
+      totalPages = pdfDoc.numPages;
+      pageTotal.textContent = `/ ${totalPages}`;
+      pageInput.max = totalPages;
+
+      hideOverlay();
+      renderAllPagesPlaceholder();
+
+      goToPage(initialPage);
+
+      if (autoSearch) {
+        findInput.value = autoSearch;
+        executeSearch(autoSearch);
+      }
+      return; // Loaded successfully!
+    } catch (err) {
+      lastErr = err;
+      console.warn(`Could not load PDF candidate URL "${url}":`, err.message || err);
+    }
+  }
+
+  console.error('All PDF candidate sources failed:', lastErr);
+  showFallback(currentName, t('viewer.fallback_desc'));
 }
 
 // Load ArrayBuffer from local File Input
