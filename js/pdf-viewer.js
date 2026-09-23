@@ -52,11 +52,21 @@ const sidebarHits = document.getElementById('sidebarHits');
 const sidebarCatalog = document.getElementById('sidebarCatalog');
 const themeBtn = document.getElementById('themeBtn');
 const fullscreenBtn = document.getElementById('fullscreenBtn');
+const viewPaathBtn = document.getElementById('viewPaathBtn');
 const pdfFileInput = document.getElementById('pdfFileInput');
 const fallbackDownloadBtn = document.getElementById('fallbackDownloadBtn');
 const fallbackPaathBtn = document.getElementById('fallbackPaathBtn');
 const fallbackTitle = document.getElementById('fallbackTitle');
 const fallbackDesc = document.getElementById('fallbackDesc');
+
+const DIGITIZED_SLUGS = new Set([
+  'shatkhandaagama', 'samayasaara', 'pravachanasaara', 'panchaastikaaya', 'niyamasaara',
+  'ashtapaahuda', 'baarasa-anuvekkhaa', 'bhagavati-aaraadhanaa', 'tattvaarthasutra',
+  'ratnakaranda-shraavakaachaara', 'aaptamimaansaa', 'yuktyanushaasana', 'sarvaarthasiddhi',
+  'samaadhitantra', 'ishtopadesha', 'laghiyastraya', 'tattvaartharaajavaartika',
+  'aadipuraana', 'gommatasaara-jivakaanda', 'gommatasaara-karmakaanda', 'dravyasangraha',
+  'parikshaamukha', 'shrutaavataara', 'mokshamaargaprakaashaka', 'samayasaara-kalasha'
+]);
 
 // Initial Setup
 async function init() {
@@ -149,12 +159,22 @@ function updateHeader(title, slug) {
     backLink.href = `granth/${slug}/`;
     backLink.textContent = `← ${title}`;
 
-    fallbackPaathBtn.href = `granth/${slug}/paath/`;
-    fallbackPaathBtn.style.display = 'inline-block';
+    if (DIGITIZED_SLUGS.has(slug)) {
+      if (viewPaathBtn) {
+        viewPaathBtn.href = `granth/${slug}/paath/`;
+        viewPaathBtn.style.display = 'inline-flex';
+      }
+      fallbackPaathBtn.href = `granth/${slug}/paath/`;
+      fallbackPaathBtn.style.display = 'inline-block';
+    } else {
+      if (viewPaathBtn) viewPaathBtn.style.display = 'none';
+      fallbackPaathBtn.style.display = 'none';
+    }
   } else {
     granthBadge.textContent = t('viewer.reader_title');
     backLink.href = 'granths.html';
     backLink.textContent = `← ${t('viewer.back_to_catalog')}`;
+    if (viewPaathBtn) viewPaathBtn.style.display = 'none';
   }
 }
 
@@ -168,12 +188,12 @@ async function loadPdf(source, initialPage = 1, autoSearch = '') {
   const candidates = [];
   if (currentSlug && catalog[currentSlug]) {
     const fn = catalog[currentSlug].fileName;
-    // 1. Same-origin relative path if hosted locally
-    candidates.push(`pdf/${fn}`);
-    // 2. Cloudflare Worker proxy if running on shrutdhara.com
+    // 1. Cloudflare Worker proxy if running on shrutdhara.com (hit directly, avoids 404)
     if (typeof window !== 'undefined' && window.location.hostname.includes('shrutdhara.com')) {
       candidates.push(`/pdf-proxy/${encodeURIComponent(fn)}`);
     }
+    // 2. Same-origin relative path if hosted locally
+    candidates.push(`pdf/${fn}`);
   }
   // 3. Direct remote URL
   candidates.push(source);
