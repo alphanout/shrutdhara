@@ -364,6 +364,7 @@ function paathPage(g, txt) {
     <a class="brand inlay khand" href="../../../">श्रुतधारा</a>
     <nav class="site-nav" aria-label="मुख्य">
       <a href="../" >← <span data-dv="${esc(g.name)}">${esc(g.name)}</span></a>
+      ${shastraPdfs[g.slug] ? `<a href="../../../viewer.html?slug=${g.slug}" target="_blank" style="color:var(--gold-1); font-weight:500;">📖 <span data-i18n="ui.read_pdf_chip">मूल PDF</span> ↗</a>` : ''}
       <a href="../../../granths.html" data-i18n="nav.granths">ग्रन्थ</a>
     </nav>
     <div class="tools">
@@ -389,7 +390,8 @@ ${tocHtml}
     यह मूल पाठ है — अर्थ/टीका सम्मिलित नहीं। अशुद्धि दिखे तो GitHub पर <code>shastra/${esc(g.slug)}.md</code> सुधारें।
   </div>
   <div class="btns">
-    <a class="btn kum" href="../../../pdf/${g.slug}-paath.pdf" download data-i18n="ui.pdf">पीडीएफ़ डाउनलोड</a>
+    ${shastraPdfs[g.slug] ? `<a class="btn kum" href="../../../viewer.html?slug=${g.slug}" target="_blank" data-i18n="ui.read_pdf_btn">📖 मूल ग्रन्थ PDF पढ़ें</a>` : ''}
+    <a class="btn ${shastraPdfs[g.slug] ? 'ghost' : 'kum'}" href="../../../pdf/${g.slug}-paath.pdf" download data-i18n="ui.pdf">पीडीएफ़ डाउनलोड</a>
     <a class="btn ghost" href="../">← <span data-i18n="ui.back_granth">ग्रन्थ-पृष्ठ</span></a>
   </div>
   <div class="print-foot num">श्रुतधारा · ${esc(g.name)} — मूल पाठ · स्रोत: ${esc(meta.source || '')}</div>

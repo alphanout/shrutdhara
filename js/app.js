@@ -39,6 +39,13 @@ async function loadData() {
   const [granths, acharyas, bhattarak, shastraPdfs] = await Promise.all([
     get('granths-90.json'), get('acharyas-420.json'), get('bhattarak-172.json'), get('shastra-pdfs.json'),
   ]);
+  const seenSlugs = new Set();
+  for (const g of granths) {
+    let s = slugify(g.name);
+    if (seenSlugs.has(s)) s = `${s}-${g.id}`;
+    seenSlugs.add(s);
+    g.slug = s;
+  }
   const pdfCatalog = (shastraPdfs && typeof shastraPdfs === 'object') ? shastraPdfs : {};
   const pdfList = Object.keys(pdfCatalog);
   DATA = { granths, acharyas, bhattarak, shastraPdfs: pdfList, pdfCatalog };
