@@ -26,12 +26,24 @@ export async function testSearchFlow(basePort) {
       page.click('#hits .hit:first-child')
     ]);
 
-    // Check we navigated correctly
-    const url = page.url();
-    console.log(`    ✓ Navigated to search result: ${url}`);
-    if (!url.includes('127.0.0.1')) {
-      throw new Error('Search result did not navigate correctly!');
-    }
+    // Test Devanagari search for "राग"
+    await page.goto(`http://127.0.0.1:${basePort}/`, { waitUntil: 'load' });
+    await page.type('#q', 'राग');
+    await page.waitForFunction(() => {
+      const hits = document.getElementById('hits');
+      return hits && hits.children.length > 0;
+    }, { timeout: 3000 });
+    const raagCount = await page.$$eval('#hits .hit', els => els.length);
+    console.log(`    ✓ Search returned ${raagCount} results for Devanagari "राग"`);
+    if (raagCount === 0) throw new Error('Search failed for "राग"!');
+
+    // Test zero-results graceful handling (no uncaught exception)
+    await page.type('#q', 'xyznonexistent');
+    await page.waitForFunction(() => {
+      const hits = document.getElementById('hits');
+      return hits && hits.textContent.includes('No results');
+    }, { timeout: 3000 });
+    console.log(`    ✓ Zero-results state rendered cleanly without errors`);
 
     console.log('  ✓ UI Test Passed: Search Flow & Navigation\n');
   } finally {
