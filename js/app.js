@@ -88,120 +88,121 @@ function initSearch() {
     if (e.key === '/' && document.activeElement !== input) { e.preventDefault(); input.focus(); }
     if (e.key === 'Escape' && document.activeElement === input) { input.blur(); }
   });
-  let t = null;
-  let verseIdx = null, verseIdxLoading = false;
-  async function loadVerseIndex() {
-    if (verseIdx) return verseIdx;
-    if (verseIdxLoading) {
-      while (verseIdxLoading) await new Promise((r) => setTimeout(r, 50));
-      return verseIdx || [];
+  let debounceTimer = null;
+  let verseIdxPromise = null;
+  function loadVerseIndex() {
+    if (!verseIdxPromise) {
+      verseIdxPromise = (async () => {
+        try {
+          const r = await fetch(root + 'data/verse-index.json');
+          const data = r.ok ? await r.json() : [];
+          for (const v of data) { v.rk = romanKey(v.t); v.sk = skeleton(v.t); }
+          return data;
+        } catch { return []; }
+      })();
     }
-    verseIdxLoading = true;
-    try {
-      const r = await fetch(root + 'data/verse-index.json');
-      verseIdx = r.ok ? await r.json() : [];
-      for (const v of verseIdx) { v.rk = romanKey(v.t); v.sk = skeleton(v.t); }
-    } catch { verseIdx = []; }
-    verseIdxLoading = false;
-    return verseIdx;
+    return verseIdxPromise;
   }
-  let pdfIdx = null, pdfIdxLoading = false;
-  async function loadPdfIndex() {
-    if (pdfIdx) return pdfIdx;
-    if (pdfIdxLoading) {
-      while (pdfIdxLoading) await new Promise((r) => setTimeout(r, 50));
-      return pdfIdx || [];
+  let pdfIdxPromise = null;
+  function loadPdfIndex() {
+    if (!pdfIdxPromise) {
+      pdfIdxPromise = (async () => {
+        try {
+          const r = await fetch(root + 'data/pdf-search-index.json');
+          const data = r.ok ? await r.json() : [];
+          for (const p of data) {
+            p.rk = romanKey(p.t || '');
+            p.sk = skeleton(p.t || '');
+          }
+          return data;
+        } catch { return []; }
+      })();
     }
-    pdfIdxLoading = true;
-    try {
-      const r = await fetch(root + 'data/pdf-search-index.json');
-      pdfIdx = r.ok ? await r.json() : [];
-      for (const p of pdfIdx) {
-        p.rk = romanKey(p.t || '');
-        p.sk = skeleton(p.t || '');
-      }
-    } catch { pdfIdx = []; }
-    pdfIdxLoading = false;
-    return pdfIdx;
+    return pdfIdxPromise;
   }
-  input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(run, 90); });
+  input.addEventListener('input', () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(run, 90); });
   async function run() {
-    const q = input.value.trim();
-    if (q.length < 2) { out.innerHTML = ''; return; }
-    const { corpus } = await loadData();
-    const qDeva = /[ऀ-ॿ]/.test(q);
-    const qrk = romanKey(q), qsk = skeleton(q);
-    const scored = [];
-    for (const c of corpus) {
-      let s = -1;
-      if (qDeva && c.keys.raw.includes(q)) s = c.keys.raw.indexOf(q) === 0 ? 0 : 1;
-      else if (qrk && c.keys.rk.includes(qrk)) s = c.keys.rk.indexOf(qrk) === 0 ? 0 : 1;
-      else if (qsk.length > 2 && c.keys.sk.includes(qsk)) s = 2;
-      if (s >= 0) scored.push([s, c]);
-      if (scored.length > 400) break;
-    }
-    scored.sort((x, y) => x[0] - y[0]);
-    let html = scored.slice(0, 10).map(([, c]) => `
+    try {
+      const q = input.value.trim();
+      if (q.length < 2) { out.innerHTML = ''; return; }
+      const { corpus } = await loadData();
+      const qDeva = /[ऀ-ॿ]/.test(q);
+      const qrk = romanKey(q), qsk = skeleton(q);
+      const scored = [];
+      for (const c of corpus) {
+        let s = -1;
+        if (qDeva && c.keys.raw.includes(q)) s = c.keys.raw.indexOf(q) === 0 ? 0 : 1;
+        else if (qrk && c.keys.rk.includes(qrk)) s = c.keys.rk.indexOf(qrk) === 0 ? 0 : 1;
+        else if (qsk.length > 2 && c.keys.sk.includes(qsk)) s = 2;
+        if (s >= 0) scored.push([s, c]);
+        if (scored.length > 400) break;
+      }
+      scored.sort((x, y) => x[0] - y[0]);
+      let html = scored.slice(0, 10).map(([, c]) => `
       <a class="hit" href="${c.href}">
         <span class="t ${c.kind}">${KIND_LABEL[c.kind]}</span>
         <b>${esc(c.label)}</b>${c.sub ? ' — ' + esc(trim(c.sub, 60)) : ''}
         <span class="d num">${esc(deva(c.d))}</span>
       </a>`).join('');
-    /* गाथा-खोज: match inside full texts (lazy index) */
-    if (q.length >= 3) {
-      const vi = await loadVerseIndex();
-      if (input.value.trim() !== q) return;   // stale
-      if (vi && vi.length) {
-        const qDeva2 = /[ऀ-ॿ]/.test(q);
-        const qrk2 = romanKey(q), qsk2 = skeleton(q);
-        const vHits = [];
-        for (const v of vi) {
-          if (qDeva2 ? v.t.includes(q) : (qrk2 && v.rk.includes(qrk2)) || (qsk2.length > 3 && v.sk.includes(qsk2))) {
-            vHits.push(v);
-            if (vHits.length >= 8) break;
+      /* गाथा-खोज: match inside full texts (lazy index) */
+      if (q.length >= 3) {
+        const vi = await loadVerseIndex();
+        if (input.value.trim() !== q) return;   // stale
+        if (vi && vi.length) {
+          const qDeva2 = /[ऀ-ॿ]/.test(q);
+          const qrk2 = romanKey(q), qsk2 = skeleton(q);
+          const vHits = [];
+          for (const v of vi) {
+            if (qDeva2 ? v.t.includes(q) : (qrk2 && v.rk.includes(qrk2)) || (qsk2.length > 3 && v.sk.includes(qsk2))) {
+              vHits.push(v);
+              if (vHits.length >= 8) break;
+            }
           }
-        }
-        if (vHits.length) {
-          html += vHits.map((v) => `
+          if (vHits.length) {
+            html += vHits.map((v) => `
       <a class="hit" href="${root}granth/${v.s}/paath/#v${v.v}">
         <span class="t g">पाठ</span>
         <b>${sdName(esc(v.n))}</b> ${esc(deva(v.v))} — ${esc(trim(v.t, 64))}
       </a>`).join('');
+          }
         }
       }
-    }
-    /* शास्त्र PDF खोज: match inside original shastra PDFs (lazy index) */
-    if (q.length >= 3) {
-      const pi = await loadPdfIndex();
-      if (input.value.trim() !== q) return;   // stale
-      if (pi && pi.length) {
-        const qDeva3 = /[ऀ-ॿ]/.test(q);
-        const qrk3 = romanKey(q), qsk3 = skeleton(q);
-        const qVariants = qDeva3 ? unicodeToLegacyVariants(q) : [];
-        const pHits = [];
-        for (const p of pi) {
-          let match = false;
-          if (qDeva3) {
-            match = p.t && (p.t.includes(q) || qVariants.some((v) => p.t.includes(v) || p.t.toLowerCase().includes(v.toLowerCase())));
-          } else {
-            match = (qrk3 && p.rk && p.rk.includes(qrk3)) || (qsk3.length > 3 && p.sk && p.sk.includes(qsk3));
+      /* शास्त्र PDF खोज: match inside original shastra PDFs (lazy index) */
+      if (q.length >= 3) {
+        const pi = await loadPdfIndex();
+        if (input.value.trim() !== q) return;   // stale
+        if (pi && pi.length) {
+          const qDeva3 = /[ऀ-ॿ]/.test(q);
+          const qrk3 = romanKey(q), qsk3 = skeleton(q);
+          const qVariants = qDeva3 ? unicodeToLegacyVariants(q) : [];
+          const pHits = [];
+          for (const p of pi) {
+            let match = false;
+            if (qDeva3) {
+              match = p.t && (p.t.includes(q) || qVariants.some((v) => p.t.includes(v) || p.t.toLowerCase().includes(v.toLowerCase())));
+            } else {
+              match = (qrk3 && p.rk && p.rk.includes(qrk3)) || (qsk3.length > 3 && p.sk && p.sk.includes(qsk3));
+            }
+            if (match) {
+              pHits.push(p);
+              if (pHits.length >= 6) break;
+            }
           }
-          if (match) {
-            pHits.push(p);
-            if (pHits.length >= 6) break;
-          }
-        }
-        if (pHits.length) {
-          html += pHits.map((p) => `
+          if (pHits.length) {
+            html += pHits.map((p) => `
       <a class="hit pdf-hit" href="${root}viewer.html?slug=${p.s}&page=${p.p}&q=${encodeURIComponent(q)}">
         <span class="t" style="background:var(--gold-2); color:var(--stone-0); font-weight:600;">PDF पृ. ${esc(deva(p.p))}</span>
         <b>${sdName(esc(p.n))}</b> — ${esc(trim(legacyToUnicode(p.sn || p.t), 64))}
       </a>`).join('');
+          }
         }
       }
-    }
 
-    out.innerHTML = html || `<div class="hit"><span class="t b">∅</span> ${t('ui.no_results')}</div>`;
+      out.innerHTML = html || `<div class="hit"><span class="t b">∅</span> ${t('ui.no_results')}</div>`;
+    } catch (err) {
+      console.error('Search error:', err);
+      out.innerHTML = `<div class="hit"><span class="t b">∅</span> ${t('ui.no_results')}</div>`;
+    }
   }
 }
 
@@ -639,12 +640,13 @@ function initHomeBookmarks() {
 
 /* ---------- boot ---------- */
 if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  const hadController = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register(root + 'sw.js', { scope: root || './' }).catch(() => {});
   // when a new worker takes control (after a deploy), reload once so the page
-  // isn't left "one deploy behind". Guard prevents reload loops.
+  // isn't left "one deploy behind". Avoid reloading on first-time installation.
   let reloaded = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloaded) return;
+    if (!hadController || reloaded) return;
     reloaded = true;
     location.reload();
   });
