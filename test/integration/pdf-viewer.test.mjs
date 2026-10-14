@@ -5,51 +5,102 @@ export async function testPdfViewerAndSearch(basePort) {
   const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
   try {
-    // 1. Test In-Browser PDF Reader with Shatkhandagama
-    await page.goto(`http://127.0.0.1:${basePort}/viewer.html?slug=shatkhandaagama`, { waitUntil: 'networkidle0' });
+    // 1. Test In-Browser PDF Reader with Shatkhandagama (genuine 969-page scripture)
+    await page.goto(`http://127.0.0.1:${basePort}/viewer.html?slug=shatkhandaagama#page=2`, { waitUntil: 'domcontentloaded' });
 
     // Verify Title & Metadata loaded
+    await page.waitForFunction(() => {
+      const el = document.getElementById('granthTitle');
+      return el && el.textContent.includes('षट्खण्डागम');
+    }, { timeout: 10000 });
     const title = await page.$eval('#granthTitle', el => el.textContent.trim());
     console.log(`    ✓ Viewer Granth Title: "${title}"`);
-    if (!title.includes('षट्खण्डागम')) {
-      throw new Error(`Expected title to include षट्खण्डागम, got: ${title}`);
-    }
 
-    // Wait for PDF to load and render pages
+    // Wait for authentic Shatkhandagama PDF (969 pages) to load
     await page.waitForFunction(() => {
       const el = document.getElementById('pageTotal');
-      return el && el.textContent.includes('7');
-    }, { timeout: 10000 });
+      return el && el.textContent.includes('969');
+    }, { timeout: 20000 });
 
     const totalText = await page.$eval('#pageTotal', el => el.textContent.trim());
     console.log(`    ✓ Total Pages Loaded: "${totalText}"`);
+    if (!totalText.includes('969')) {
+      throw new Error(`Expected authentic Shatkhandagama with 969 pages, got: ${totalText}`);
+    }
 
-    // Verify Canvas was rendered
-    const canvasDimensions = await page.$eval('#canvas-1', el => ({ w: el.width, h: el.height }));
-    console.log(`    ✓ Page 1 Canvas Rendered: ${canvasDimensions.w}x${canvasDimensions.h}px`);
+    // Verify Page 2 input and hash
+    const initialPage = await page.$eval('#pageInput', el => el.value);
+    console.log(`    ✓ Initial Page on #page=2: ${initialPage}`);
+    if (initialPage !== '2') {
+      throw new Error(`Expected page 2 to be active, got: ${initialPage}`);
+    }
+
+    // Verify Canvas was rendered for Page 2
+    await page.waitForSelector('#canvas-2', { timeout: 10000 });
+    const canvasDimensions = await page.$eval('#canvas-2', el => ({ w: el.width, h: el.height }));
+    console.log(`    ✓ Page 2 Canvas Rendered: ${canvasDimensions.w}x${canvasDimensions.h}px`);
     if (canvasDimensions.w <= 0 || canvasDimensions.h <= 0) {
-      throw new Error('Canvas was not rendered properly!');
+      throw new Error('Page 2 Canvas was not rendered properly!');
     }
 
-    // 2. Test In-Viewer Search & Highlighting
-    await page.type('#findInput', 'Jain');
+    // 1b. Test Zoom buttons (+ and -) do NOT change page
+    console.log('    ▶ Testing Zoom in-place stability...');
+    await page.click('#zoomInBtn');
     await new Promise(r => setTimeout(r, 600));
-
-    const findStatus = await page.$eval('#findCount', el => el.textContent.trim());
-    console.log(`    ✓ Search matches found in PDF: "${findStatus}"`);
-    if (!findStatus.includes('of')) {
-      throw new Error(`Expected search matches, got "${findStatus}"`);
+    let postZoomInPage = await page.$eval('#pageInput', el => el.value);
+    let postZoomInHash = await page.evaluate(() => window.location.hash);
+    console.log(`    ✓ Post Zoom-in page: ${postZoomInPage}, hash: ${postZoomInHash}`);
+    if (postZoomInPage !== '2' || postZoomInHash !== '#page=2') {
+      throw new Error(`Zoom-in altered the current page! Expected page 2, got: ${postZoomInPage}`);
     }
 
-    // Verify highlight in DOM
-    const highlightCount = await page.$$eval('.pdf-highlight', els => els.length);
-    console.log(`    ✓ Rendered highlighted marks on page: ${highlightCount}`);
-    if (highlightCount === 0) {
-      throw new Error('No .pdf-highlight elements found in text layer!');
+    await page.click('#zoomOutBtn');
+    await new Promise(r => setTimeout(r, 600));
+    let postZoomOutPage = await page.$eval('#pageInput', el => el.value);
+    let postZoomOutHash = await page.evaluate(() => window.location.hash);
+    console.log(`    ✓ Post Zoom-out page: ${postZoomOutPage}, hash: ${postZoomOutHash}`);
+    if (postZoomOutPage !== '2' || postZoomOutHash !== '#page=2') {
+      throw new Error(`Zoom-out altered the current page! Expected page 2, got: ${postZoomOutPage}`);
     }
+
+    // 1c. Test Mobile Viewport Horizontal Scrolling (no left clipping!)
+    console.log('    ▶ Testing Mobile Viewport Horizontal Scrolling...');
+    await page.setViewport({ width: 375, height: 667, isMobile: true, hasTouch: true });
+    await new Promise(r => setTimeout(r, 400));
+
+    // Verify on Shatkhandagama and Aptamimansa (not samaysaar)
+    const cardRect = await page.$eval('#page-card-2', el => {
+      const r = el.getBoundingClientRect();
+      const parent = el.closest('.pdf-viewport');
+      return {
+        cardLeft: r.left,
+        cardWidth: r.width,
+        scrollLeft: parent.scrollLeft,
+        scrollWidth: parent.scrollWidth,
+        clientWidth: parent.clientWidth
+      };
+    });
+    console.log(`    ✓ Mobile Card Metrics: width=${cardRect.cardWidth}px, clientWidth=${cardRect.clientWidth}px, cardLeft=${cardRect.cardLeft}px`);
+    // Crucial check: cardLeft must not be negative (which would mean left edge is clipped and unreachable)
+    if (cardRect.cardLeft < -2) {
+      throw new Error(`Mobile left edge clipped! cardLeft is negative: ${cardRect.cardLeft}px`);
+    }
+
+    // Scroll to right and back to left
+    await page.$eval('.pdf-viewport', el => { el.scrollLeft = 100; });
+    const scrolledRight = await page.$eval('.pdf-viewport', el => el.scrollLeft);
+    if (scrolledRight <= 0) {
+      throw new Error('Failed to scroll horizontally to right on mobile viewport!');
+    }
+    await page.$eval('.pdf-viewport', el => { el.scrollLeft = 0; });
+    const scrolledLeft = await page.$eval('.pdf-viewport', el => el.scrollLeft);
+    if (scrolledLeft !== 0) {
+      throw new Error('Failed to scroll back to left=0 on mobile viewport!');
+    }
+    console.log('    ✓ Mobile Horizontal Scroll: full pan right and left without clipping verified');
 
     // 2b. Test Dual-Query Search in Legacy-Encoded PDF (Aptamimansa with "राग")
-    await page.goto(`http://127.0.0.1:${basePort}/viewer.html?slug=aaptamimaansaa`, { waitUntil: 'networkidle0' });
+    await page.goto(`http://127.0.0.1:${basePort}/viewer.html?slug=aaptamimaansaa`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => {
       const el = document.getElementById('pageTotal');
       return el && el.textContent.includes('68');

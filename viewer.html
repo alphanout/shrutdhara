@@ -242,17 +242,22 @@ body[data-page="pdf-viewer"] {
 /* Main PDF container */
 .pdf-viewport {
   flex: 1;
-  overflow: auto;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   position: relative;
   padding: 24px 16px 80px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: safe center;
   background: radial-gradient(circle at center 20%, rgba(217,174,86,0.03), transparent 70%), var(--stone-0);
 }
 .pdf-page-card {
   position: relative;
   margin-bottom: 24px;
+  margin-inline: auto;
+  flex-shrink: 0;
   box-shadow: var(--page-shadow);
   border: 1px solid var(--hairline);
   background: #ffffff;
@@ -343,6 +348,46 @@ body[data-page="pdf-viewer"] {
 }
 .file-drop-area:hover {
   border-color: var(--patina);
+}
+
+@media (max-width: 768px) {
+  .viewer-bar {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .viewer-title-group {
+    max-width: 100%;
+    flex: 1 1 100%;
+    overflow: hidden;
+  }
+  .viewer-title {
+    font-size: 1.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .viewer-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .viewer-search {
+    flex: 1 1 130px;
+  }
+  .search-input {
+    width: 100%;
+    min-width: 70px;
+  }
+  .pdf-viewport {
+    align-items: flex-start;
+    padding: 12px 8px 80px;
+  }
+  .pdf-page-card {
+    margin-inline: auto;
+  }
 }
 </style>
 </head>
