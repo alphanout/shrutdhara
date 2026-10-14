@@ -1,5 +1,5 @@
 import { createServer } from 'http';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, statSync, createReadStream } from 'fs';
 import { join, extname } from 'path';
 
 import { testHeaderAndTheme } from './ui/header-and-theme.test.mjs';
@@ -36,8 +36,34 @@ const server = createServer((req, res) => {
   if (url.endsWith('/')) url += 'index.html';
   let path = join(DIST, url);
   if (!existsSync(path) && !extname(path)) path += '.html';
+  if (!existsSync(path) && url.startsWith('/pdf/')) {
+    const fn = url.replace('/pdf/', '');
+    const altPath = join(process.env.HOME || '', 'Downloads/JainGranthLibrary_PDFs', fn);
+    if (existsSync(altPath)) path = altPath;
+  }
   if (existsSync(path)) {
-    res.writeHead(200, { 'Content-Type': MIME[extname(path)] || 'application/octet-stream' });
+    const stat = statSync(path);
+    const range = req.headers.range;
+    if (range && extname(path) === '.pdf') {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : stat.size - 1;
+      const chunksize = end - start + 1;
+      const file = createReadStream(path, { start, end });
+      res.writeHead(206, {
+        'Content-Range': `bytes ${start}-${end}/${stat.size}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'application/pdf',
+      });
+      file.pipe(res);
+      return;
+    }
+    res.writeHead(200, {
+      'Content-Type': MIME[extname(path)] || 'application/octet-stream',
+      'Content-Length': stat.size,
+      'Accept-Ranges': 'bytes',
+    });
     res.end(readFileSync(path));
   } else {
     res.writeHead(404, { 'Content-Type': 'text/plain' });

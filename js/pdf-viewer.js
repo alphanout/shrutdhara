@@ -22,6 +22,10 @@ let searchIndex = [];
 let activeMatches = []; // [{ page, index, snippet }]
 let currentMatchIdx = -1;
 let currentQuery = '';
+let basePageWidth = 595;
+let basePageHeight = 842;
+let pageObserver = null;
+let isProgrammaticScroll = false;
 
 // DOM Elements
 const viewport = document.getElementById('pdfViewport');
@@ -242,10 +246,20 @@ async function loadPdf(source, initialPage = 1, autoSearch = '') {
       pageTotal.textContent = `/ ${totalPages}`;
       pageInput.max = totalPages;
 
+      try {
+        const p1 = await pdfDoc.getPage(1);
+        const vp1 = p1.getViewport({ scale: 1.0 });
+        basePageWidth = vp1.width || 595;
+        basePageHeight = vp1.height || 842;
+      } catch (e) {
+        basePageWidth = 595;
+        basePageHeight = 842;
+      }
+
       hideOverlay();
       renderAllPagesPlaceholder();
 
-      goToPage(initialPage);
+      goToPage(initialPage, false);
 
       if (autoSearch) {
         findInput.value = autoSearch;
@@ -273,17 +287,26 @@ function loadFromBuffer(arrayBuffer, fileName = '') {
       wasmUrl: 'assets/vendor/pdfjs/wasm/',
     })
 
-    .promise.then((doc) => {
+    .promise.then(async (doc) => {
       pdfDoc = doc;
       totalPages = pdfDoc.numPages;
       pageTotal.textContent = `/ ${totalPages}`;
       pageInput.max = totalPages;
+      try {
+        const p1 = await pdfDoc.getPage(1);
+        const vp1 = p1.getViewport({ scale: 1.0 });
+        basePageWidth = vp1.width || 595;
+        basePageHeight = vp1.height || 842;
+      } catch (e) {
+        basePageWidth = 595;
+        basePageHeight = 842;
+      }
       if (fileName) {
         granthTitle.textContent = fileName.replace(/\.pdf$/i, '');
       }
       hideOverlay();
       renderAllPagesPlaceholder();
-      goToPage(1);
+      goToPage(1, false);
     })
     .catch((err) => {
       alert(`${t('viewer.file_error')}: ${err.message}`);
@@ -296,11 +319,16 @@ function renderAllPagesPlaceholder() {
   viewport.innerHTML = '';
   renderedPages.clear();
 
+  const w = `${Math.round(basePageWidth * currentScale)}px`;
+  const h = `${Math.round(basePageHeight * currentScale)}px`;
+
   for (let i = 1; i <= totalPages; i++) {
     const card = document.createElement('div');
     card.className = 'pdf-page-card';
     card.id = `page-card-${i}`;
     card.dataset.pageNum = i;
+    card.style.width = w;
+    card.style.minHeight = h;
 
     const numBadge = document.createElement('div');
     numBadge.className = 'pdf-page-num num';
@@ -324,23 +352,29 @@ function renderAllPagesPlaceholder() {
 }
 
 function setupIntersectionObserver() {
-  const observer = new IntersectionObserver(
+  if (pageObserver) {
+    pageObserver.disconnect();
+  }
+  pageObserver = new IntersectionObserver(
     (entries) => {
+      if (isProgrammaticScroll) return;
       for (const entry of entries) {
         if (entry.isIntersecting) {
           const pageNum = parseInt(entry.target.dataset.pageNum, 10);
           renderPage(pageNum);
           // Update current page input indicator as user scrolls
-          currentPage = pageNum;
-          pageInput.value = pageNum;
-          window.history.replaceState(null, '', `#page=${pageNum}`);
+          if (!isProgrammaticScroll) {
+            currentPage = pageNum;
+            pageInput.value = pageNum;
+            window.history.replaceState(null, '', `#page=${pageNum}`);
+          }
         }
       }
     },
     { root: viewport, rootMargin: '400px 0px', threshold: 0.1 }
   );
 
-  document.querySelectorAll('.pdf-page-card').forEach((el) => observer.observe(el));
+  document.querySelectorAll('.pdf-page-card').forEach((el) => pageObserver.observe(el));
 }
 
 // Render individual page
@@ -564,7 +598,7 @@ function clearHighlights() {
 }
 
 // Navigation & Zoom
-function goToPage(num) {
+function goToPage(num, smooth = true) {
   num = Math.max(1, Math.min(num, totalPages));
   currentPage = num;
   pageInput.value = num;
@@ -572,7 +606,11 @@ function goToPage(num) {
 
   const targetCard = document.getElementById(`page-card-${num}`);
   if (targetCard) {
-    targetCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    isProgrammaticScroll = true;
+    targetCard.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'start' });
+    setTimeout(() => {
+      isProgrammaticScroll = false;
+    }, smooth ? 400 : 50);
   }
   renderPage(num);
   if (num < totalPages) renderPage(num + 1);
@@ -580,20 +618,63 @@ function goToPage(num) {
 }
 
 function changeZoom(factor) {
+  const targetPage = currentPage;
   currentScale = Math.max(0.6, Math.min(2.5, currentScale * factor));
+  isProgrammaticScroll = true;
   renderedPages.clear();
-  renderAllPagesPlaceholder();
-  goToPage(currentPage);
+
+  const newWidth = `${Math.round(basePageWidth * currentScale)}px`;
+  const newHeight = `${Math.round(basePageHeight * currentScale)}px`;
+
+  document.querySelectorAll('.pdf-page-card').forEach((card) => {
+    card.style.width = newWidth;
+    card.style.minHeight = newHeight;
+    const canvas = card.querySelector('canvas');
+    if (canvas) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+    const textLayer = card.querySelector('.textLayer');
+    if (textLayer) {
+      textLayer.innerHTML = '';
+    }
+  });
+
+  goToPage(targetPage, false);
+  setTimeout(() => {
+    isProgrammaticScroll = false;
+  }, 400);
 }
 
 function fitToWidth() {
-  const containerWidth = viewport.clientWidth - 48;
-  if (containerWidth > 300) {
-    currentScale = containerWidth / 600; // approximate standard A4 ratio
-    currentScale = Math.max(0.75, Math.min(2.0, currentScale));
+  const targetPage = currentPage;
+  const containerWidth = viewport.clientWidth - 32;
+  if (containerWidth > 200 && basePageWidth > 0) {
+    currentScale = Math.max(0.6, Math.min(2.5, containerWidth / basePageWidth));
+    isProgrammaticScroll = true;
     renderedPages.clear();
-    renderAllPagesPlaceholder();
-    goToPage(currentPage);
+
+    const newWidth = `${Math.round(basePageWidth * currentScale)}px`;
+    const newHeight = `${Math.round(basePageHeight * currentScale)}px`;
+
+    document.querySelectorAll('.pdf-page-card').forEach((card) => {
+      card.style.width = newWidth;
+      card.style.minHeight = newHeight;
+      const canvas = card.querySelector('canvas');
+      if (canvas) {
+        canvas.width = 0;
+        canvas.height = 0;
+      }
+      const textLayer = card.querySelector('.textLayer');
+      if (textLayer) {
+        textLayer.innerHTML = '';
+      }
+    });
+
+    goToPage(targetPage, false);
+    setTimeout(() => {
+      isProgrammaticScroll = false;
+    }, 400);
   }
 }
 
