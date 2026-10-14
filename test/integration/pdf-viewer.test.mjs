@@ -99,6 +99,50 @@ export async function testPdfViewerAndSearch(basePort) {
     }
     console.log('    ✓ Mobile Horizontal Scroll: full pan right and left without clipping verified');
 
+    // 1d. Test 2-Finger Pinch-To-Zoom & Touch Gestures
+    console.log('    ▶ Testing 2-Finger Pinch-To-Zoom gesture on mobile...');
+    const prePinchWidth = await page.$eval('#page-card-2', el => el.offsetWidth);
+
+    await page.evaluate(() => {
+      const vp = document.getElementById('pdfViewport');
+      const createTouch = (id, x, y) => new Touch({ identifier: id, target: vp, clientX: x, clientY: y });
+      
+      // Start 2 touches (distance = 100px)
+      const t1Start = createTouch(1, 150, 250);
+      const t2Start = createTouch(2, 250, 250);
+      vp.dispatchEvent(new TouchEvent('touchstart', { touches: [t1Start, t2Start], cancelable: true, bubbles: true }));
+
+      // Spread 2 touches apart (distance = 180px, factor = 1.8)
+      const t1Move = createTouch(1, 110, 250);
+      const t2Move = createTouch(2, 290, 250);
+      vp.dispatchEvent(new TouchEvent('touchmove', { touches: [t1Move, t2Move], cancelable: true, bubbles: true }));
+
+      // Lift touches to commit zoom
+      vp.dispatchEvent(new TouchEvent('touchend', { touches: [], changedTouches: [t1Move, t2Move], cancelable: true, bubbles: true }));
+    });
+
+    await new Promise(r => setTimeout(r, 600));
+    const postPinchWidth = await page.$eval('#page-card-2', el => el.offsetWidth);
+    console.log(`    ✓ 2-Finger Pinch Zoom: pre-width=${prePinchWidth}px, post-width=${postPinchWidth}px`);
+    if (postPinchWidth <= prePinchWidth) {
+      throw new Error(`2-finger pinch-to-zoom failed! Card width did not increase (pre: ${prePinchWidth}, post: ${postPinchWidth})`);
+    }
+
+    // Test Double-Tap to toggle fit
+    console.log('    ▶ Testing Mobile Double-Tap zoom reset...');
+    await page.evaluate(() => {
+      const vp = document.getElementById('pdfViewport');
+      const createTouch = (id, x, y) => new Touch({ identifier: id, target: vp, clientX: x, clientY: y });
+      const t1 = createTouch(1, 180, 250);
+      vp.dispatchEvent(new TouchEvent('touchstart', { touches: [t1], cancelable: true, bubbles: true }));
+      setTimeout(() => {
+        vp.dispatchEvent(new TouchEvent('touchstart', { touches: [t1], cancelable: true, bubbles: true }));
+      }, 100);
+    });
+    await new Promise(r => setTimeout(r, 600));
+    const postDoubleTapWidth = await page.$eval('#page-card-2', el => el.offsetWidth);
+    console.log(`    ✓ Mobile Double-Tap toggle zoom: post-width=${postDoubleTapWidth}px`);
+
     // 2b. Test Dual-Query Search in Legacy-Encoded PDF (Aptamimansa with "राग")
     await page.goto(`http://127.0.0.1:${basePort}/viewer.html?slug=aaptamimaansaa`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => {

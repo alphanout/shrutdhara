@@ -246,6 +246,7 @@ body[data-page="pdf-viewer"] {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
+  touch-action: pan-x pan-y;
   position: relative;
   padding: 24px 16px 80px;
   display: flex;
@@ -262,6 +263,8 @@ body[data-page="pdf-viewer"] {
   border: 1px solid var(--hairline);
   background: #ffffff;
   border-radius: 2px;
+  touch-action: pan-x pan-y;
+  will-change: transform;
 }
 .pdf-page-card canvas {
   display: block;

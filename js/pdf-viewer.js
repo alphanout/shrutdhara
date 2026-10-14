@@ -617,9 +617,9 @@ function goToPage(num, smooth = true) {
   if (num > 1) renderPage(num - 1);
 }
 
-function changeZoom(factor) {
+function applyZoom(newScale) {
   const targetPage = currentPage;
-  currentScale = Math.max(0.6, Math.min(2.5, currentScale * factor));
+  currentScale = Math.max(0.6, Math.min(2.5, newScale));
   isProgrammaticScroll = true;
   renderedPages.clear();
 
@@ -646,36 +646,145 @@ function changeZoom(factor) {
   }, 400);
 }
 
+function changeZoom(factor) {
+  applyZoom(currentScale * factor);
+}
+
 function fitToWidth() {
-  const targetPage = currentPage;
   const containerWidth = viewport.clientWidth - 32;
   if (containerWidth > 200 && basePageWidth > 0) {
-    currentScale = Math.max(0.6, Math.min(2.5, containerWidth / basePageWidth));
-    isProgrammaticScroll = true;
-    renderedPages.clear();
-
-    const newWidth = `${Math.round(basePageWidth * currentScale)}px`;
-    const newHeight = `${Math.round(basePageHeight * currentScale)}px`;
-
-    document.querySelectorAll('.pdf-page-card').forEach((card) => {
-      card.style.width = newWidth;
-      card.style.minHeight = newHeight;
-      const canvas = card.querySelector('canvas');
-      if (canvas) {
-        canvas.width = 0;
-        canvas.height = 0;
-      }
-      const textLayer = card.querySelector('.textLayer');
-      if (textLayer) {
-        textLayer.innerHTML = '';
-      }
-    });
-
-    goToPage(targetPage, false);
-    setTimeout(() => {
-      isProgrammaticScroll = false;
-    }, 400);
+    applyZoom(containerWidth / basePageWidth);
   }
+}
+
+// Touch & 2-Finger Pinch-to-Zoom Gesture Handling
+function setupTouchGestures() {
+  let touchStartDist = 0;
+  let touchStartScale = currentScale;
+  let currentGestureFactor = 1.0;
+  let isPinching = false;
+  let activeCard = null;
+  let lastTapTime = 0;
+
+  // 1. Standard Touch Events (Mobile browsers)
+  viewport.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      isPinching = true;
+      touchStartDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      touchStartScale = currentScale;
+      currentGestureFactor = 1.0;
+
+      const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const elem = document.elementFromPoint(midX, midY);
+      activeCard = elem ? elem.closest('.pdf-page-card') : document.getElementById(`page-card-${currentPage}`);
+      if (activeCard) {
+        activeCard.style.transformOrigin = '50% 50%';
+        activeCard.style.transition = 'none';
+      }
+    } else if (e.touches.length === 1) {
+      const now = Date.now();
+      if (now - lastTapTime < 300) {
+        e.preventDefault();
+        const containerWidth = viewport.clientWidth - 32;
+        const fitScale = containerWidth / (basePageWidth || 595);
+        if (Math.abs(currentScale - fitScale) < 0.2) {
+          applyZoom(fitScale * 1.6);
+        } else {
+          fitToWidth();
+        }
+        lastTapTime = 0;
+        return;
+      }
+      lastTapTime = now;
+    }
+  }, { passive: false });
+
+  viewport.addEventListener('touchmove', (e) => {
+    if (isPinching && e.touches.length === 2) {
+      e.preventDefault();
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      if (touchStartDist > 0) {
+        currentGestureFactor = dist / touchStartDist;
+        if (activeCard) {
+          activeCard.style.transform = `scale(${Math.max(0.5, Math.min(2.5, currentGestureFactor))})`;
+        }
+      }
+    }
+  }, { passive: false });
+
+  const finishTouchPinch = () => {
+    if (isPinching) {
+      isPinching = false;
+      if (activeCard) {
+        activeCard.style.transform = '';
+        activeCard.style.transformOrigin = '';
+      }
+      if (Math.abs(currentGestureFactor - 1.0) > 0.08) {
+        applyZoom(touchStartScale * currentGestureFactor);
+      }
+      currentGestureFactor = 1.0;
+      touchStartDist = 0;
+      activeCard = null;
+    }
+  };
+
+  viewport.addEventListener('touchend', (e) => {
+    if (isPinching && e.touches.length < 2) {
+      finishTouchPinch();
+    }
+  });
+
+  viewport.addEventListener('touchcancel', () => {
+    finishTouchPinch();
+  });
+
+  // 2. iOS Safari Gesture Events
+  viewport.addEventListener('gesturestart', (e) => {
+    e.preventDefault();
+    isPinching = true;
+    touchStartScale = currentScale;
+    currentGestureFactor = 1.0;
+    activeCard = document.getElementById(`page-card-${currentPage}`);
+    if (activeCard) {
+      activeCard.style.transformOrigin = '50% 50%';
+      activeCard.style.transition = 'none';
+    }
+  }, { passive: false });
+
+  viewport.addEventListener('gesturechange', (e) => {
+    e.preventDefault();
+    if (isPinching) {
+      currentGestureFactor = e.scale;
+      if (activeCard) {
+        activeCard.style.transform = `scale(${Math.max(0.5, Math.min(2.5, e.scale))})`;
+      }
+    }
+  }, { passive: false });
+
+  viewport.addEventListener('gestureend', (e) => {
+    e.preventDefault();
+    finishTouchPinch();
+  }, { passive: false });
+
+  // 3. Trackpad & Wheel Pinch (Ctrl + Wheel)
+  let wheelTimer = null;
+  viewport.addEventListener('wheel', (e) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      clearTimeout(wheelTimer);
+      const factor = e.deltaY < 0 ? 1.06 : 0.94;
+      wheelTimer = setTimeout(() => {
+        changeZoom(factor);
+      }, 25);
+    }
+  }, { passive: false });
 }
 
 // Sidebar 64 Shastras Catalog
@@ -810,6 +919,9 @@ function setupEvents() {
       document.exitFullscreen().catch(() => {});
     }
   });
+
+  // 2-Finger Pinch Zoom & Mobile Touch Gestures
+  setupTouchGestures();
 }
 
 // UI Overlays & Theme
