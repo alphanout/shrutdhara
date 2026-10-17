@@ -1,0 +1,85 @@
+name: Incremental Vector Embeddings
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: 'Specific granth slug to index (leave empty for all new/modified)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Dry run (scan checksums without encoding)'
+        type: boolean
+        default: false
+  push:
+    paths:
+      - 'data/pdfs/**'
+      - 'scripts/incremental_vector_indexer.py'
+
+permissions:
+  contents: write
+
+jobs:
+  generate-embeddings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install System Dependencies (Poppler)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y poppler-utils
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Python Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install "sentence-transformers" torch torchvision pillow numpy
+
+      - name: Cache Hugging Face Model Weights
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: ${{ runner.os }}-hf-embeddinggemma-2
+          restore-keys: |
+            ${runner.os }}-hf-
+
+      - name: Restore Existing Vector Embeddings & Manifest Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            data/vectors
+            data/vector-manifest.json
+          key: vector-index-${{ github.sha }}
+          restore-keys: |
+            vector-index-
+
+      - name: Run Incremental Vector Indexer
+        run: |
+          EXTRA_ARGS=""
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --dry-run"
+          fi
+          if [ -n "${{ github.event.inputs.slug }}" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --slug ${{ github.event.inputs.slug }}"
+          fi
+          python scripts/incremental_vector_indexer.py --pdf-dir data/pdfs --output-dir data/vectors --manifest data/vector-manifest.json $EXTRA_ARGS
+
+      - name: Commit and Push Changes
+        if: github.event.inputs.dry_run != 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/vectors data/vector-manifest.json
+          if git diff --staged --quiet; then
+            echo "No changes in vector embeddings or manifest."
+          else
+            git commit -m "chore(vectors): incrementally update page embeddings [skip ci]"
+            git push
+          fi
