@@ -308,7 +308,7 @@ function paathPage(g, txt) {
       continue;
     }
     const lm = Object.keys(LAYER).find((k) => b.startsWith(k + ' ') || b.startsWith(k + '\n'));
-    if (lm && out.length && out[out.length - 1].startsWith('<div class="vgroup"')) {
+    if (lm && out.length && out[out.length - 1].startsWith('<div class="vgroup')) {
       const cls = LAYER[lm];
       const content = esc(b.slice(lm.length).trim()).replace(/\n/g, '<br>');
       out[out.length - 1] = out[out.length - 1].replace('</div><!--vg-->',
