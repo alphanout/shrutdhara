@@ -3,3 +3,5 @@ dist/
 .qa-shots/
 .DS_Store
 test/screenshots/
+__pycache__/
+*.pyc
